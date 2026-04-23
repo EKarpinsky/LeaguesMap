@@ -1,242 +1,366 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { DIFFICULTIES, REGION_DISPLAY_ORDER } from "../types";
 import type { Difficulty, Region } from "../types";
+import { matchesFilter } from "../lib/filters";
 import type { FilterState } from "../lib/filters";
+import { ALL_PLACEMENTS, ALL_TASKS } from "../lib/taskIndex";
 import "./FilterSidebar.css";
 
 export interface FilterSidebarProps {
   filters: FilterState;
   setFilters: (updater: (prev: FilterState) => FilterState) => void;
-  totalCount: number;
-  visibleCount: number;
-  unmappableCount: number;
+  open: boolean;
+  onToggle: () => void;
+}
+
+interface FacetCounts {
+  regionCounts: Record<Region, number>;
+  difficultyCounts: Record<Difficulty, number>;
+}
+
+/**
+ * Leave-one-out counts: each number answers "how many tasks are in this
+ * bucket if every other filter stays where it is". Lets users see the
+ * impact of toggling a row without double-counting their current
+ * selection on the same axis.
+ */
+function useFacetCounts(filters: FilterState): FacetCounts {
+  return useMemo(() => {
+    const regionCounts = Object.fromEntries(
+      REGION_DISPLAY_ORDER.map((r) => [r, 0]),
+    ) as Record<Region, number>;
+    const difficultyCounts = Object.fromEntries(
+      DIFFICULTIES.map((d) => [d, 0]),
+    ) as Record<Difficulty, number>;
+
+    const regionsAllOn: FilterState = {
+      ...filters,
+      regions: new Set<Region>(REGION_DISPLAY_ORDER),
+    };
+    const diffAllOn: FilterState = {
+      ...filters,
+      difficulties: new Set<Difficulty>(DIFFICULTIES),
+    };
+
+    for (let i = 0; i < ALL_TASKS.length; i++) {
+      const t = ALL_TASKS[i];
+      const p = ALL_PLACEMENTS[i];
+      if (matchesFilter(t, p, regionsAllOn) && t.region in regionCounts) {
+        regionCounts[t.region as Region] += 1;
+      }
+      if (matchesFilter(t, p, diffAllOn)) {
+        difficultyCounts[t.difficulty] += 1;
+      }
+    }
+    return { regionCounts, difficultyCounts };
+  }, [filters]);
 }
 
 export default function FilterSidebar({
   filters,
   setFilters,
-  totalCount,
-  visibleCount,
-  unmappableCount,
+  open,
+  onToggle,
 }: FilterSidebarProps) {
-  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const { regionCounts, difficultyCounts } = useFacetCounts(filters);
 
-  const toggleRegion = (r: Region) => {
+  const searchRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        if (!open) onToggle();
+        requestAnimationFrame(() => {
+          searchRef.current?.focus();
+          searchRef.current?.select();
+        });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onToggle]);
+
+  const toggleRegion = (r: Region) =>
     setFilters((f) => {
       const next = new Set(f.regions);
       if (next.has(r)) next.delete(r);
       else next.add(r);
       return { ...f, regions: next };
     });
-  };
-  const toggleDifficulty = (d: Difficulty) => {
+  const toggleDifficulty = (d: Difficulty) =>
     setFilters((f) => {
       const next = new Set(f.difficulties);
       if (next.has(d)) next.delete(d);
       else next.add(d);
       return { ...f, difficulties: next };
     });
-  };
 
-  const allRegionsOn =
-    filters.regions.size === REGION_DISPLAY_ORDER.length;
+  const allRegionsOn = filters.regions.size === REGION_DISPLAY_ORDER.length;
   const allDifficultiesOn = filters.difficulties.size === DIFFICULTIES.length;
 
-  return (
-    <div className="filters-region">
-      <header className="panel-hero">
-        <h1>LeaguesMap</h1>
-        <p>Demonic Pacts, pinned to the world.</p>
-      </header>
+  const toggleAllRegions = () =>
+    setFilters((f) => ({
+      ...f,
+      regions: allRegionsOn
+        ? new Set<Region>()
+        : new Set<Region>(REGION_DISPLAY_ORDER),
+    }));
+  const toggleAllDifficulties = () =>
+    setFilters((f) => ({
+      ...f,
+      difficulties: allDifficultiesOn
+        ? new Set<Difficulty>()
+        : new Set<Difficulty>(DIFFICULTIES),
+    }));
 
-      <div className="filter-block filter-search-block">
+  const activeCount =
+    (filters.regions.size < REGION_DISPLAY_ORDER.length
+      ? REGION_DISPLAY_ORDER.length - filters.regions.size
+      : 0) +
+    (filters.difficulties.size < DIFFICULTIES.length
+      ? DIFFICULTIES.length - filters.difficulties.size
+      : 0) +
+    (filters.search ? 1 : 0) +
+    (filters.pactOnly ? 1 : 0) +
+    (!filters.includeCentroidFallbacks ? 1 : 0) +
+    (!filters.includeUnmappable ? 1 : 0);
+
+  return (
+    <div className={`filters-region ${open ? "open" : "collapsed"}`}>
+      <button
+        type="button"
+        className="accordion-head"
+        onClick={onToggle}
+        aria-expanded={open}
+      >
+        <Chevron open={open} />
+        <span className="accordion-title">Filters</span>
+        {activeCount > 0 && (
+          <span className="accordion-badge">{activeCount}</span>
+        )}
+      </button>
+      <div className="filters-body" hidden={!open}>
+      <div className="sb">
+        <SearchIcon />
         <input
+          ref={searchRef}
           type="search"
-          placeholder="Search tasks…"
+          placeholder="Search tasks"
           value={filters.search}
           onChange={(e) =>
             setFilters((f) => ({ ...f, search: e.target.value }))
           }
         />
+        {filters.search ? (
+          <button
+            className="sb-clear"
+            type="button"
+            onClick={() => setFilters((f) => ({ ...f, search: "" }))}
+            aria-label="Clear search"
+          >
+            ×
+          </button>
+        ) : (
+          <kbd className="sb-kbd" aria-hidden>
+            ⌘K
+          </kbd>
+        )}
       </div>
 
-      <div className="filter-block">
-        <div className="block-header">
-          <h2>Region</h2>
-          <button
-            type="button"
-            className="link-btn"
-            onClick={() =>
-              setFilters((f) => ({
-                ...f,
-                regions: allRegionsOn
-                  ? new Set<Region>()
-                  : new Set<Region>(REGION_DISPLAY_ORDER),
-              }))
-            }
-          >
-            {allRegionsOn ? "Select none" : "Select all"}
+      <section className="sect">
+        <div className="sect-head">
+          <h3>
+            Region
+            {!allRegionsOn && (
+              <span className="sect-meta">
+                {filters.regions.size} of {REGION_DISPLAY_ORDER.length}
+              </span>
+            )}
+          </h3>
+          <button type="button" onClick={toggleAllRegions}>
+            {allRegionsOn ? "None" : "All"}
           </button>
         </div>
-        <div className="chip-row">
+
+        <div className="rgrid">
           {REGION_DISPLAY_ORDER.map((r) => {
             const active = filters.regions.has(r);
-            // "General" is a pseudo-region with no OSRS area badge; all
-            // other regions render the authentic wiki badge.
             const hasBadge = r !== "General";
             return (
               <button
                 key={r}
                 type="button"
-                className={`chip region-chip region-${r.toLowerCase()} ${active ? "on" : "off"}`}
+                className={`rtile region-${r.toLowerCase()} ${active ? "on" : "off"}`}
                 onClick={() => toggleRegion(r)}
+                aria-pressed={active}
               >
-                {hasBadge && (
-                  <img
-                    className="region-badge"
-                    src={`/icons/region/${r.toLowerCase()}.png`}
-                    alt=""
-                    aria-hidden
-                    width={14}
-                    height={21}
-                  />
-                )}
-                {r}
+                <span className="rtile-icon">
+                  {hasBadge ? (
+                    <img
+                      src={`/icons/region/${r.toLowerCase()}.png`}
+                      alt=""
+                      width={22}
+                      height={33}
+                    />
+                  ) : (
+                    <span className="rtile-dot" aria-hidden />
+                  )}
+                </span>
+                <span className="rtile-name">{r}</span>
+                <span className="rtile-count tabular">
+                  {regionCounts[r] ?? 0}
+                </span>
               </button>
             );
           })}
         </div>
-      </div>
+      </section>
 
-      <div className="filter-block">
-        <div className="block-header">
-          <h2>Difficulty</h2>
-          <button
-            type="button"
-            className="link-btn"
-            onClick={() =>
-              setFilters((f) => ({
-                ...f,
-                difficulties: allDifficultiesOn
-                  ? new Set<Difficulty>()
-                  : new Set<Difficulty>(DIFFICULTIES),
-              }))
-            }
-          >
-            {allDifficultiesOn ? "Select none" : "Select all"}
+      <section className="sect">
+        <div className="sect-head">
+          <h3>
+            Difficulty
+            {!allDifficultiesOn && (
+              <span className="sect-meta">
+                {filters.difficulties.size} of {DIFFICULTIES.length}
+              </span>
+            )}
+          </h3>
+          <button type="button" onClick={toggleAllDifficulties}>
+            {allDifficultiesOn ? "None" : "All"}
           </button>
         </div>
-        <div className="chip-row">
+
+        <div className="dseg">
           {DIFFICULTIES.map((d) => {
             const active = filters.difficulties.has(d);
             return (
               <button
                 key={d}
                 type="button"
-                className={`chip diff-chip diff-${d.toLowerCase()} ${active ? "on" : "off"}`}
+                className={`dcell diff-${d.toLowerCase()} ${active ? "on" : "off"}`}
                 onClick={() => toggleDifficulty(d)}
+                aria-pressed={active}
               >
                 <img
-                  className="diff-icon"
                   src={`/icons/difficulty/${d.toLowerCase()}.png`}
                   alt=""
-                  aria-hidden
-                  width={16}
-                  height={16}
+                  width={22}
+                  height={22}
                 />
-                {d}
+                <span className="dcell-name">{d}</span>
+                <span className="dcell-count tabular">
+                  {difficultyCounts[d] ?? 0}
+                </span>
               </button>
             );
           })}
         </div>
-      </div>
+      </section>
 
-      <div className="filter-block advanced">
-        <button
-          type="button"
-          className={`advanced-toggle ${advancedOpen ? "open" : ""}`}
-          onClick={() => setAdvancedOpen((v) => !v)}
-          aria-expanded={advancedOpen}
-        >
-          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden>
-            <path
-              d="M2 3l3 3 3-3"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Advanced
-          {(filters.pactOnly ||
-            filters.includeCentroidFallbacks === false ||
-            filters.includeUnmappable === false) && (
-            <span className="advanced-dot" aria-hidden />
-          )}
-        </button>
-        {advancedOpen && (
-          <div className="advanced-body">
-            <label className="toggle">
-              <input
-                type="checkbox"
-                checked={filters.pactOnly}
-                onChange={(e) =>
-                  setFilters((f) => ({ ...f, pactOnly: e.target.checked }))
-                }
-              />
-              <span>Demonic Pact tasks only</span>
-            </label>
-            <label className="toggle">
-              <input
-                type="checkbox"
-                checked={filters.includeCentroidFallbacks}
-                onChange={(e) =>
-                  setFilters((f) => ({
-                    ...f,
-                    includeCentroidFallbacks: e.target.checked,
-                  }))
-                }
-              />
-              <span>
-                Show region fallbacks{" "}
-                <em>(tasks whose exact spot isn't mapped yet)</em>
-              </span>
-            </label>
-            <label className="toggle">
-              <input
-                type="checkbox"
-                checked={filters.includeUnmappable}
-                onChange={(e) =>
-                  setFilters((f) => ({
-                    ...f,
-                    includeUnmappable: e.target.checked,
-                  }))
-                }
-              />
-              <span>
-                Show non-spatial tasks{" "}
-                <em>(skill totals, combat achievements, collection log)</em>
-              </span>
-            </label>
-          </div>
-        )}
+      <section className="sect sect-opts">
+        <div className="sect-head">
+          <h3>Options</h3>
+        </div>
+        <OptRow
+          checked={filters.pactOnly}
+          label="Demonic Pact tasks only"
+          hint="Hide tasks that aren't part of a pact"
+          onChange={(v) => setFilters((f) => ({ ...f, pactOnly: v }))}
+        />
+        <OptRow
+          checked={filters.includeCentroidFallbacks}
+          label="Region fallback pins"
+          hint="Show pins at region centers when an exact location is unknown"
+          onChange={(v) =>
+            setFilters((f) => ({ ...f, includeCentroidFallbacks: v }))
+          }
+        />
+        <OptRow
+          checked={filters.includeUnmappable}
+          label="Non-spatial tasks"
+          hint="Include skill, achievement, and collection-log tasks"
+          onChange={(v) =>
+            setFilters((f) => ({ ...f, includeUnmappable: v }))
+          }
+        />
+      </section>
       </div>
-
-      <footer className="panel-stats">
-        <div>
-          <span className="num">{visibleCount.toLocaleString()}</span>
-          <span className="lbl">showing</span>
-        </div>
-        <div>
-          <span className="num">{totalCount.toLocaleString()}</span>
-          <span className="lbl">total</span>
-        </div>
-        <div>
-          <span className="num">{unmappableCount.toLocaleString()}</span>
-          <span className="lbl">non-spatial</span>
-        </div>
-      </footer>
     </div>
+  );
+}
+
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <svg
+      className={`chevron ${open ? "open" : ""}`}
+      viewBox="0 0 16 16"
+      width={12}
+      height={12}
+      aria-hidden
+    >
+      <path
+        d="M4 6l4 4 4-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function OptRow({
+  checked,
+  label,
+  hint,
+  onChange,
+}: {
+  checked: boolean;
+  label: string;
+  hint?: string;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label className={`optrow ${checked ? "on" : "off"}`}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      <span className="optrow-check" aria-hidden />
+      <span className="optrow-body">
+        <span className="optrow-label">{label}</span>
+        {hint ? <span className="optrow-hint">{hint}</span> : null}
+      </span>
+    </label>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg
+      className="sb-icon"
+      viewBox="0 0 16 16"
+      width={14}
+      height={14}
+      aria-hidden
+    >
+      <circle
+        cx={6.75}
+        cy={6.75}
+        r={4.5}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.6}
+      />
+      <path
+        d="M10.25 10.25 L14 14"
+        stroke="currentColor"
+        strokeWidth={1.6}
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }

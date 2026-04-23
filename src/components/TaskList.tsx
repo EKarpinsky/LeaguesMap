@@ -9,6 +9,8 @@ export interface TaskListProps {
   selectedTaskId: string | null;
   onSelectTask: (id: string) => void;
   onSelectLocation: (id: string) => void;
+  open: boolean;
+  onToggle: () => void;
 }
 
 const DIFF_ORDER: Record<string, number> = {
@@ -25,6 +27,8 @@ export default function TaskList({
   selectedTaskId,
   onSelectTask,
   onSelectLocation,
+  open,
+  onToggle,
 }: TaskListProps) {
   const mappableSorted = useMemo(() => {
     return [...tasks].sort((a, b) => {
@@ -45,24 +49,28 @@ export default function TaskList({
 
   const listRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    if (!selectedTaskId || !listRef.current) return;
+    if (!open || !selectedTaskId || !listRef.current) return;
     const el = listRef.current.querySelector<HTMLElement>(
       `[data-task-id="${CSS.escape(selectedTaskId)}"]`,
     );
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-  }, [selectedTaskId]);
+  }, [selectedTaskId, open]);
 
   return (
-    <section className="tasks-region">
-      <header className="tasks-header">
-        <h2>
-          Tasks <span className="count">{mappableSorted.length}</span>
-        </h2>
-        <p className="hint">Click a task to jump to its location on the map.</p>
-      </header>
-      <div className="task-list-scroll" ref={listRef}>
+    <section className={`tasks-region ${open ? "open" : "collapsed"}`}>
+      <button
+        type="button"
+        className="accordion-head"
+        onClick={onToggle}
+        aria-expanded={open}
+      >
+        <Chevron open={open} />
+        <span className="accordion-title">Tasks</span>
+        <span className="accordion-badge">{mappableSorted.length}</span>
+      </button>
+      <div className="task-list-scroll" ref={listRef} hidden={!open}>
         {mappableSorted.map((t) => {
           const placement = getPlacement(t.id);
           return (
@@ -105,6 +113,27 @@ export default function TaskList({
         )}
       </div>
     </section>
+  );
+}
+
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <svg
+      className={`chevron ${open ? "open" : ""}`}
+      viewBox="0 0 16 16"
+      width={12}
+      height={12}
+      aria-hidden
+    >
+      <path
+        d="M4 6l4 4 4-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -183,15 +212,22 @@ function TaskRow({
             )}
           </span>
         )}
-        {task.skillRequirements.length > 0 && (
-          <span className="req-tag">
-            {task.skillRequirements
-              .slice(0, 3)
-              .map((r) => `${r.skill} ${r.level}`)
-              .join(", ")}
-            {task.skillRequirements.length > 3 ? "…" : ""}
+        {task.skillRequirements.map((r) => (
+          <span
+            key={r.skill}
+            className="req-chip"
+            title={`${r.skill} ${r.level}`}
+          >
+            <img
+              className="req-icon"
+              src={`/icons/skill/${r.skill.toLowerCase()}.png`}
+              alt={r.skill}
+              width={13}
+              height={13}
+            />
+            <span className="req-level tabular">{r.level}</span>
           </span>
-        )}
+        ))}
       </div>
     </div>
   );

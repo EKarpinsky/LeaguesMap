@@ -21,27 +21,122 @@
   border-right: 1px solid #22222c;
 }
 
-/* The filters block sits at the top of the panel and holds its natural
-   height. On very short viewports it gets its own internal scroll so it
-   can never squeeze the task list to nothing. */
+/* App title bar — always visible above the two accordion panels. */
+.app-title {
+  flex: 0 0 auto;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid #1b1b24;
+  background: linear-gradient(180deg, #121218 0%, #0f0f14 100%);
+}
+.app-title h1 {
+  margin: 0;
+  font-family:
+    "Futura", "Futura PT", "Avenir Next", "Century Gothic", "Trebuchet MS",
+    system-ui, sans-serif;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  color: #f4f4f8;
+}
+
+/* Filters panel — accordion. When expanded it keeps its natural height up
+   to 62vh and lets the task list take the rest. When the tasks panel is
+   collapsed, filters grows to fill. */
 .filters-region {
   flex: 0 1 auto;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  min-height: 0;
   max-height: 62vh;
   border-bottom: 1px solid #22222c;
   background: linear-gradient(180deg, #121218 0%, #0f0f14 100%);
 }
+.filters-region.collapsed {
+  flex: 0 0 auto;
+  max-height: none;
+}
+.left-panel.tasks-collapsed:not(.filters-collapsed) .filters-region {
+  flex: 1 1 0;
+  max-height: none;
+}
+.filters-body {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 
-/* The tasks block fills remaining space and scrolls independently. */
+/* Tasks panel — accordion. Fills the remaining space by default. */
 .tasks-region {
   flex: 1 1 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
   background: #0f0f14;
+}
+.tasks-region.collapsed {
+  flex: 0 0 auto;
+}
+
+/* Shared accordion header — the clickable row that toggles each panel. */
+.accordion-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 16px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  color: #d8d8e0;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.accordion-head:hover {
+  background: rgba(255, 255, 255, 0.025);
+  color: #f0f0f4;
+}
+.filters-region.open .accordion-head,
+.tasks-region.open .accordion-head {
+  border-bottom-color: #1b1b24;
+}
+.accordion-title {
+  flex: 1 1 auto;
+}
+.accordion-badge {
+  flex: 0 0 auto;
+  min-width: 20px;
+  padding: 1px 7px;
+  background: #1d1d26;
+  border: 1px solid #2a2a36;
+  border-radius: 10px;
+  color: #a9a9b8;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.chevron {
+  flex: 0 0 auto;
+  color: #7a7a8a;
+  transform: rotate(-90deg);
+  transition: transform 0.15s ease;
+}
+.chevron.open {
+  transform: rotate(0deg);
+}
+.accordion-head:hover .chevron {
+  color: #b0b0c0;
 }
 
 .app-map {

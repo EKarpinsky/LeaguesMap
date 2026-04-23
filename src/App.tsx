@@ -37,6 +37,8 @@ function App() {
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
     null,
   );
+  const [filtersOpen, setFiltersOpen] = useState(true);
+  const [tasksOpen, setTasksOpen] = useState(true);
 
   const { mappableTasks, unmappableTasks, tasksByLocation } = useMemo(() => {
     const mappable: Task[] = [];
@@ -63,9 +65,6 @@ function App() {
     };
   }, [filters]);
 
-  const unmappableTotal = useMemo(() => {
-    return ALL_PLACEMENTS.filter((p) => p.unmappable).length;
-  }, []);
 
   const handleSelectTask = useCallback((id: string) => {
     setSelectedTaskId(id);
@@ -79,15 +78,25 @@ function App() {
     setSelectedLocationId(id);
   }, []);
 
+  const panelClass = [
+    "left-panel",
+    filtersOpen ? "" : "filters-collapsed",
+    tasksOpen ? "" : "tasks-collapsed",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <div className="app-shell">
-      <aside className="left-panel">
+      <aside className={panelClass}>
+        <header className="app-title">
+          <h1>Demonic Pacts Tasks Map</h1>
+        </header>
         <FilterSidebar
           filters={filters}
           setFilters={setFilters}
-          totalCount={ALL_TASKS.length}
-          visibleCount={mappableTasks.length + unmappableTasks.length}
-          unmappableCount={unmappableTotal}
+          open={filtersOpen}
+          onToggle={() => setFiltersOpen((v) => !v)}
         />
         <TaskList
           tasks={mappableTasks}
@@ -95,6 +104,8 @@ function App() {
           selectedTaskId={selectedTaskId}
           onSelectTask={handleSelectTask}
           onSelectLocation={handleSelectLocation}
+          open={tasksOpen}
+          onToggle={() => setTasksOpen((v) => !v)}
         />
       </aside>
       <main className="app-map">
