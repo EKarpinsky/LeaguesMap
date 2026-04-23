@@ -248,13 +248,8 @@ export const ENTITY_LOCATIONS: EntityLocation[] = (() => {
 
     // Display name uses the canonical wiki-resolved title, not the
     // lower-cased lookup key: "Woman" not "woman", "Black Knight" not
-    // "black knight". Only show a "Wiki: X" blurb when the resolved
-    // title differs from the requested title beyond case — e.g. a real
-    // redirect like "Coifed chaps" → "Dragonhide chaps".
+    // "black knight".
     const displayName = ent.resolvedTitle;
-    const redirected =
-      ent.resolvedTitle.toLowerCase() !== ent.title.toLowerCase();
-    const defaultBlurb = redirected ? `Wiki: ${ent.resolvedTitle}` : undefined;
 
     let idx = 0;
     for (const [region, list] of spawnsByRegion) {
@@ -276,7 +271,6 @@ export const ENTITY_LOCATIONS: EntityLocation[] = (() => {
         }
       }
       const suffix = idx === 0 ? "" : `:${region.toLowerCase()}`;
-      const hasMultipleRegions = spawnsByRegion.size > 1;
       // Dedupe aliases: key, title, resolvedTitle are often the same
       // string after lower-casing (e.g. "woman" / "woman" / "woman").
       // Leaving duplicates in here would cause ENTITIES_BY_TITLE to
@@ -286,15 +280,20 @@ export const ENTITY_LOCATIONS: EntityLocation[] = (() => {
         ent.title.toLowerCase(),
         ent.resolvedTitle.toLowerCase(),
       ]);
+      // Name stays just the entity title — the popup already shows the
+      // region via its badge + "Asgarnia · 3 tasks" meta line, so
+      // "Warriors' Guild (Asgarnia)" is redundant. Curated `ent.note`
+      // still passes through for hand-written hints (e.g. dungeon
+      // entrance pointers).
       out.push({
         id: `${entityLocationId(key)}${suffix}`,
-        name: hasMultipleRegions ? `${displayName} (${region})` : displayName,
+        name: displayName,
         x: best[0],
         y: best[1],
         region,
         category: mapCategory(ent.category),
         aliases: [...aliasSet],
-        blurb: ent.note || defaultBlurb,
+        blurb: ent.note,
         wikiTitle: ent.title,
         spawnIndex: idx,
       });

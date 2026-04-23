@@ -37,8 +37,16 @@ function App() {
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
     null,
   );
-  const [filtersOpen, setFiltersOpen] = useState(true);
-  const [tasksOpen, setTasksOpen] = useState(true);
+  // On phones/iPads the sidebar is a bottom sheet floating over the map.
+  // If both accordions start open the sheet eats ~70% of the screen and
+  // hides the map — so on small viewports we default to collapsed and let
+  // the user tap in. On desktop we keep both open so the content is
+  // immediately visible without a discovery tax.
+  const isMobileInitial =
+    typeof window !== "undefined" &&
+    window.matchMedia("(max-width: 900px)").matches;
+  const [filtersOpen, setFiltersOpen] = useState(!isMobileInitial);
+  const [tasksOpen, setTasksOpen] = useState(!isMobileInitial);
 
   const { mappableTasks, unmappableTasks, tasksByLocation } = useMemo(() => {
     const mappable: Task[] = [];
@@ -72,11 +80,48 @@ function App() {
     if (placement && placement.locations.length > 0) {
       setSelectedLocationId(placement.primary ?? placement.locations[0]);
     }
+    // On the mobile bottom-sheet layout, the sidebar is floating over the
+    // map. If we leave the accordions expanded after a task tap, the user
+    // never sees the pin they just selected because the sheet covers it.
+    // Collapse both so the sheet shrinks to its peek state and the map
+    // (with the now-open popup) is visible behind.
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 900px)").matches
+    ) {
+      setFiltersOpen(false);
+      setTasksOpen(false);
+    }
   }, []);
 
   const handleSelectLocation = useCallback((id: string | null) => {
     setSelectedLocationId(id);
   }, []);
+
+  // On the mobile bottom sheet we treat Filters and Tasks as mutually
+  // exclusive: opening one closes the other and the open section takes
+  // the full sheet height. Desktop keeps both open at once, since
+  // there's plenty of vertical room in the fixed left column.
+  const isMobileNow = useCallback(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 900px)").matches,
+    [],
+  );
+  const toggleFilters = useCallback(() => {
+    setFiltersOpen((v) => {
+      const next = !v;
+      if (next && isMobileNow()) setTasksOpen(false);
+      return next;
+    });
+  }, [isMobileNow]);
+  const toggleTasks = useCallback(() => {
+    setTasksOpen((v) => {
+      const next = !v;
+      if (next && isMobileNow()) setFiltersOpen(false);
+      return next;
+    });
+  }, [isMobileNow]);
 
   const panelClass = [
     "left-panel",
@@ -96,7 +141,7 @@ function App() {
           filters={filters}
           setFilters={setFilters}
           open={filtersOpen}
-          onToggle={() => setFiltersOpen((v) => !v)}
+          onToggle={toggleFilters}
         />
         <TaskList
           tasks={mappableTasks}
@@ -105,7 +150,7 @@ function App() {
           onSelectTask={handleSelectTask}
           onSelectLocation={handleSelectLocation}
           open={tasksOpen}
-          onToggle={() => setTasksOpen((v) => !v)}
+          onToggle={toggleTasks}
         />
       </aside>
       <main className="app-map">

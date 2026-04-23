@@ -240,3 +240,27 @@
   font-size: 11px;
   margin: 0;
 }
+
+/* ─────────────────────── Mobile / tablet tweaks ───────────────────── */
+@media (max-width: 900px) {
+  .task-list-scroll {
+    padding: 8px 10px 20px;
+    /* Keep momentum scrolling inside the sheet and prevent rubber-band
+       from leaking into the body on iOS. */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  .task-row {
+    padding: 11px 12px;
+    margin-bottom: 5px;
+  }
+  .task-row-name {
+    font-size: 13.5px;
+  }
+  .task-row-desc {
+    font-size: 12px;
+  }
+  .task-row-meta {
+    gap: 5px;
+  }
+}

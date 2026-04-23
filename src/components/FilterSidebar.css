@@ -94,6 +94,18 @@
   display: none;
 }
 
+/* The ⌘K affordance is a pure keyboard cue — hide it on touch devices
+   where it's both meaningless and just eats horizontal space next to
+   the input. */
+@media (hover: none), (max-width: 900px) {
+  .sb-kbd {
+    display: none;
+  }
+  .sb input {
+    padding-right: 14px;
+  }
+}
+
 .sb-clear {
   position: absolute;
   right: 18px;
@@ -506,4 +518,70 @@
 
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────── Mobile / tablet tweaks ─────────────────────
+ * Two non-obvious pieces here:
+ *   • Search input must be ≥ 16px at runtime or iOS Safari will zoom
+ *     the page on focus — hostile on a map UI.
+ *   • Region tiles drop to a 2-col grid on the narrowest phones so the
+ *     tap targets stay >= 44px square.
+ */
+@media (max-width: 900px) {
+  .sb {
+    padding: 10px 12px;
+  }
+  .sb input {
+    height: 40px;
+    font-size: 16px;
+    padding: 0 46px 0 36px;
+  }
+  .sect {
+    padding: 10px 12px 14px;
+  }
+  .rgrid {
+    gap: 7px;
+  }
+  .rtile {
+    padding: 12px 6px 10px;
+    min-height: 78px;
+  }
+  .rtile-icon {
+    height: 30px;
+  }
+  .rtile-name {
+    font-size: 12px;
+  }
+  .dcell {
+    padding: 10px 4px 9px;
+    min-height: 62px;
+  }
+  .dcell-name {
+    font-size: 10.5px;
+  }
+  .optrow {
+    padding: 11px 6px 11px 8px;
+  }
+  .optrow-label {
+    font-size: 13px;
+  }
+  .optrow-hint {
+    font-size: 11.5px;
+  }
+}
+
+@media (max-width: 420px) {
+  .rgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rtile {
+    min-height: 72px;
+  }
+  .dcell {
+    padding: 9px 3px 8px;
+  }
+  .dcell-name {
+    font-size: 9.5px;
+    letter-spacing: 0.04em;
+  }
 }

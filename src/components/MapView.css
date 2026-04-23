@@ -87,6 +87,30 @@
   max-width: 360px;
   font-size: 12px;
 }
+
+/* Keep popups usable on phones — they can't be wider than the viewport
+   and their task list should scroll inside the popup rather than pushing
+   the popup off-screen. Without a real min-width Leaflet sizes the
+   popup to its longest unbreakable word, which ends up ~120 px and
+   wraps "Warriors' Guild" over three lines. 280 px is the sweet spot
+   that fits a 390 px viewport with breathing room. */
+@media (max-width: 900px) {
+  .pin-popup {
+    min-width: min(78vw, 300px);
+    max-width: min(88vw, 340px);
+    font-size: 13px;
+  }
+  .pin-popup-name {
+    font-size: 15px;
+  }
+  .pin-popup-list {
+    max-height: 38dvh;
+  }
+  .task-line {
+    padding: 7px 4px;
+    font-size: 13px;
+  }
+}
 .pin-popup-header {
   margin-bottom: 6px;
 }

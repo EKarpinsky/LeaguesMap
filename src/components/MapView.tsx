@@ -98,7 +98,29 @@ export default function MapView({
       interactive: false,
     }).addTo(map);
     map.setMaxBounds(IMAGE_BOUNDS);
-    map.fitBounds(IMAGE_BOUNDS, { animate: false });
+
+    // Fit the image into the viewport, but on tall/narrow screens the
+    // world-map's 1.35:1 landscape aspect leaves huge letterbox bands
+    // above and below. Zoom past `fitBounds` in that case so the image
+    // covers more of the visible area — the user can still pan/pinch
+    // to reach the edges.
+    const frameMap = () => {
+      map.fitBounds(IMAGE_BOUNDS, { animate: false });
+      const size = map.getSize();
+      if (size.x === 0 || size.y === 0) return;
+      const viewportAspect = size.x / size.y;
+      const imageAspect = MAP_IMAGE.widthPx / MAP_IMAGE.heightPx;
+      // Viewport much taller than the image is wide → portrait phone.
+      // Bump zoom until image fills the short axis instead of the long.
+      if (viewportAspect < imageAspect * 0.7) {
+        const targetZoom = Math.min(
+          map.getZoom() + Math.log2(imageAspect / viewportAspect),
+          INITIAL_VIEW.maxZoom,
+        );
+        map.setZoom(targetZoom, { animate: false });
+      }
+    };
+    frameMap();
 
     const group = L.layerGroup().addTo(map);
     markerLayerRef.current = group;
@@ -112,7 +134,7 @@ export default function MapView({
     // Initial invalidate + re-fit next frame.
     requestAnimationFrame(() => {
       map.invalidateSize({ animate: false });
-      map.fitBounds(IMAGE_BOUNDS, { animate: false });
+      frameMap();
     });
 
     if (import.meta.env.DEV) {
@@ -216,7 +238,16 @@ export default function MapView({
         taskCount: tasks.length,
       };
 
-      marker.bindPopup(popup, { maxWidth: 360, maxHeight: 420 });
+      // Leave generous bottom padding so Leaflet's auto-pan shifts the
+      // popup clear of the mobile bottom sheet (sheet peek ≈ 150 px
+      // including safe-area). On desktop the extra bottom margin is
+      // harmless — popups just open a little higher than center.
+      marker.bindPopup(popup, {
+        maxWidth: 360,
+        maxHeight: 420,
+        autoPanPaddingTopLeft: L.point(24, 24),
+        autoPanPaddingBottomRight: L.point(24, 200),
+      });
       marker.on("popupopen", () => onSelectLocationRef.current(loc.id));
       marker.on("popupclose", () => {
         // Only deselect on close if this pin is still the selected one

@@ -2,6 +2,9 @@
   display: grid;
   grid-template-columns: 380px 1fr;
   height: 100vh;
+  /* 100dvh keeps the layout honest on mobile browsers whose URL bar
+     shows/hides — 100vh would overflow behind the bar. */
+  height: 100dvh;
   width: 100vw;
   overflow: hidden;
   background: #0a0a10;
@@ -155,4 +158,123 @@
 
 * {
   box-sizing: border-box;
+}
+
+/* ─────────────────────── Tablet / mobile layout ──────────────────────
+ *
+ * Below 900px (iPad portrait, phones, narrow laptops) the sidebar
+ * collapses into a bottom sheet floating over a full-screen map. Both
+ * accordions default to closed, so the sheet peeks as a ~3-line strip
+ * at the bottom — the map gets the whole screen. Tapping either
+ * accordion head expands it in-place; tapping a task auto-collapses
+ * both accordions (App.tsx) so the pin is visible behind.
+ */
+@media (max-width: 900px) {
+  .app-shell {
+    display: block;
+    position: relative;
+  }
+
+  .app-map {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .left-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    border-right: 0;
+    border-top: 1px solid #22222c;
+    /* Float above the map. Cap height so the map is always at least
+       partially visible even when both accordions are expanded. */
+    max-height: min(80dvh, 640px);
+    background: rgba(15, 15, 20, 0.96);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -12px 36px rgba(0, 0, 0, 0.55);
+    /* Respect the iPhone home indicator / nav pill area. */
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* Grab-handle affordance so the sheet reads as draggable/collapsible
+     even though we drive state via the accordion headers underneath. */
+  .left-panel::before {
+    content: "";
+    display: block;
+    width: 38px;
+    height: 4px;
+    margin: 8px auto 2px;
+    border-radius: 999px;
+    background: #2e2e38;
+    flex: 0 0 auto;
+  }
+
+  .app-title {
+    padding: 4px 16px 10px;
+    border-bottom-color: transparent;
+    text-align: center;
+    background: transparent;
+  }
+  .app-title h1 {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: #c8c8d2;
+  }
+
+  /* Accordion heads become full-width tap rows. */
+  .accordion-head {
+    padding: 14px 16px;
+    font-size: 12.5px;
+    min-height: 48px;
+  }
+
+  /* Mobile treats Filters/Tasks as mutually exclusive — only one is
+     open at a time (enforced in App.tsx). Give the open section a
+     definite height so its scroll container actually scrolls, and
+     let collapsed sections shrink to just their accordion head.
+     The sheet's own `max-height: min(80dvh, 640px)` caps the total. */
+  .filters-region.collapsed,
+  .tasks-region.collapsed {
+    flex: 0 0 auto;
+    max-height: none;
+  }
+  .filters-region.open,
+  .left-panel.tasks-collapsed:not(.filters-collapsed) .filters-region,
+  .tasks-region.open {
+    flex: 1 1 auto;
+    /* Fill whatever the sheet gives us, minus the title + other head. */
+    min-height: 0;
+    max-height: none;
+  }
+  /* Make sure the left panel itself is a usable flex container with a
+     real height upper bound — without this, `flex: 1 1 auto` children
+     have no basis to stretch into. */
+  .left-panel {
+    height: min(80dvh, 640px);
+  }
+  /* When both accordions are closed, shrink the sheet back down to its
+     peek state (title + two heads + handle + safe-area). */
+  .left-panel.filters-collapsed.tasks-collapsed {
+    height: auto;
+  }
+}
+
+/* Narrower phones — further tighten paddings. */
+@media (max-width: 480px) {
+  .app-title {
+    padding: 2px 14px 8px;
+  }
+  .app-title h1 {
+    font-size: 13px;
+  }
+  .accordion-head {
+    padding: 13px 14px;
+    font-size: 12px;
+  }
 }
