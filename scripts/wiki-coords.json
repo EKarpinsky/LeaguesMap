@@ -1,0 +1,2756 @@
+[
+  {
+    "id": "civitas",
+    "name": "Civitas illa Fortis",
+    "current": [
+      1668,
+      3115
+    ],
+    "region": "Varlamore",
+    "category": "city",
+    "wiki_page": "Civitas illa Fortis",
+    "wiki": [
+      1725,
+      3128
+    ],
+    "delta_tiles": 58.5,
+    "source": "wiki",
+    "note": "from {{map}} on 'Civitas illa Fortis' (maps_scanned=1)"
+  },
+  {
+    "id": "yamas-lair",
+    "name": "Yama's Lair",
+    "current": [
+      1484,
+      3202
+    ],
+    "region": "Varlamore",
+    "category": "boss",
+    "wiki_page": "Yama",
+    "wiki": [
+      1484,
+      3202
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Yama cave entrance in Varlamore underground tunnels; wiki map is instanced"
+  },
+  {
+    "id": "aldarin",
+    "name": "Aldarin",
+    "current": [
+      1404,
+      2930
+    ],
+    "region": "Varlamore",
+    "category": "city",
+    "wiki_page": "Aldarin",
+    "wiki": [
+      1391,
+      2935
+    ],
+    "delta_tiles": 13.9,
+    "source": "wiki",
+    "note": "from {{map}} on 'Aldarin' (maps_scanned=1)"
+  },
+  {
+    "id": "sunset-coast",
+    "name": "Sunset Coast",
+    "current": [
+      1574,
+      2964
+    ],
+    "region": "Varlamore",
+    "category": "landmark",
+    "wiki_page": "Sunset Coast",
+    "wiki": [
+      1530,
+      2983
+    ],
+    "delta_tiles": 47.9,
+    "source": "wiki",
+    "note": "from {{map}} on 'Sunset Coast' (maps_scanned=1)"
+  },
+  {
+    "id": "cam-torum",
+    "name": "Cam Torum",
+    "current": [
+      1446,
+      3129
+    ],
+    "region": "Varlamore",
+    "category": "city",
+    "wiki_page": "Cam Torum",
+    "wiki": [
+      1421,
+      3114
+    ],
+    "delta_tiles": 29.2,
+    "source": "curated",
+    "note": "curated: Cam Torum entrance (walk-in from Quetzacalli Gorge) - wiki infobox map is subsurface"
+  },
+  {
+    "id": "tal-teklan",
+    "name": "Tal Teklan",
+    "current": [
+      1310,
+      3043
+    ],
+    "region": "Varlamore",
+    "category": "city",
+    "wiki_page": "Tal Teklan",
+    "wiki": [
+      1223,
+      3111
+    ],
+    "delta_tiles": 110.4,
+    "source": "wiki",
+    "note": "from {{map}} on 'Tal Teklan' (maps_scanned=1)"
+  },
+  {
+    "id": "auburnvale",
+    "name": "Auburnvale",
+    "current": [
+      1283,
+      3053
+    ],
+    "region": "Varlamore",
+    "category": "city",
+    "wiki_page": "Auburnvale",
+    "wiki": [
+      1417,
+      3360
+    ],
+    "delta_tiles": 335.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Auburnvale' (maps_scanned=1)"
+  },
+  {
+    "id": "fortis-colosseum",
+    "name": "Fortis Colosseum",
+    "current": [
+      1800,
+      3118
+    ],
+    "region": "Varlamore",
+    "category": "minigame",
+    "wiki_page": "Fortis Colosseum",
+    "wiki": [
+      1824,
+      3107
+    ],
+    "delta_tiles": 26.4,
+    "source": "wiki",
+    "note": "from {{map}} on 'Fortis Colosseum' (maps_scanned=1)"
+  },
+  {
+    "id": "hunter-guild",
+    "name": "Hunter Guild",
+    "current": [
+      1560,
+      3046
+    ],
+    "region": "Varlamore",
+    "category": "minigame",
+    "wiki_page": "Hunter Guild",
+    "wiki": [
+      1559,
+      3048
+    ],
+    "delta_tiles": 2.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Hunter Guild' (maps_scanned=1)"
+  },
+  {
+    "id": "tlati-rainforest",
+    "name": "Tlati Rainforest",
+    "current": [
+      1363,
+      3085
+    ],
+    "region": "Varlamore",
+    "category": "landmark",
+    "wiki_page": "Tlati Rainforest",
+    "wiki": [
+      1327,
+      3090
+    ],
+    "delta_tiles": 36.3,
+    "source": "wiki",
+    "note": "from {{map}} on 'Tlati Rainforest' (maps_scanned=1)"
+  },
+  {
+    "id": "avium-savannah",
+    "name": "Avium Savannah",
+    "current": [
+      1614,
+      2921
+    ],
+    "region": "Varlamore",
+    "category": "landmark",
+    "wiki_page": "Avium Savannah",
+    "wiki": [
+      1635,
+      3010
+    ],
+    "delta_tiles": 91.4,
+    "source": "wiki",
+    "note": "from {{map}} on 'Avium Savannah' (maps_scanned=1)"
+  },
+  {
+    "id": "mastering-mixology",
+    "name": "Mastering Mixology",
+    "current": [
+      1386,
+      3229
+    ],
+    "region": "Varlamore",
+    "category": "minigame",
+    "wiki_page": "Mastering Mixology",
+    "wiki": [
+      1389,
+      2918
+    ],
+    "delta_tiles": 311.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Mastering Mixology' (maps_scanned=1)"
+  },
+  {
+    "id": "hueycoatl-arena",
+    "name": "Hueycoatl Arena",
+    "current": [
+      1337,
+      3098
+    ],
+    "region": "Varlamore",
+    "category": "boss",
+    "wiki_page": "The Hueycoatl",
+    "wiki": [
+      1341,
+      3080
+    ],
+    "delta_tiles": 18.4,
+    "source": "curated",
+    "note": "curated: Ralos Arena entrance near Tomb of Hueycoatl (Neypotzli)"
+  },
+  {
+    "id": "amoxliatl-cave",
+    "name": "Amoxliatl's Cave",
+    "current": [
+      1262,
+      3131
+    ],
+    "region": "Varlamore",
+    "category": "boss",
+    "wiki_page": "Amoxliatl",
+    "wiki": [
+      1262,
+      3132
+    ],
+    "delta_tiles": 1.0,
+    "source": "curated",
+    "note": "curated: Amoxliatl cave mouth in Hunter Guild basement surface access"
+  },
+  {
+    "id": "moons-of-peril",
+    "name": "Shrine of Ralos",
+    "current": [
+      1460,
+      3288
+    ],
+    "region": "Varlamore",
+    "category": "boss",
+    "wiki_page": "Neypotzli",
+    "wiki": [
+      1460,
+      3284
+    ],
+    "delta_tiles": 4.0,
+    "source": "curated",
+    "note": "curated: Neypotzli gate entrance to the Shrine of Ralos"
+  },
+  {
+    "id": "vale-totems",
+    "name": "Vale Totems",
+    "current": [
+      1283,
+      3125
+    ],
+    "region": "Varlamore",
+    "category": "minigame",
+    "wiki_page": "Vale Totems",
+    "wiki": [
+      1365,
+      3370
+    ],
+    "delta_tiles": 258.4,
+    "source": "wiki",
+    "note": "from {{map}} on 'Vale Totems' (maps_scanned=1)"
+  },
+  {
+    "id": "the-heart-dungeon",
+    "name": "The Heart of Darkness",
+    "current": [
+      1435,
+      3009
+    ],
+    "region": "Varlamore",
+    "category": "quest",
+    "wiki_page": "The Ruins of Tapoyauik",
+    "wiki": [
+      1435,
+      3009
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: The Heart of Darkness / Ruins of Tapoyauik entrance in southern Varlamore"
+  },
+  {
+    "id": "salvager-overlook",
+    "name": "Salvager Overlook",
+    "current": [
+      1606,
+      3097
+    ],
+    "region": "Varlamore",
+    "category": "landmark",
+    "wiki_page": "Salvager Overlook",
+    "wiki": [
+      1625,
+      3295
+    ],
+    "delta_tiles": 198.9,
+    "source": "wiki",
+    "note": "from {{map}} on 'Salvager Overlook' (maps_scanned=1)"
+  },
+  {
+    "id": "doom-mokhaiotl",
+    "name": "Doom of Mokhaiotl",
+    "current": [
+      1420,
+      3175
+    ],
+    "region": "Varlamore",
+    "category": "boss",
+    "wiki_page": "Doom of Mokhaiotl",
+    "wiki": [
+      1420,
+      3175
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Doom of Mokhaiotl delve entrance (Stonecutter Outpost underground)"
+  },
+  {
+    "id": "gemstone-crab",
+    "name": "Gemstone Crab",
+    "current": [
+      1552,
+      2993
+    ],
+    "region": "Varlamore",
+    "category": "boss",
+    "wiki_page": "Gemstone Crab",
+    "wiki": [
+      1275,
+      3160
+    ],
+    "delta_tiles": 323.4,
+    "source": "wiki",
+    "note": "from {{locline}} on 'Gemstone Crab' (maps_scanned=3)"
+  },
+  {
+    "id": "stonecutter-outpost",
+    "name": "Stonecutter Outpost",
+    "current": [
+      1445,
+      3160
+    ],
+    "region": "Varlamore",
+    "category": "resource",
+    "wiki_page": "Stonecutter Outpost",
+    "wiki": [
+      1740,
+      2963
+    ],
+    "delta_tiles": 354.7,
+    "source": "wiki",
+    "note": "from {{map}} on 'Stonecutter Outpost' (maps_scanned=1)"
+  },
+  {
+    "id": "custodia-pass",
+    "name": "Custodia Pass",
+    "current": [
+      1375,
+      3025
+    ],
+    "region": "Varlamore",
+    "category": "dungeon",
+    "wiki_page": "Custodia Pass",
+    "wiki": [
+      1271,
+      3349
+    ],
+    "delta_tiles": 340.3,
+    "source": "wiki",
+    "note": "from {{map}} on 'Custodia Pass' (maps_scanned=1)"
+  },
+  {
+    "id": "varlamore-agility",
+    "name": "Colossal Wyrm Agility",
+    "current": [
+      1707,
+      2978
+    ],
+    "region": "Varlamore",
+    "category": "minigame",
+    "wiki_page": "Colossal Wyrm Agility Course",
+    "wiki": [
+      1640,
+      2921
+    ],
+    "delta_tiles": 88.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Colossal Wyrm Agility Course' (maps_scanned=10)"
+  },
+  {
+    "id": "kastori",
+    "name": "Kastori",
+    "current": [
+      1681,
+      3177
+    ],
+    "region": "Varlamore",
+    "category": "landmark",
+    "wiki_page": "Kastori",
+    "wiki": [
+      1373,
+      3042
+    ],
+    "delta_tiles": 336.3,
+    "source": "wiki",
+    "note": "from {{map}} on 'Kastori' (maps_scanned=1)"
+  },
+  {
+    "id": "quetzin-achilka",
+    "name": "Achilka's Boat",
+    "current": [
+      1510,
+      3050
+    ],
+    "region": "Varlamore",
+    "category": "npc",
+    "wiki_page": "Achilka",
+    "wiki": [
+      1374,
+      3043
+    ],
+    "delta_tiles": 136.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Achilka' (maps_scanned=9)"
+  },
+  {
+    "id": "river-fortis",
+    "name": "Fortis River",
+    "current": [
+      1672,
+      3145
+    ],
+    "region": "Varlamore",
+    "category": "landmark",
+    "wiki_page": "River Fortis",
+    "wiki": [
+      1672,
+      3145
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Fortis River near the cabbage path east of Civitas"
+  },
+  {
+    "id": "musa-point",
+    "name": "Musa Point",
+    "current": [
+      2957,
+      3145
+    ],
+    "region": "Karamja",
+    "category": "city",
+    "wiki_page": "Musa Point",
+    "wiki": [
+      2904,
+      3162
+    ],
+    "delta_tiles": 55.7,
+    "source": "wiki",
+    "note": "from {{map}} on 'Musa Point' (maps_scanned=1)"
+  },
+  {
+    "id": "brimhaven",
+    "name": "Brimhaven",
+    "current": [
+      2760,
+      3155
+    ],
+    "region": "Karamja",
+    "category": "city",
+    "wiki_page": "Brimhaven",
+    "wiki": [
+      2760,
+      3184
+    ],
+    "delta_tiles": 29.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Brimhaven' (maps_scanned=1)"
+  },
+  {
+    "id": "shilo-village",
+    "name": "Shilo Village",
+    "current": [
+      2851,
+      2954
+    ],
+    "region": "Karamja",
+    "category": "city",
+    "wiki_page": "Shilo Village",
+    "wiki": [
+      2922,
+      3000
+    ],
+    "delta_tiles": 84.6,
+    "source": "wiki",
+    "note": "from {{map}} on 'Shilo Village' (maps_scanned=1)"
+  },
+  {
+    "id": "tai-bwo-wannai",
+    "name": "Tai Bwo Wannai",
+    "current": [
+      2793,
+      3080
+    ],
+    "region": "Karamja",
+    "category": "city",
+    "wiki_page": "Tai Bwo Wannai",
+    "wiki": [
+      2795,
+      3065
+    ],
+    "delta_tiles": 15.1,
+    "source": "wiki",
+    "note": "from {{map}} on 'Tai Bwo Wannai' (maps_scanned=9)"
+  },
+  {
+    "id": "mor-ul-rek",
+    "name": "Mor Ul Rek (TzHaar City)",
+    "current": [
+      2861,
+      3153
+    ],
+    "region": "Karamja",
+    "category": "city",
+    "wiki_page": "Mor Ul Rek",
+    "wiki": [
+      2856,
+      3168
+    ],
+    "delta_tiles": 15.8,
+    "source": "wiki",
+    "note": "from {{map}} on 'Mor Ul Rek' (maps_scanned=1)"
+  },
+  {
+    "id": "karamja-volcano",
+    "name": "Karamja Volcano",
+    "current": [
+      2857,
+      3165
+    ],
+    "region": "Karamja",
+    "category": "landmark",
+    "wiki_page": "Karamja Volcano",
+    "wiki": [
+      2845,
+      3174
+    ],
+    "delta_tiles": 15.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Karamja Volcano' (maps_scanned=1)"
+  },
+  {
+    "id": "karamja-nature-altar",
+    "name": "Nature Altar",
+    "current": [
+      2871,
+      3019
+    ],
+    "region": "Karamja",
+    "category": "landmark",
+    "wiki_page": "Nature altar",
+    "wiki": [
+      2868,
+      3018
+    ],
+    "delta_tiles": 3.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Nature altar' (maps_scanned=2)"
+  },
+  {
+    "id": "crandor",
+    "name": "Crandor",
+    "current": [
+      2814,
+      3267
+    ],
+    "region": "Karamja",
+    "category": "dungeon",
+    "wiki_page": "Crandor",
+    "wiki": [
+      2836,
+      3271
+    ],
+    "delta_tiles": 22.4,
+    "source": "wiki",
+    "note": "from {{map}} on 'Crandor' (maps_scanned=6)"
+  },
+  {
+    "id": "falador",
+    "name": "Falador",
+    "current": [
+      2965,
+      3380
+    ],
+    "region": "Asgarnia",
+    "category": "city",
+    "wiki_page": "Falador",
+    "wiki": [
+      3000,
+      3360
+    ],
+    "delta_tiles": 40.3,
+    "source": "wiki",
+    "note": "from {{map}} on 'Falador' (maps_scanned=1)"
+  },
+  {
+    "id": "rimmington",
+    "name": "Rimmington",
+    "current": [
+      2957,
+      3214
+    ],
+    "region": "Asgarnia",
+    "category": "city",
+    "wiki_page": "Rimmington",
+    "wiki": [
+      2956,
+      3232
+    ],
+    "delta_tiles": 18.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Rimmington' (maps_scanned=1)"
+  },
+  {
+    "id": "draynor",
+    "name": "Draynor Village",
+    "current": [
+      3093,
+      3244
+    ],
+    "region": "Asgarnia",
+    "category": "city",
+    "wiki_page": "Draynor Village",
+    "wiki": [
+      3103,
+      3259
+    ],
+    "delta_tiles": 18.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Draynor Village' (maps_scanned=1)"
+  },
+  {
+    "id": "port-sarim",
+    "name": "Port Sarim",
+    "current": [
+      3029,
+      3253
+    ],
+    "region": "Asgarnia",
+    "category": "city",
+    "wiki_page": "Port Sarim",
+    "wiki": [
+      3029,
+      3221
+    ],
+    "delta_tiles": 32.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Port Sarim' (maps_scanned=1)"
+  },
+  {
+    "id": "burthorpe",
+    "name": "Burthorpe",
+    "current": [
+      2894,
+      3540
+    ],
+    "region": "Asgarnia",
+    "category": "city",
+    "wiki_page": "Burthorpe",
+    "wiki": [
+      2881,
+      3539
+    ],
+    "delta_tiles": 13.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Burthorpe' (maps_scanned=1)"
+  },
+  {
+    "id": "taverley",
+    "name": "Taverley",
+    "current": [
+      2894,
+      3450
+    ],
+    "region": "Asgarnia",
+    "category": "city",
+    "wiki_page": "Taverley",
+    "wiki": [
+      2910,
+      3451
+    ],
+    "delta_tiles": 16.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Taverley' (maps_scanned=1)"
+  },
+  {
+    "id": "wizards-tower",
+    "name": "Wizards' Tower",
+    "current": [
+      3109,
+      3162
+    ],
+    "region": "Asgarnia",
+    "category": "landmark",
+    "wiki_page": "Wizards' Tower",
+    "wiki": [
+      3109,
+      3160
+    ],
+    "delta_tiles": 2.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Wizards' Tower' (maps_scanned=1)"
+  },
+  {
+    "id": "motherlode-mine",
+    "name": "Motherlode Mine",
+    "current": [
+      3057,
+      3375
+    ],
+    "region": "Asgarnia",
+    "category": "minigame",
+    "wiki_page": "Motherlode Mine",
+    "wiki": [
+      3057,
+      3375
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Motherlode Mine surface entrance in Falador Dwarven Mine"
+  },
+  {
+    "id": "pest-control",
+    "name": "Pest Control",
+    "current": [
+      2657,
+      2639
+    ],
+    "region": "Asgarnia",
+    "category": "minigame",
+    "wiki_page": "Pest Control",
+    "wiki": [
+      2658,
+      2625
+    ],
+    "delta_tiles": 14.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Pest Control' (maps_scanned=1)"
+  },
+  {
+    "id": "barbarian-outpost",
+    "name": "Barbarian Outpost",
+    "current": [
+      2544,
+      3568
+    ],
+    "region": "Asgarnia",
+    "category": "minigame",
+    "wiki_page": "Barbarian Outpost",
+    "wiki": [
+      2549,
+      3558
+    ],
+    "delta_tiles": 11.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Barbarian Outpost' (maps_scanned=1)"
+  },
+  {
+    "id": "white-wolf-mtn",
+    "name": "White Wolf Mountain",
+    "current": [
+      2845,
+      3500
+    ],
+    "region": "Asgarnia",
+    "category": "landmark",
+    "wiki_page": "White Wolf Mountain",
+    "wiki": [
+      2845,
+      3483
+    ],
+    "delta_tiles": 17.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'White Wolf Mountain' (maps_scanned=1)"
+  },
+  {
+    "id": "royal-titans",
+    "name": "Royal Titans",
+    "current": [
+      2911,
+      3540
+    ],
+    "region": "Asgarnia",
+    "category": "boss",
+    "wiki_page": "The Royal Titans",
+    "wiki": [
+      2908,
+      3536
+    ],
+    "delta_tiles": 5.0,
+    "source": "curated",
+    "note": "curated: Royal Titans arena entrance in Burthorpe (north Asgarnia)"
+  },
+  {
+    "id": "al-kharid",
+    "name": "Al Kharid",
+    "current": [
+      3292,
+      3171
+    ],
+    "region": "Desert",
+    "category": "city",
+    "wiki_page": "Al Kharid",
+    "wiki": [
+      3290,
+      3185
+    ],
+    "delta_tiles": 14.1,
+    "source": "wiki",
+    "note": "from {{map}} on 'Al Kharid' (maps_scanned=1)"
+  },
+  {
+    "id": "pollnivneach",
+    "name": "Pollnivneach",
+    "current": [
+      3352,
+      2968
+    ],
+    "region": "Desert",
+    "category": "city",
+    "wiki_page": "Pollnivneach",
+    "wiki": [
+      3358,
+      2974
+    ],
+    "delta_tiles": 8.5,
+    "source": "wiki",
+    "note": "from {{map}} on 'Pollnivneach' (maps_scanned=1)"
+  },
+  {
+    "id": "nardah",
+    "name": "Nardah",
+    "current": [
+      3416,
+      2892
+    ],
+    "region": "Desert",
+    "category": "city",
+    "wiki_page": "Nardah",
+    "wiki": [
+      3427,
+      2911
+    ],
+    "delta_tiles": 22.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Nardah' (maps_scanned=1)"
+  },
+  {
+    "id": "sophanem",
+    "name": "Sophanem",
+    "current": [
+      3283,
+      2781
+    ],
+    "region": "Desert",
+    "category": "city",
+    "wiki_page": "Sophanem",
+    "wiki": [
+      3297,
+      2783
+    ],
+    "delta_tiles": 14.1,
+    "source": "wiki",
+    "note": "from {{map}} on 'Sophanem' (maps_scanned=1)"
+  },
+  {
+    "id": "toa",
+    "name": "Tombs of Amascut",
+    "current": [
+      3361,
+      2801
+    ],
+    "region": "Desert",
+    "category": "raid",
+    "wiki_page": "Tombs of Amascut",
+    "wiki": [
+      3345,
+      2725
+    ],
+    "delta_tiles": 77.7,
+    "source": "wiki",
+    "note": "from {{map}} on 'Tombs of Amascut' (maps_scanned=1)"
+  },
+  {
+    "id": "duel-arena",
+    "name": "Duel Arena / Emir's Arena",
+    "current": [
+      3317,
+      3242
+    ],
+    "region": "Desert",
+    "category": "landmark",
+    "wiki_page": "Emir's Arena",
+    "wiki": [
+      3360,
+      3233
+    ],
+    "delta_tiles": 43.9,
+    "source": "wiki",
+    "note": "from {{map}} on 'Emir's Arena' (maps_scanned=1)"
+  },
+  {
+    "id": "kalphite-lair",
+    "name": "Kalphite Queen Lair",
+    "current": [
+      3226,
+      3107
+    ],
+    "region": "Desert",
+    "category": "boss",
+    "wiki_page": "Kalphite Lair",
+    "wiki": [
+      3226,
+      3108
+    ],
+    "delta_tiles": 1.0,
+    "source": "curated",
+    "note": "curated: Kalphite pit ladder in Al Kharid desert"
+  },
+  {
+    "id": "mage-training-arena",
+    "name": "Mage Training Arena",
+    "current": [
+      3362,
+      3311
+    ],
+    "region": "Desert",
+    "category": "minigame",
+    "wiki_page": "Mage Training Arena",
+    "wiki": [
+      3364,
+      3312
+    ],
+    "delta_tiles": 2.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Mage Training Arena' (maps_scanned=1)"
+  },
+  {
+    "id": "giants-foundry",
+    "name": "Giants' Foundry",
+    "current": [
+      3360,
+      3148
+    ],
+    "region": "Desert",
+    "category": "minigame",
+    "wiki_page": "Giants' Foundry",
+    "wiki": [
+      3360,
+      3151
+    ],
+    "delta_tiles": 3.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Giants' Foundry' (maps_scanned=1)"
+  },
+  {
+    "id": "pyramid-plunder",
+    "name": "Pyramid Plunder",
+    "current": [
+      3288,
+      2801
+    ],
+    "region": "Desert",
+    "category": "minigame",
+    "wiki_page": "Pyramid Plunder",
+    "wiki": [
+      3289,
+      2793
+    ],
+    "delta_tiles": 8.1,
+    "source": "wiki",
+    "note": "from {{map}} on 'Pyramid Plunder' (maps_scanned=1)"
+  },
+  {
+    "id": "desert-treasure-ii",
+    "name": "Desert Treasure II bosses",
+    "current": [
+      2666,
+      3691
+    ],
+    "region": "Desert",
+    "category": "boss",
+    "wiki_page": "Desert Treasure II - The Fallen Empire",
+    "wiki": [
+      2666,
+      3691
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: DT2 pins scattered; anchor at Quetzacalli Gorge signpost"
+  },
+  {
+    "id": "gotr",
+    "name": "Guardians of the Rift",
+    "current": [
+      1572,
+      3842
+    ],
+    "region": "General",
+    "category": "minigame",
+    "wiki_page": "Guardians of the Rift",
+    "wiki": [
+      1572,
+      3842
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Guardians of the Rift minigame portal in Temple of the Eye"
+  },
+  {
+    "id": "nex-lair",
+    "name": "Nex (God Wars Dungeon)",
+    "current": [
+      2900,
+      3715
+    ],
+    "region": "Fremennik",
+    "category": "boss",
+    "wiki_page": "Ancient Prison",
+    "wiki": [
+      2915,
+      3745
+    ],
+    "delta_tiles": 33.5,
+    "source": "curated",
+    "note": "curated: GWD entrance at the foot of Trollheim (Ancient Prison below)"
+  },
+  {
+    "id": "rellekka",
+    "name": "Rellekka",
+    "current": [
+      2660,
+      3671
+    ],
+    "region": "Fremennik",
+    "category": "city",
+    "wiki_page": "Rellekka",
+    "wiki": [
+      2658,
+      3677
+    ],
+    "delta_tiles": 6.3,
+    "source": "wiki",
+    "note": "from {{map}} on 'Rellekka' (maps_scanned=1)"
+  },
+  {
+    "id": "keldagrim",
+    "name": "Keldagrim",
+    "current": [
+      2879,
+      3500
+    ],
+    "region": "Fremennik",
+    "category": "city",
+    "wiki_page": "Keldagrim",
+    "wiki": [
+      2923,
+      3536
+    ],
+    "delta_tiles": 56.9,
+    "source": "curated",
+    "note": "curated: Keldagrim surface entrance via Dwarven Mine ladder"
+  },
+  {
+    "id": "miscellania",
+    "name": "Miscellania",
+    "current": [
+      2515,
+      3858
+    ],
+    "region": "Fremennik",
+    "category": "city",
+    "wiki_page": "Miscellania",
+    "wiki": [
+      2560,
+      3870
+    ],
+    "delta_tiles": 46.6,
+    "source": "wiki",
+    "note": "from {{map}} on 'Miscellania' (maps_scanned=1)"
+  },
+  {
+    "id": "neitiznot",
+    "name": "Neitiznot",
+    "current": [
+      2345,
+      3788
+    ],
+    "region": "Fremennik",
+    "category": "city",
+    "wiki_page": "Neitiznot",
+    "wiki": [
+      2331,
+      3802
+    ],
+    "delta_tiles": 19.8,
+    "source": "wiki",
+    "note": "from {{map}} on 'Neitiznot' (maps_scanned=1)"
+  },
+  {
+    "id": "waterbirth",
+    "name": "Waterbirth Island",
+    "current": [
+      2550,
+      3750
+    ],
+    "region": "Fremennik",
+    "category": "dungeon",
+    "wiki_page": "Waterbirth Island",
+    "wiki": [
+      2525,
+      3743
+    ],
+    "delta_tiles": 26.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Waterbirth Island' (maps_scanned=1)"
+  },
+  {
+    "id": "dagannoth-kings",
+    "name": "Dagannoth Kings (Waterbirth Island)",
+    "current": [
+      2526,
+      3736
+    ],
+    "region": "Fremennik",
+    "category": "boss",
+    "wiki_page": "Waterbirth Island Dungeon",
+    "wiki": [
+      2522,
+      3745
+    ],
+    "delta_tiles": 9.8,
+    "source": "curated",
+    "note": "curated: Waterbirth Island Dungeon entrance stairs"
+  },
+  {
+    "id": "vorkath",
+    "name": "Vorkath",
+    "current": [
+      2272,
+      4052
+    ],
+    "region": "Fremennik",
+    "category": "boss",
+    "wiki_page": "Ungael",
+    "wiki": [
+      2272,
+      4064
+    ],
+    "delta_tiles": 12.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Ungael' (maps_scanned=1)"
+  },
+  {
+    "id": "fremennik-slayer-dungeon",
+    "name": "Fremennik Slayer Dungeon",
+    "current": [
+      2800,
+      3613
+    ],
+    "region": "Fremennik",
+    "category": "dungeon",
+    "wiki_page": "Fremennik Slayer Dungeon",
+    "wiki": [
+      2797,
+      3616
+    ],
+    "delta_tiles": 4.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Fremennik Slayer Dungeon' (maps_scanned=1)"
+  },
+  {
+    "id": "thermonuclear",
+    "name": "Thermonuclear Smoke Devil (Smoke Dungeon)",
+    "current": [
+      3311,
+      2956
+    ],
+    "region": "Desert",
+    "category": "boss",
+    "wiki_page": "Smoke Dungeon",
+    "wiki": [
+      3310,
+      2962
+    ],
+    "delta_tiles": 6.1,
+    "source": "wiki",
+    "note": "from {{map}} on 'Smoke Dungeon' (maps_scanned=1)"
+  },
+  {
+    "id": "god-wars",
+    "name": "God Wars Dungeon",
+    "current": [
+      2880,
+      3711
+    ],
+    "region": "Fremennik",
+    "category": "dungeon",
+    "wiki_page": "God Wars Dungeon",
+    "wiki": [
+      2918,
+      3745
+    ],
+    "delta_tiles": 51.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'God Wars Dungeon' (maps_scanned=3)"
+  },
+  {
+    "id": "east-ardougne",
+    "name": "East Ardougne",
+    "current": [
+      2661,
+      3305
+    ],
+    "region": "Kandarin",
+    "category": "city",
+    "wiki_page": "Ardougne",
+    "wiki": [
+      2570,
+      3300
+    ],
+    "delta_tiles": 91.1,
+    "source": "wiki",
+    "note": "from {{map}} on 'Ardougne' (maps_scanned=1)"
+  },
+  {
+    "id": "west-ardougne",
+    "name": "West Ardougne",
+    "current": [
+      2538,
+      3313
+    ],
+    "region": "Kandarin",
+    "category": "city",
+    "wiki_page": "West Ardougne",
+    "wiki": [
+      2500,
+      3305
+    ],
+    "delta_tiles": 38.8,
+    "source": "wiki",
+    "note": "from {{map}} on 'West Ardougne' (maps_scanned=1)"
+  },
+  {
+    "id": "camelot",
+    "name": "Camelot",
+    "current": [
+      2757,
+      3476
+    ],
+    "region": "Kandarin",
+    "category": "city",
+    "wiki_page": "Camelot",
+    "wiki": [
+      2758,
+      3507
+    ],
+    "delta_tiles": 31.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Camelot' (maps_scanned=1)"
+  },
+  {
+    "id": "catherby",
+    "name": "Catherby",
+    "current": [
+      2808,
+      3436
+    ],
+    "region": "Kandarin",
+    "category": "city",
+    "wiki_page": "Catherby",
+    "wiki": [
+      2814,
+      3443
+    ],
+    "delta_tiles": 9.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Catherby' (maps_scanned=1)"
+  },
+  {
+    "id": "yanille",
+    "name": "Yanille",
+    "current": [
+      2605,
+      3095
+    ],
+    "region": "Kandarin",
+    "category": "city",
+    "wiki_page": "Yanille",
+    "wiki": [
+      2577,
+      3090
+    ],
+    "delta_tiles": 28.4,
+    "source": "wiki",
+    "note": "from {{map}} on 'Yanille' (maps_scanned=1)"
+  },
+  {
+    "id": "khazard",
+    "name": "Port Khazard",
+    "current": [
+      2661,
+      3154
+    ],
+    "region": "Kandarin",
+    "category": "city",
+    "wiki_page": "Port Khazard",
+    "wiki": [
+      2653,
+      3159
+    ],
+    "delta_tiles": 9.4,
+    "source": "wiki",
+    "note": "from {{map}} on 'Port Khazard' (maps_scanned=1)"
+  },
+  {
+    "id": "gnome-stronghold",
+    "name": "Tree Gnome Stronghold",
+    "current": [
+      2478,
+      3431
+    ],
+    "region": "Kandarin",
+    "category": "city",
+    "wiki_page": "Tree Gnome Stronghold",
+    "wiki": [
+      2440,
+      3460
+    ],
+    "delta_tiles": 47.8,
+    "source": "wiki",
+    "note": "from {{map}} on 'Tree Gnome Stronghold' (maps_scanned=1)"
+  },
+  {
+    "id": "mcgrubors",
+    "name": "McGrubor's Wood",
+    "current": [
+      2648,
+      3497
+    ],
+    "region": "Kandarin",
+    "category": "landmark",
+    "wiki_page": "McGrubor's Wood",
+    "wiki": [
+      2652,
+      3485
+    ],
+    "delta_tiles": 12.6,
+    "source": "wiki",
+    "note": "from {{map}} on 'McGrubor's Wood' (maps_scanned=1)"
+  },
+  {
+    "id": "sinclair-mansion",
+    "name": "Sinclair Mansion",
+    "current": [
+      2735,
+      3577
+    ],
+    "region": "Kandarin",
+    "category": "landmark",
+    "wiki_page": "Sinclair Mansion",
+    "wiki": [
+      2743,
+      3555
+    ],
+    "delta_tiles": 23.4,
+    "source": "wiki",
+    "note": "from {{map}} on 'Sinclair Mansion' (maps_scanned=1)"
+  },
+  {
+    "id": "zul-andra",
+    "name": "Zul-Andra",
+    "current": [
+      2197,
+      3055
+    ],
+    "region": "Kandarin",
+    "category": "city",
+    "wiki_page": "Zul-Andra",
+    "wiki": [
+      2193,
+      3060
+    ],
+    "delta_tiles": 6.4,
+    "source": "wiki",
+    "note": "from {{map}} on 'Zul-Andra' (maps_scanned=1)"
+  },
+  {
+    "id": "fishing-guild",
+    "name": "Fishing Guild",
+    "current": [
+      2598,
+      3413
+    ],
+    "region": "Kandarin",
+    "category": "landmark",
+    "wiki_page": "Fishing Guild",
+    "wiki": [
+      2609,
+      3424
+    ],
+    "delta_tiles": 15.6,
+    "source": "wiki",
+    "note": "from {{map}} on 'Fishing Guild' (maps_scanned=1)"
+  },
+  {
+    "id": "witchaven",
+    "name": "Witchaven",
+    "current": [
+      2711,
+      3285
+    ],
+    "region": "Kandarin",
+    "category": "city",
+    "wiki_page": "Witchaven",
+    "wiki": [
+      2720,
+      3287
+    ],
+    "delta_tiles": 9.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Witchaven' (maps_scanned=3)"
+  },
+  {
+    "id": "ranging-guild",
+    "name": "Ranging Guild",
+    "current": [
+      2663,
+      3436
+    ],
+    "region": "Kandarin",
+    "category": "landmark",
+    "wiki_page": "Ranging Guild",
+    "wiki": [
+      2667,
+      3446
+    ],
+    "delta_tiles": 10.8,
+    "source": "wiki",
+    "note": "from {{map}} on 'Ranging Guild' (maps_scanned=12)"
+  },
+  {
+    "id": "castle-wars",
+    "name": "Castle Wars",
+    "current": [
+      2440,
+      3089
+    ],
+    "region": "Kandarin",
+    "category": "minigame",
+    "wiki_page": "Castle Wars Arena",
+    "wiki": [
+      2407,
+      3105
+    ],
+    "delta_tiles": 36.7,
+    "source": "wiki",
+    "note": "from {{map}} on 'Castle Wars Arena' (maps_scanned=1)"
+  },
+  {
+    "id": "chompy-hunting",
+    "name": "Chompy Bird Hunting",
+    "current": [
+      2536,
+      2887
+    ],
+    "region": "Kandarin",
+    "category": "minigame",
+    "wiki_page": "Feldip Hills",
+    "wiki": [
+      2560,
+      2944
+    ],
+    "delta_tiles": 61.8,
+    "source": "wiki",
+    "note": "from {{map}} on 'Feldip Hills' (maps_scanned=1)"
+  },
+  {
+    "id": "hespori",
+    "name": "Hespori",
+    "current": [
+      1241,
+      3750
+    ],
+    "region": "Kandarin",
+    "category": "boss",
+    "wiki_page": "Farming Guild",
+    "wiki": [
+      1249,
+      3737
+    ],
+    "delta_tiles": 15.3,
+    "source": "wiki",
+    "note": "from {{map}} on 'Farming Guild' (maps_scanned=1)"
+  },
+  {
+    "id": "port-piscarilius",
+    "name": "Port Piscarilius",
+    "current": [
+      1807,
+      3704
+    ],
+    "region": "Kourend",
+    "category": "city",
+    "wiki_page": "Port Piscarilius",
+    "wiki": [
+      1803,
+      3752
+    ],
+    "delta_tiles": 48.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Port Piscarilius' (maps_scanned=1)"
+  },
+  {
+    "id": "hosidius",
+    "name": "Hosidius",
+    "current": [
+      1745,
+      3528
+    ],
+    "region": "Kourend",
+    "category": "city",
+    "wiki_page": "Hosidius",
+    "wiki": [
+      1762,
+      3598
+    ],
+    "delta_tiles": 72.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Hosidius' (maps_scanned=1)"
+  },
+  {
+    "id": "lovakengj",
+    "name": "Lovakengj",
+    "current": [
+      1534,
+      3753
+    ],
+    "region": "Kourend",
+    "category": "city",
+    "wiki_page": "Lovakengj",
+    "wiki": [
+      1505,
+      3801
+    ],
+    "delta_tiles": 56.1,
+    "source": "wiki",
+    "note": "from {{map}} on 'Lovakengj' (maps_scanned=1)"
+  },
+  {
+    "id": "shayzien",
+    "name": "Shayzien",
+    "current": [
+      1559,
+      3620
+    ],
+    "region": "Kourend",
+    "category": "city",
+    "wiki_page": "Shayzien",
+    "wiki": [
+      1517,
+      3592
+    ],
+    "delta_tiles": 50.5,
+    "source": "wiki",
+    "note": "from {{map}} on 'Shayzien' (maps_scanned=5)"
+  },
+  {
+    "id": "arceuus",
+    "name": "Arceuus",
+    "current": [
+      1702,
+      3728
+    ],
+    "region": "Kourend",
+    "category": "city",
+    "wiki_page": "Arceuus",
+    "wiki": [
+      1700,
+      3800
+    ],
+    "delta_tiles": 72.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Arceuus' (maps_scanned=2)"
+  },
+  {
+    "id": "cox",
+    "name": "Chambers of Xeric",
+    "current": [
+      1234,
+      3578
+    ],
+    "region": "Kourend",
+    "category": "raid",
+    "wiki_page": "Chambers of Xeric",
+    "wiki": [
+      1245,
+      3557
+    ],
+    "delta_tiles": 23.7,
+    "source": "wiki",
+    "note": "from {{map}} on 'Chambers of Xeric' (maps_scanned=1)"
+  },
+  {
+    "id": "mt-karuulm",
+    "name": "Mount Karuulm",
+    "current": [
+      1311,
+      3807
+    ],
+    "region": "Kourend",
+    "category": "dungeon",
+    "wiki_page": "Mount Karuulm",
+    "wiki": [
+      1311,
+      3807
+    ],
+    "delta_tiles": 0.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Mount Karuulm' (maps_scanned=1)"
+  },
+  {
+    "id": "darkmeyer-hallowed",
+    "name": "Hallowed Sepulchre (anchor)",
+    "current": [
+      3608,
+      3377
+    ],
+    "region": "Kourend",
+    "category": "minigame",
+    "wiki_page": "Hallowed Sepulchre",
+    "wiki": [
+      3654,
+      3387
+    ],
+    "delta_tiles": 47.1,
+    "source": "wiki",
+    "note": "from {{map}} on 'Hallowed Sepulchre' (maps_scanned=1)"
+  },
+  {
+    "id": "dark-altar",
+    "name": "Dark Altar",
+    "current": [
+      1717,
+      3883
+    ],
+    "region": "Kourend",
+    "category": "landmark",
+    "wiki_page": "Dark Altar",
+    "wiki": [
+      1716,
+      3883
+    ],
+    "delta_tiles": 1.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Dark Altar' (maps_scanned=5)"
+  },
+  {
+    "id": "tithe-farm",
+    "name": "Tithe Farm",
+    "current": [
+      1803,
+      3568
+    ],
+    "region": "Kourend",
+    "category": "minigame",
+    "wiki_page": "Tithe Farm",
+    "wiki": [
+      1796,
+      3505
+    ],
+    "delta_tiles": 63.4,
+    "source": "wiki",
+    "note": "from {{map}} on 'Tithe Farm' (maps_scanned=24)"
+  },
+  {
+    "id": "aerial-fishing",
+    "name": "Aerial Fishing",
+    "current": [
+      1740,
+      3738
+    ],
+    "region": "Kourend",
+    "category": "minigame",
+    "wiki_page": "Aerial fishing",
+    "wiki": [
+      1740,
+      3738
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Aerial Fishing platform (Molch), north-east of Lovakengj"
+  },
+  {
+    "id": "forthos",
+    "name": "Forthos Dungeon",
+    "current": [
+      1797,
+      3586
+    ],
+    "region": "Kourend",
+    "category": "dungeon",
+    "wiki_page": "Forthos Dungeon",
+    "wiki": [
+      1690,
+      3570
+    ],
+    "delta_tiles": 108.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Forthos Dungeon' (maps_scanned=3)"
+  },
+  {
+    "id": "canifis",
+    "name": "Canifis",
+    "current": [
+      3499,
+      3490
+    ],
+    "region": "Morytania",
+    "category": "city",
+    "wiki_page": "Canifis",
+    "wiki": [
+      3493,
+      3488
+    ],
+    "delta_tiles": 6.3,
+    "source": "wiki",
+    "note": "from {{map}} on 'Canifis' (maps_scanned=1)"
+  },
+  {
+    "id": "port-phasmatys",
+    "name": "Port Phasmatys",
+    "current": [
+      3687,
+      3502
+    ],
+    "region": "Morytania",
+    "category": "city",
+    "wiki_page": "Port Phasmatys",
+    "wiki": [
+      3679,
+      3486
+    ],
+    "delta_tiles": 17.9,
+    "source": "wiki",
+    "note": "from {{map}} on 'Port Phasmatys' (maps_scanned=1)"
+  },
+  {
+    "id": "morttown",
+    "name": "Mort'ton",
+    "current": [
+      3492,
+      3280
+    ],
+    "region": "Morytania",
+    "category": "city",
+    "wiki_page": "Mort'ton",
+    "wiki": [
+      3487,
+      3288
+    ],
+    "delta_tiles": 9.4,
+    "source": "wiki",
+    "note": "from {{map}} on 'Mort'ton' (maps_scanned=1)"
+  },
+  {
+    "id": "mos-leharmless",
+    "name": "Mos Le'Harmless",
+    "current": [
+      3758,
+      3002
+    ],
+    "region": "Morytania",
+    "category": "city",
+    "wiki_page": "Mos Le'Harmless",
+    "wiki": [
+      3735,
+      2999
+    ],
+    "delta_tiles": 23.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Mos Le'Harmless' (maps_scanned=1)"
+  },
+  {
+    "id": "darkmeyer",
+    "name": "Darkmeyer",
+    "current": [
+      3601,
+      3377
+    ],
+    "region": "Morytania",
+    "category": "city",
+    "wiki_page": "Darkmeyer",
+    "wiki": [
+      3597,
+      3360
+    ],
+    "delta_tiles": 17.5,
+    "source": "wiki",
+    "note": "from {{map}} on 'Darkmeyer' (maps_scanned=1)"
+  },
+  {
+    "id": "barrows",
+    "name": "Barrows",
+    "current": [
+      3565,
+      3290
+    ],
+    "region": "Morytania",
+    "category": "minigame",
+    "wiki_page": "Barrows",
+    "wiki": [
+      3567,
+      3291
+    ],
+    "delta_tiles": 2.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Barrows' (maps_scanned=1)"
+  },
+  {
+    "id": "haunted-mine",
+    "name": "Haunted Mine",
+    "current": [
+      3440,
+      3232
+    ],
+    "region": "Morytania",
+    "category": "dungeon",
+    "wiki_page": "Abandoned Mine",
+    "wiki": [
+      3440,
+      3232
+    ],
+    "delta_tiles": 0.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Abandoned Mine' (maps_scanned=3)"
+  },
+  {
+    "id": "abyssal-nexus",
+    "name": "Abyssal Nexus / Sire",
+    "current": [
+      3040,
+      3571
+    ],
+    "region": "Wilderness",
+    "category": "boss",
+    "wiki_page": "Abyssal Sire",
+    "wiki": [
+      3040,
+      3571
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Abyssal Sire entrance ruins north of Edgeville (ruined temple)"
+  },
+  {
+    "id": "slayer-tower",
+    "name": "Slayer Tower",
+    "current": [
+      3428,
+      3537
+    ],
+    "region": "Morytania",
+    "category": "dungeon",
+    "wiki_page": "Slayer Tower",
+    "wiki": [
+      3428,
+      3538
+    ],
+    "delta_tiles": 1.0,
+    "source": "curated",
+    "note": "curated: Slayer Tower ground floor entrance doors"
+  },
+  {
+    "id": "nightmare",
+    "name": "Sisterhood Sanctuary",
+    "current": [
+      3736,
+      3434
+    ],
+    "region": "Morytania",
+    "category": "boss",
+    "wiki_page": "Sisterhood Sanctuary",
+    "wiki": [
+      3681,
+      3373
+    ],
+    "delta_tiles": 82.1,
+    "source": "curated",
+    "note": "curated: Sisterhood Sanctuary above-ground entrance (ruined church south of Darkmeyer)"
+  },
+  {
+    "id": "spider-cave",
+    "name": "Morytania Spider Cave",
+    "current": [
+      3671,
+      3483
+    ],
+    "region": "Morytania",
+    "category": "boss",
+    "wiki_page": "Morytania Spider Cave",
+    "wiki": [
+      3657,
+      3407
+    ],
+    "delta_tiles": 77.3,
+    "source": "wiki",
+    "note": "from {{map}} on 'Morytania Spider Cave' (maps_scanned=2)"
+  },
+  {
+    "id": "temple-trekking",
+    "name": "Temple Trekking",
+    "current": [
+      3516,
+      3456
+    ],
+    "region": "Morytania",
+    "category": "minigame",
+    "wiki_page": "Temple Trekking",
+    "wiki": [
+      3480,
+      3240
+    ],
+    "delta_tiles": 219.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Temple Trekking' (maps_scanned=1)"
+  },
+  {
+    "id": "trouble-brewing",
+    "name": "Trouble Brewing",
+    "current": [
+      3817,
+      3020
+    ],
+    "region": "Morytania",
+    "category": "minigame",
+    "wiki_page": "Trouble Brewing",
+    "wiki": [
+      3813,
+      2973
+    ],
+    "delta_tiles": 47.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Trouble Brewing' (maps_scanned=1)"
+  },
+  {
+    "id": "taxidermist",
+    "name": "Canifis Taxidermist",
+    "current": [
+      3495,
+      3489
+    ],
+    "region": "Morytania",
+    "category": "npc",
+    "wiki_page": "Taxidermist",
+    "wiki": [
+      3479,
+      3484
+    ],
+    "delta_tiles": 16.8,
+    "source": "wiki",
+    "note": "from {{map}} on 'Taxidermist' (maps_scanned=1)"
+  },
+  {
+    "id": "prifddinas",
+    "name": "Prifddinas",
+    "current": [
+      2202,
+      3412
+    ],
+    "region": "Tirannwn",
+    "category": "city",
+    "wiki_page": "Prifddinas",
+    "wiki": [
+      2210,
+      3390
+    ],
+    "delta_tiles": 23.4,
+    "source": "curated",
+    "note": "curated: Prifddinas city centre (the fountain/portal)"
+  },
+  {
+    "id": "lletya",
+    "name": "Lletya",
+    "current": [
+      2330,
+      3170
+    ],
+    "region": "Tirannwn",
+    "category": "city",
+    "wiki_page": "Lletya",
+    "wiki": [
+      2338,
+      3171
+    ],
+    "delta_tiles": 8.1,
+    "source": "wiki",
+    "note": "from {{map}} on 'Lletya' (maps_scanned=1)"
+  },
+  {
+    "id": "tirannwn-mynydd",
+    "name": "Mynydd",
+    "current": [
+      2144,
+      3339
+    ],
+    "region": "Tirannwn",
+    "category": "landmark",
+    "wiki_page": "Mynydd",
+    "wiki": [
+      2158,
+      3423
+    ],
+    "delta_tiles": 85.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Mynydd' (maps_scanned=1)"
+  },
+  {
+    "id": "tirannwn-elven-coast",
+    "name": "Isafdar Forest",
+    "current": [
+      2260,
+      3186
+    ],
+    "region": "Tirannwn",
+    "category": "landmark",
+    "wiki_page": "Isafdar",
+    "wiki": [
+      2244,
+      3182
+    ],
+    "delta_tiles": 16.5,
+    "source": "wiki",
+    "note": "from {{map}} on 'Isafdar' (maps_scanned=1)"
+  },
+  {
+    "id": "corrupted-hunllef",
+    "name": "Corrupted Hunllef (Gauntlet)",
+    "current": [
+      2202,
+      3412
+    ],
+    "region": "Tirannwn",
+    "category": "boss",
+    "wiki_page": "The Gauntlet",
+    "wiki": [
+      2210,
+      3415
+    ],
+    "delta_tiles": 8.5,
+    "source": "curated",
+    "note": "curated: Gauntlet portal inside Prifddinas; instanced boss \u2014 anchor at crystal gate"
+  },
+  {
+    "id": "zalcano",
+    "name": "Zalcano",
+    "current": [
+      2208,
+      3400
+    ],
+    "region": "Tirannwn",
+    "category": "boss",
+    "wiki_page": "Zalcano",
+    "wiki": [
+      2209,
+      3396
+    ],
+    "delta_tiles": 4.1,
+    "source": "curated",
+    "note": "curated: Zalcano is instanced in Prifddinas; anchor at Trahaearn tower"
+  },
+  {
+    "id": "edgeville",
+    "name": "Edgeville",
+    "current": [
+      3087,
+      3507
+    ],
+    "region": "Wilderness",
+    "category": "city",
+    "wiki_page": "Edgeville",
+    "wiki": [
+      3080,
+      3492
+    ],
+    "delta_tiles": 16.6,
+    "source": "wiki",
+    "note": "from {{map}} on 'Edgeville' (maps_scanned=1)"
+  },
+  {
+    "id": "bh",
+    "name": "Mage Arena",
+    "current": [
+      3106,
+      3956
+    ],
+    "region": "Wilderness",
+    "category": "minigame",
+    "wiki_page": "Mage Arena",
+    "wiki": [
+      3095,
+      3955
+    ],
+    "delta_tiles": 11.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Mage Arena' (maps_scanned=8)"
+  },
+  {
+    "id": "king-black-dragon",
+    "name": "King Black Dragon (Lava Maze)",
+    "current": [
+      3016,
+      3850
+    ],
+    "region": "Wilderness",
+    "category": "boss",
+    "wiki_page": "King Black Dragon",
+    "wiki": [
+      3017,
+      3849
+    ],
+    "delta_tiles": 1.4,
+    "source": "curated",
+    "note": "curated: KBD Lava Maze ladder in level 46 wildy"
+  },
+  {
+    "id": "chaos-ele",
+    "name": "Chaos Elemental",
+    "current": [
+      3281,
+      3914
+    ],
+    "region": "Wilderness",
+    "category": "boss",
+    "wiki_page": "Chaos Elemental",
+    "wiki": [
+      3261,
+      3927
+    ],
+    "delta_tiles": 23.9,
+    "source": "wiki",
+    "note": "from {{locline}} on 'Chaos Elemental' (maps_scanned=1)"
+  },
+  {
+    "id": "callisto",
+    "name": "Callisto / Artio",
+    "current": [
+      3299,
+      3834
+    ],
+    "region": "Wilderness",
+    "category": "boss",
+    "wiki_page": "Callisto",
+    "wiki": [
+      3291,
+      3849
+    ],
+    "delta_tiles": 17.0,
+    "source": "wiki",
+    "note": "from {{locline}} on 'Callisto' (maps_scanned=1)"
+  },
+  {
+    "id": "venenatis",
+    "name": "Venenatis / Spindel",
+    "current": [
+      3318,
+      3807
+    ],
+    "region": "Wilderness",
+    "category": "boss",
+    "wiki_page": "Venenatis",
+    "wiki": [
+      3319,
+      3798
+    ],
+    "delta_tiles": 9.1,
+    "source": "wiki",
+    "note": "from {{locline}} on 'Venenatis' (maps_scanned=1)"
+  },
+  {
+    "id": "vetion",
+    "name": "Vet'ion / Calvar'ion",
+    "current": [
+      3240,
+      3782
+    ],
+    "region": "Wilderness",
+    "category": "boss",
+    "wiki_page": "Vet'ion",
+    "wiki": [
+      3219,
+      3788
+    ],
+    "delta_tiles": 21.8,
+    "source": "wiki",
+    "note": "from {{locline}} on 'Vet'ion' (maps_scanned=1)"
+  },
+  {
+    "id": "scorpia",
+    "name": "Scorpia",
+    "current": [
+      3232,
+      3938
+    ],
+    "region": "Wilderness",
+    "category": "boss",
+    "wiki_page": "Scorpia",
+    "wiki": [
+      3232,
+      3938
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Scorpia den in Forgotten Cemetery"
+  },
+  {
+    "id": "chaos-altar",
+    "name": "Chaos Altar (Wilderness)",
+    "current": [
+      3243,
+      3607
+    ],
+    "region": "Wilderness",
+    "category": "landmark",
+    "wiki_page": "Chaos Altar",
+    "wiki": [
+      3059,
+      3590
+    ],
+    "delta_tiles": 184.8,
+    "source": "wiki",
+    "note": "from {{map}} on 'Chaos Altar' (maps_scanned=2)"
+  },
+  {
+    "id": "wilderness-slayer-cave",
+    "name": "Wilderness Slayer Cave",
+    "current": [
+      3287,
+      3745
+    ],
+    "region": "Wilderness",
+    "category": "dungeon",
+    "wiki_page": "Wilderness Slayer Cave",
+    "wiki": [
+      3246,
+      3740
+    ],
+    "delta_tiles": 41.3,
+    "source": "curated",
+    "note": "curated: Slayer Cave entrance north of Graveyard of Shadows"
+  },
+  {
+    "id": "mage-bank",
+    "name": "Mage Bank",
+    "current": [
+      3094,
+      3956
+    ],
+    "region": "Wilderness",
+    "category": "landmark",
+    "wiki_page": "Mage Arena",
+    "wiki": [
+      3095,
+      3955
+    ],
+    "delta_tiles": 1.4,
+    "source": "wiki",
+    "note": "from {{map}} on 'Mage Arena' (maps_scanned=8)"
+  },
+  {
+    "id": "rev-caves",
+    "name": "Revenant Caves",
+    "current": [
+      3127,
+      3738
+    ],
+    "region": "Wilderness",
+    "category": "dungeon",
+    "wiki_page": "Forinthry Dungeon",
+    "wiki": [
+      3127,
+      3805
+    ],
+    "delta_tiles": 67.0,
+    "source": "curated",
+    "note": "curated: Forinthry Dungeon entrance (former Revenant Caves north entrance)"
+  },
+  {
+    "id": "wilderness-agility",
+    "name": "Wilderness Agility Course",
+    "current": [
+      3005,
+      3931
+    ],
+    "region": "Wilderness",
+    "category": "minigame",
+    "wiki_page": "Wilderness Agility Course",
+    "wiki": [
+      3005,
+      3931
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Wilderness Agility Course entrance in Forgotten Cemetery area"
+  },
+  {
+    "id": "corporeal-beast",
+    "name": "Corporeal Beast",
+    "current": [
+      2967,
+      4382
+    ],
+    "region": "Wilderness",
+    "category": "boss",
+    "wiki_page": "Corporeal Beast",
+    "wiki": [
+      3203,
+      3681
+    ],
+    "delta_tiles": 739.7,
+    "source": "wiki",
+    "note": "from {{map}} on 'Corporeal Beast' (maps_scanned=3)"
+  },
+  {
+    "id": "willows-draynor",
+    "name": "Willow Trees \u2014 Draynor",
+    "current": [
+      3088,
+      3239
+    ],
+    "region": "Asgarnia",
+    "category": "resource",
+    "wiki_page": "",
+    "wiki": [
+      3088,
+      3239
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Draynor willow tree cluster by the bank"
+  },
+  {
+    "id": "willows-catherby",
+    "name": "Willow Trees \u2014 Catherby",
+    "current": [
+      2774,
+      3445
+    ],
+    "region": "Kandarin",
+    "category": "resource",
+    "wiki_page": "",
+    "wiki": [
+      2774,
+      3445
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Catherby willow cluster by the bank"
+  },
+  {
+    "id": "maples-seers",
+    "name": "Maple Trees \u2014 Seers' Village",
+    "current": [
+      2728,
+      3502
+    ],
+    "region": "Kandarin",
+    "category": "resource",
+    "wiki_page": "",
+    "wiki": [
+      2728,
+      3502
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Seers' maples east of bank"
+  },
+  {
+    "id": "yews-edgeville",
+    "name": "Yew Trees \u2014 Edgeville",
+    "current": [
+      3087,
+      3475
+    ],
+    "region": "Wilderness",
+    "category": "resource",
+    "wiki_page": "",
+    "wiki": [
+      3087,
+      3475
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Yews by Edgeville monastery/graveyard"
+  },
+  {
+    "id": "yews-varlamore",
+    "name": "Yew Trees \u2014 Quetzacalli Gorge",
+    "current": [
+      1625,
+      2997
+    ],
+    "region": "Varlamore",
+    "category": "resource",
+    "wiki_page": "",
+    "wiki": [
+      1625,
+      2997
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Quetzacalli Gorge yew grove"
+  },
+  {
+    "id": "magics-sorceress",
+    "name": "Magic Trees \u2014 Sorcerer's Garden",
+    "current": [
+      2710,
+      3488
+    ],
+    "region": "Kandarin",
+    "category": "resource",
+    "wiki_page": "Sorceress's Garden",
+    "wiki": [
+      2710,
+      3488
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Seers' Village magic trees grove (the 'Sorcerer's Garden')"
+  },
+  {
+    "id": "magics-auburn",
+    "name": "Magic Trees \u2014 Auburn Valley",
+    "current": [
+      1293,
+      3073
+    ],
+    "region": "Varlamore",
+    "category": "resource",
+    "wiki_page": "",
+    "wiki": [
+      1293,
+      3073
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Magic trees in Auburn Valley (Vale Totems area)"
+  },
+  {
+    "id": "iron-mine-dwarven",
+    "name": "Iron Rocks \u2014 Dwarven Mine",
+    "current": [
+      3041,
+      3387
+    ],
+    "region": "Asgarnia",
+    "category": "resource",
+    "wiki_page": "Dwarven Mine",
+    "wiki": [
+      3018,
+      3450
+    ],
+    "delta_tiles": 67.1,
+    "source": "wiki",
+    "note": "from {{map}} on 'Dwarven Mine' (maps_scanned=3)"
+  },
+  {
+    "id": "coal-mine-mining-guild",
+    "name": "Coal Rocks \u2014 Mining Guild",
+    "current": [
+      3046,
+      3490
+    ],
+    "region": "Asgarnia",
+    "category": "resource",
+    "wiki_page": "Mining Guild",
+    "wiki": [
+      3019,
+      3339
+    ],
+    "delta_tiles": 153.4,
+    "source": "wiki",
+    "note": "from {{map}} on 'Mining Guild' (maps_scanned=2)"
+  },
+  {
+    "id": "mithril-mining-guild",
+    "name": "Mithril Rocks \u2014 Mining Guild",
+    "current": [
+      3046,
+      3338
+    ],
+    "region": "Asgarnia",
+    "category": "resource",
+    "wiki_page": "Mining Guild",
+    "wiki": [
+      3019,
+      3339
+    ],
+    "delta_tiles": 27.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Mining Guild' (maps_scanned=2)"
+  },
+  {
+    "id": "adamantite-mining-guild",
+    "name": "Adamantite Rocks \u2014 Mining Guild",
+    "current": [
+      3046,
+      3338
+    ],
+    "region": "Asgarnia",
+    "category": "resource",
+    "wiki_page": "Mining Guild",
+    "wiki": [
+      3019,
+      3339
+    ],
+    "delta_tiles": 27.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Mining Guild' (maps_scanned=2)"
+  },
+  {
+    "id": "runite-mining-guild",
+    "name": "Runite Rocks \u2014 Mining Guild",
+    "current": [
+      3046,
+      3338
+    ],
+    "region": "Asgarnia",
+    "category": "resource",
+    "wiki_page": "Mining Guild",
+    "wiki": [
+      3019,
+      3339
+    ],
+    "delta_tiles": 27.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Mining Guild' (maps_scanned=2)"
+  },
+  {
+    "id": "silver-mine-crafting-guild",
+    "name": "Silver Rocks \u2014 Crafting Guild",
+    "current": [
+      2933,
+      3293
+    ],
+    "region": "Asgarnia",
+    "category": "resource",
+    "wiki_page": "Crafting Guild",
+    "wiki": [
+      2932,
+      3281
+    ],
+    "delta_tiles": 12.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Crafting Guild' (maps_scanned=1)"
+  },
+  {
+    "id": "lumbridge-cows",
+    "name": "Lumbridge Cow Field",
+    "current": [
+      3253,
+      3271
+    ],
+    "region": "Misthalin",
+    "category": "resource",
+    "wiki_page": "",
+    "wiki": [
+      3253,
+      3271
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Lumbridge east cow field"
+  },
+  {
+    "id": "hill-giants-edge",
+    "name": "Hill Giants \u2014 Edgeville Dungeon",
+    "current": [
+      3114,
+      3509
+    ],
+    "region": "Wilderness",
+    "category": "resource",
+    "wiki_page": "Edgeville Dungeon",
+    "wiki": [
+      3097,
+      3469
+    ],
+    "delta_tiles": 43.5,
+    "source": "wiki",
+    "note": "from {{map}} on 'Edgeville Dungeon' (maps_scanned=3)"
+  },
+  {
+    "id": "seers-rooftop",
+    "name": "Seers' Rooftop Agility",
+    "current": [
+      2729,
+      3486
+    ],
+    "region": "Kandarin",
+    "category": "minigame",
+    "wiki_page": "Seers' Village Rooftop Course",
+    "wiki": [
+      2729,
+      3486
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Seers' Village Rooftop Course start pad"
+  },
+  {
+    "id": "tempoross",
+    "name": "Tempoross",
+    "current": [
+      3141,
+      3035
+    ],
+    "region": "Asgarnia",
+    "category": "boss",
+    "wiki_page": "Tempoross",
+    "wiki": [
+      3035,
+      2850
+    ],
+    "delta_tiles": 213.2,
+    "source": "wiki",
+    "note": "from {{map}} on 'Tempoross' (maps_scanned=1)"
+  },
+  {
+    "id": "wintertodt",
+    "name": "Wintertodt",
+    "current": [
+      1630,
+      3974
+    ],
+    "region": "Kourend",
+    "category": "boss",
+    "wiki_page": "Wintertodt",
+    "wiki": [
+      1630,
+      3981
+    ],
+    "delta_tiles": 7.0,
+    "source": "wiki",
+    "note": "from {{map}} on 'Wintertodt' (maps_scanned=2)"
+  },
+  {
+    "id": "zanaris",
+    "name": "Zanaris",
+    "current": [
+      2452,
+      4474
+    ],
+    "region": "General",
+    "category": "landmark",
+    "wiki_page": "Zanaris",
+    "wiki": [
+      2452,
+      4474
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Zanaris lives on its own mapID; pin at throne of the Lucien Fairy"
+  },
+  {
+    "id": "puro-puro",
+    "name": "Puro-Puro",
+    "current": [
+      2590,
+      4320
+    ],
+    "region": "General",
+    "category": "minigame",
+    "wiki_page": "Puro-Puro",
+    "wiki": [
+      2590,
+      4320
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: Puro-Puro implings realm; pin at centre of crop circle"
+  },
+  {
+    "id": "abyss",
+    "name": "The Abyss",
+    "current": [
+      3103,
+      3556
+    ],
+    "region": "General",
+    "category": "landmark",
+    "wiki_page": "The Abyss",
+    "wiki": [
+      3104,
+      3560
+    ],
+    "delta_tiles": 4.1,
+    "source": "wiki",
+    "note": "from {{map}} on 'The Abyss' (maps_scanned=6)"
+  },
+  {
+    "id": "fairy-ring-ckq",
+    "name": "Fairy Ring CKQ",
+    "current": [
+      1404,
+      2930
+    ],
+    "region": "Varlamore",
+    "category": "landmark",
+    "wiki_page": "",
+    "wiki": [
+      1404,
+      2930
+    ],
+    "delta_tiles": 0.0,
+    "source": "curated",
+    "note": "curated: CKQ ring in Aldarin"
+  }
+]

@@ -1,0 +1,122 @@
+import { useEffect, useMemo, useState, useCallback } from "react";
+import MapView from "./components/MapView";
+import FilterSidebar from "./components/FilterSidebar";
+import TaskList from "./components/TaskList";
+import { defaultFilters, matchesFilter } from "./lib/filters";
+import type { FilterState } from "./lib/filters";
+import {
+  ALL_PLACEMENTS,
+  ALL_TASKS,
+  getPlacement,
+  getTask,
+} from "./lib/taskIndex";
+import { REGION_PALETTE } from "./types";
+import type { Task } from "./types";
+import "./App.css";
+
+/**
+ * Push the region palette from `types.ts` onto `:root` as CSS custom
+ * properties (`--region-karamja`, `--region-karamja-text`, …) so CSS files
+ * can reference them without hard-coding hex codes. One TS source of
+ * truth, consumed by both the map pins and every region-colored chip/tag.
+ */
+function applyRegionPalette(): void {
+  const root = document.documentElement;
+  for (const [region, { base, text }] of Object.entries(REGION_PALETTE)) {
+    const slug = region.toLowerCase();
+    root.style.setProperty(`--region-${slug}`, base);
+    root.style.setProperty(`--region-${slug}-text`, text);
+  }
+}
+
+function App() {
+  useEffect(applyRegionPalette, []);
+
+  const [filters, setFilters] = useState<FilterState>(defaultFilters);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
+    null,
+  );
+
+  const { mappableTasks, unmappableTasks, tasksByLocation } = useMemo(() => {
+    const mappable: Task[] = [];
+    const unmappable: Task[] = [];
+    const byLoc = new Map<string, Task[]>();
+    for (const task of ALL_TASKS) {
+      const placement = ALL_PLACEMENTS.find((p) => p.taskId === task.id)!;
+      if (!matchesFilter(task, placement, filters)) continue;
+      if (placement.unmappable) {
+        unmappable.push(task);
+      } else {
+        mappable.push(task);
+        for (const locId of placement.locations) {
+          const arr = byLoc.get(locId) ?? [];
+          arr.push(task);
+          byLoc.set(locId, arr);
+        }
+      }
+    }
+    return {
+      mappableTasks: mappable,
+      unmappableTasks: unmappable,
+      tasksByLocation: byLoc,
+    };
+  }, [filters]);
+
+  const unmappableTotal = useMemo(() => {
+    return ALL_PLACEMENTS.filter((p) => p.unmappable).length;
+  }, []);
+
+  const handleSelectTask = useCallback((id: string) => {
+    setSelectedTaskId(id);
+    const placement = getPlacement(id);
+    if (placement && placement.locations.length > 0) {
+      setSelectedLocationId(placement.primary ?? placement.locations[0]);
+    }
+  }, []);
+
+  const handleSelectLocation = useCallback((id: string | null) => {
+    setSelectedLocationId(id);
+  }, []);
+
+  return (
+    <div className="app-shell">
+      <aside className="left-panel">
+        <FilterSidebar
+          filters={filters}
+          setFilters={setFilters}
+          totalCount={ALL_TASKS.length}
+          visibleCount={mappableTasks.length + unmappableTasks.length}
+          unmappableCount={unmappableTotal}
+        />
+        <TaskList
+          tasks={mappableTasks}
+          unmappableTasks={unmappableTasks}
+          selectedTaskId={selectedTaskId}
+          onSelectTask={handleSelectTask}
+          onSelectLocation={handleSelectLocation}
+        />
+      </aside>
+      <main className="app-map">
+        <MapView
+          tasksByLocation={tasksByLocation}
+          selectedLocationId={selectedLocationId}
+          onSelectLocation={handleSelectLocation}
+          onSelectTask={(id) => {
+            handleSelectTask(id);
+            const t = getTask(id);
+            if (t) scrollTaskIntoView(t.id);
+          }}
+        />
+      </main>
+    </div>
+  );
+}
+
+// TaskList handles its own scroll via effect on selectedTaskId; nothing
+// for the shell to do besides setting the selected id.
+function scrollTaskIntoView(_id: string): void {
+  void _id;
+}
+
+export default App;
