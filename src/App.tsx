@@ -1,18 +1,18 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
-import MapView from "./components/MapView";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
 import FilterSidebar from "./components/FilterSidebar";
 import TaskList from "./components/TaskList";
 import { defaultFilters, matchesFilter } from "./lib/filters";
 import type { FilterState } from "./lib/filters";
-import {
-  ALL_PLACEMENTS,
-  ALL_TASKS,
-  getPlacement,
-  getTask,
-} from "./lib/taskIndex";
+import { ALL_PLACEMENTS, ALL_TASKS, getPlacement } from "./lib/taskIndex";
 import { REGION_PALETTE } from "./types";
 import type { Task } from "./types";
 import "./App.css";
+
+// Leaflet + MapView together are ~230 KB gz. Lazy-load them so the
+// initial paint (title, filters, task list) doesn't wait on the map
+// runtime. The `<link rel="preload">` in index.html kicks off the map
+// image download in parallel, so visually the map still shows up fast.
+const MapView = lazy(() => import("./components/MapView"));
 
 /**
  * Push the region palette from `types.ts` onto `:root` as CSS custom
@@ -109,25 +109,17 @@ function App() {
         />
       </aside>
       <main className="app-map">
-        <MapView
-          tasksByLocation={tasksByLocation}
-          selectedLocationId={selectedLocationId}
-          onSelectLocation={handleSelectLocation}
-          onSelectTask={(id) => {
-            handleSelectTask(id);
-            const t = getTask(id);
-            if (t) scrollTaskIntoView(t.id);
-          }}
-        />
+        <Suspense fallback={<div className="map-fallback" aria-hidden />}>
+          <MapView
+            tasksByLocation={tasksByLocation}
+            selectedLocationId={selectedLocationId}
+            onSelectLocation={handleSelectLocation}
+            onSelectTask={handleSelectTask}
+          />
+        </Suspense>
       </main>
     </div>
   );
-}
-
-// TaskList handles its own scroll via effect on selectedTaskId; nothing
-// for the shell to do besides setting the selected id.
-function scrollTaskIntoView(_id: string): void {
-  void _id;
 }
 
 export default App;

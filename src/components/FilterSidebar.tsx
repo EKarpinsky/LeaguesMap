@@ -169,14 +169,14 @@ export default function FilterSidebar({
 
       <section className="sect">
         <div className="sect-head">
-          <h3>
+          <h2>
             Region
             {!allRegionsOn && (
               <span className="sect-meta">
                 {filters.regions.size} of {REGION_DISPLAY_ORDER.length}
               </span>
             )}
-          </h3>
+          </h2>
           <button type="button" onClick={toggleAllRegions}>
             {allRegionsOn ? "None" : "All"}
           </button>
@@ -218,14 +218,14 @@ export default function FilterSidebar({
 
       <section className="sect">
         <div className="sect-head">
-          <h3>
+          <h2>
             Difficulty
             {!allDifficultiesOn && (
               <span className="sect-meta">
                 {filters.difficulties.size} of {DIFFICULTIES.length}
               </span>
             )}
-          </h3>
+          </h2>
           <button type="button" onClick={toggleAllDifficulties}>
             {allDifficultiesOn ? "None" : "All"}
           </button>
@@ -260,7 +260,7 @@ export default function FilterSidebar({
 
       <section className="sect sect-opts">
         <div className="sect-head">
-          <h3>Options</h3>
+          <h2>Options</h2>
         </div>
         <OptRow
           checked={filters.pactOnly}

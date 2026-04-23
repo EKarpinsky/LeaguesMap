@@ -118,7 +118,42 @@ const REGION_BBOXES: { region: Region; xmin: number; xmax: number; ymin: number;
  */
 const INACCESSIBLE_REGIONS: ReadonlySet<Region> = new Set(["Misthalin"]);
 
-function inferRegion(x: number, y: number, leagueRegion: string | null): Region {
+/**
+ * Coords below this y are Sailing-era southern-ocean content (Sunbleak
+ * Island, Abalone Cliffs, The Great Conch, the post-launch Pandemonium /
+ * Summer Shore / Port Roberts / Red Rock / Deepfin Point ports). None of
+ * the eleven Demonic Pacts league regions extend below y=2700 — Menaphos
+ * (y≈2742) and Ape Atoll (y≈2715) are the southernmost reachable land —
+ * so any spawn south of this latitude that doesn't land in a region bbox
+ * is, by elimination, post-league content and should be dropped instead
+ * of falling back to the entity-level leagueRegion (which would render
+ * the pin in the open ocean).
+ */
+const POST_LEAGUE_SOUTH_Y = 2700;
+
+const LEAGUE_REGION_LOOKUP: Record<string, Region> = {
+  varlamore: "Varlamore",
+  karamja: "Karamja",
+  asgarnia: "Asgarnia",
+  misthalin: "Misthalin",
+  desert: "Desert",
+  "kharidian desert": "Desert",
+  kandarin: "Kandarin",
+  kourend: "Kourend",
+  "great kourend": "Kourend",
+  morytania: "Morytania",
+  fremennik: "Fremennik",
+  "fremennik province": "Fremennik",
+  tirannwn: "Tirannwn",
+  wilderness: "Wilderness",
+};
+
+function lookupLeagueRegion(lr: string | null): Region | null {
+  if (!lr) return null;
+  return LEAGUE_REGION_LOOKUP[lr.trim().toLowerCase()] ?? null;
+}
+
+function inferRegion(x: number, y: number, leagueRegion: string | null): Region | null {
   // Per-spawn bounding box takes priority over the entity's page-level
   // leagueRegion, since a Black Knight spawn at (3029, 3517) is in
   // Asgarnia even though the wiki tags the whole page as Wilderness.
@@ -136,27 +171,15 @@ function inferRegion(x: number, y: number, leagueRegion: string | null): Region 
     }
   }
   if (best) return best;
-  if (leagueRegion) {
-    const norm = leagueRegion.trim().toLowerCase();
-    const map: Record<string, Region> = {
-      varlamore: "Varlamore",
-      karamja: "Karamja",
-      asgarnia: "Asgarnia",
-      misthalin: "Misthalin",
-      desert: "Desert",
-      "kharidian desert": "Desert",
-      kandarin: "Kandarin",
-      kourend: "Kourend",
-      "great kourend": "Kourend",
-      morytania: "Morytania",
-      fremennik: "Fremennik",
-      "fremennik province": "Fremennik",
-      tirannwn: "Tirannwn",
-      wilderness: "Wilderness",
-    };
-    if (map[norm]) return map[norm];
-  }
-  return "General";
+  const fallback = lookupLeagueRegion(leagueRegion);
+  // No bbox match. Below the southern Demonic Pacts boundary we refuse to
+  // fall back to "General" or to a missing/N-A leagueRegion — those are
+  // post-league Sailing coords (Port master at y=2370 etc.) and would
+  // render in the open sea. We DO honour a known league region (Pest
+  // Control's only spawn is (2658, 2625) with page-level "Asgarnia"),
+  // since the wiki author has explicitly tagged it as reachable content.
+  if (y < POST_LEAGUE_SOUTH_Y) return fallback;
+  return fallback ?? "General";
 }
 
 function mapCategory(c: string | null): WorldLocation["category"] {
@@ -214,6 +237,7 @@ export const ENTITY_LOCATIONS: EntityLocation[] = (() => {
     if (spawns.length === 0) continue;
     for (const [sx, sy] of spawns) {
       const r = inferRegion(sx, sy, ent.leagueRegion);
+      if (r === null) continue;
       if (INACCESSIBLE_REGIONS.has(r)) continue;
       const arr = spawnsByRegion.get(r) ?? [];
       arr.push([sx, sy]);

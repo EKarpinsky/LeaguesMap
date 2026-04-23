@@ -167,7 +167,11 @@ CURATED_ENTITIES: dict[str, dict] = {
     "scorpia":                   {"anchor": "Bone Yard",              "category": "boss"},
     "abyssal sire":              {"anchor": "Edgeville",              "category": "boss"},
     "abyssal nexus":             {"anchor": "Edgeville",              "category": "boss"},
-    "cerberus":                  {"anchor": "Mount Karuulm",          "category": "boss"},
+    # Cerberus' Lair is accessed via the hellhound room in Taverley
+    # Dungeon (Asgarnia). The Cerberus' Lair wiki page's own Map template
+    # points at instance coords (mapID=10030), so we anchor to Taverley
+    # Dungeon's surface entrance at (2884, 3398) instead.
+    "cerberus":                  {"anchor": "Taverley Dungeon",       "category": "boss"},
     "alchemical hydra":          {"anchor": "Mount Karuulm",          "category": "boss"},
     "thermonuclear smoke devil": {"anchor": "Smoke Dungeon",          "category": "boss"},
     "corporeal beast":           {"anchor": "Corporeal Beast",        "category": "boss"},
@@ -369,11 +373,21 @@ def _maybe_int(s: str) -> int | None:
 def parse_coords(wt: str) -> list[dict]:
     """Return every candidate coord found on the page.
 
-    Each emitted dict carries a `location` field (the raw `location=` value
-    from the LocLine template it came from, lowercased/wiki-link-stripped)
-    so callers can filter by sub-area — important for scenery/NPC pages
-    that list multiple disjoint areas (e.g. `Windswept tree` has both
-    Fossil Island spawns and a Brine Rat Cavern entrance spawn).
+    Each emitted dict carries:
+      • `location`   — raw `location=` value from the LocLine, lowercased &
+                       wiki-link-stripped, so callers can filter by sub-area
+                       (e.g. `Windswept tree` lists both Fossil Island and
+                       Brine Rat Cavern entries; the curated entry for
+                       brine rat selects only the latter).
+      • `leagueRegion` — the per-LocLine `leagueRegion=` value (or None).
+                       Each LocLine on a page can declare its own league
+                       region; e.g. on the Scorpion page the Sailing-era
+                       island entries ("Sunbleak", "Abalone Cliffs",
+                       "The Great Conch") are tagged `leagueRegion = N/A`
+                       even though the entity-level fallback is "Desert".
+                       Without per-spawn data those Sailing coords would
+                       leak into the Desert pin and render in the southern
+                       ocean. The runtime drops `N/A` spawns entirely.
     """
     out: list[dict] = []
     for m in _TEMPLATE_RE.finditer(wt):
@@ -383,6 +397,7 @@ def parse_coords(wt: str) -> list[dict]:
         plane: int | None = None
         mapID: int | None = None
         location: str = ""
+        league_region: str | None = None
         xs: list[tuple[int, int]] = []
         inline_x: int | None = None
         inline_y: int | None = None
@@ -404,6 +419,8 @@ def parse_coords(wt: str) -> list[dict]:
                     # Strip [[wiki links]] and extract display text
                     loc = re.sub(r"\[\[([^\]|]*\|)?([^\]]+)\]\]", r"\2", v)
                     location = loc.strip().lower()
+                elif k == "leagueregion":
+                    league_region = v.strip()
         if inline_x is not None and inline_y is not None:
             xs.append((inline_x, inline_y))
         for p in parts:
@@ -426,6 +443,7 @@ def parse_coords(wt: str) -> list[dict]:
                 "x": x, "y": y,
                 "plane": plane, "mapID": mapID,
                 "kind": kind, "location": location,
+                "leagueRegion": league_region,
             })
     return out
 
@@ -461,6 +479,13 @@ def is_surface_pin(m: dict) -> bool:
     if m["mapID"] not in (None, 0, -1):
         return False
     if not (900 <= m["x"] <= 4100 and 2300 <= m["y"] <= 4094):
+        return False
+    # Per-LocLine `leagueRegion = N/A` flags content that's outside the
+    # league entirely (Sailing islands, post-launch additions, etc.).
+    # Without this filter the Sailing scorpion spawns at y≈2350 leak
+    # into the Scorpion (Desert) pin and render in the southern ocean.
+    lr = m.get("leagueRegion")
+    if lr and lr.strip().upper() in {"N/A", "NA", "NONE"}:
         return False
     return True
 

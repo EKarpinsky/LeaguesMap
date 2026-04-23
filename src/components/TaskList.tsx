@@ -90,10 +90,10 @@ export default function TaskList({
 
         {unmappableSorted.length > 0 && (
           <section className="unmappable-section">
-            <h3>
+            <h2>
               Non-spatial tasks{" "}
               <span className="count">{unmappableSorted.length}</span>
-            </h3>
+            </h2>
             <p className="hint">
               Skill-level, combat achievement, and collection log goals that
               don't live anywhere on the map.
@@ -160,16 +160,25 @@ function TaskRow({
       ? getLocation(placement.locations[0])
       : undefined;
 
-  return (
-    <div
-      className={`task-row diff-${task.difficulty.toLowerCase()} ${selected ? "selected" : ""}`}
-      data-task-id={task.id}
-      onClick={() => {
+  // Non-spatial tasks have no pin to jump to. Clicking them would only
+  // highlight the already-visible row and do nothing on the map, so we
+  // render them as plain, non-interactive cards. `onSelectTask` /
+  // `onSelectLocation` remain opt-in for the mappable rows below.
+  const interactive = !nonSpatial;
+  const handleClick = interactive
+    ? () => {
         onSelectTask(task.id);
-        if (!nonSpatial && placement?.locations[0]) {
+        if (placement?.locations[0]) {
           onSelectLocation(placement.primary ?? placement.locations[0]);
         }
-      }}
+      }
+    : undefined;
+
+  return (
+    <div
+      className={`task-row diff-${task.difficulty.toLowerCase()}${selected && interactive ? " selected" : ""}${interactive ? "" : " non-spatial"}`}
+      data-task-id={task.id}
+      onClick={handleClick}
     >
       <div className="task-row-top">
         <img

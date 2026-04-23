@@ -56,6 +56,15 @@
   background: #241a16;
   border-color: #ff5a00;
 }
+/* Non-spatial tasks have no pin to jump to — render as read-only cards
+   (no pointer, no hover affordance, no selection highlight). */
+.task-row.non-spatial {
+  cursor: default;
+}
+.task-row.non-spatial:hover {
+  background: #14141c;
+  border-color: transparent;
+}
 
 .task-row-top {
   display: flex;
@@ -207,7 +216,7 @@
   padding-top: 14px;
   border-top: 1px dashed #2c2c36;
 }
-.unmappable-section h3 {
+.unmappable-section h2 {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.12em;

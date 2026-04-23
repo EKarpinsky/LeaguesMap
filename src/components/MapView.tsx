@@ -64,6 +64,21 @@ export default function MapView({
    * at the React layer (e.g. during sidebar clicks).
    */
   const highlightedIdRef = useRef<string | null>(null);
+  /**
+   * Latest callback refs. We pipe them through refs so the marker-rebuild
+   * effect can depend purely on `visibleEntries` — if a parent passes a
+   * fresh-identity `onSelectTask` arrow on every render, we must NOT
+   * rebuild the marker layer (which would destroy any open popup and
+   * break switching between tasks that share a pin). See bug: clicking
+   * task B after task A at the same pin used to silently close the popup
+   * because the layer was being torn down on every App re-render.
+   */
+  const onSelectLocationRef = useRef(onSelectLocation);
+  const onSelectTaskRef = useRef(onSelectTask);
+  useEffect(() => {
+    onSelectLocationRef.current = onSelectLocation;
+    onSelectTaskRef.current = onSelectTask;
+  }, [onSelectLocation, onSelectTask]);
 
   useEffect(() => {
     if (!mapEl.current || mapRef.current) return;
@@ -181,7 +196,7 @@ export default function MapView({
           ${t.isDemonicPact ? '<span class="pact-tag" title="Earns a Demonic Pact">DP</span>' : ""}
           <span class="task-name">${escapeHtml(t.name)}</span>
         `;
-        li.addEventListener("click", () => onSelectTask(t.id));
+        li.addEventListener("click", () => onSelectTaskRef.current(t.id));
         list.appendChild(li);
       }
       if (sorted.length > 30) {
@@ -202,17 +217,19 @@ export default function MapView({
       };
 
       marker.bindPopup(popup, { maxWidth: 360, maxHeight: 420 });
-      marker.on("popupopen", () => onSelectLocation(loc.id));
+      marker.on("popupopen", () => onSelectLocationRef.current(loc.id));
       marker.on("popupclose", () => {
         // Only deselect on close if this pin is still the selected one
         // (avoids races when the user closes one popup while another
         // selection is already in-flight from the sidebar).
-        if (highlightedIdRef.current === loc.id) onSelectLocation(null);
+        if (highlightedIdRef.current === loc.id) {
+          onSelectLocationRef.current(null);
+        }
       });
       group.addLayer(marker);
       markersByIdRef.current.set(loc.id, marker);
     }
-  }, [visibleEntries, onSelectLocation, onSelectTask]);
+  }, [visibleEntries]);
 
   /**
    * React to selection changes (from either a pin click or the sidebar):

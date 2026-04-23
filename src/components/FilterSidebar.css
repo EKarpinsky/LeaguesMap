@@ -12,8 +12,8 @@
   --fs-border: #26262f;
   --fs-border-soft: #1d1d26;
   --fs-text: #e9e9ef;
-  --fs-text-muted: #8b8b96;
-  --fs-text-dim: #5a5a66;
+  --fs-text-muted: #a3a3b0;
+  --fs-text-dim: #9aa0ae;
   --fs-accent: #e87c30;
   --fs-accent-contrast: #0a0a10;
 
@@ -134,7 +134,7 @@
   min-height: 18px;
 }
 
-.sect-head h3 {
+.sect-head h2 {
   margin: 0;
   display: inline-flex;
   align-items: baseline;
