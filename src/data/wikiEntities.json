@@ -2333,12 +2333,18 @@
     ],
     "category": "monster",
     "leagueRegion": null,
-    "note": "Taverley Dungeon (Asgarnia)",
+    "note": "Taverley Dungeon",
     "resolvedTitle": "Black Demon",
     "source": "curated",
     "title": "Black Demon",
     "x": 2884,
-    "y": 3398
+    "y": 3398,
+    "spawnNotes": [
+      "Taverley Dungeon",
+      "Brimhaven Dungeon",
+      "Edgeville Dungeon",
+      "Chaos Druid Tower"
+    ]
   },
   "black dragon": {
     "allSpawns": [
@@ -2710,12 +2716,17 @@
     ],
     "category": "monster",
     "leagueRegion": null,
-    "note": "Taverley Dungeon (Asgarnia)",
+    "note": "Taverley Dungeon",
     "resolvedTitle": "Blue Dragon",
     "source": "curated",
     "title": "Blue Dragon",
     "x": 2884,
-    "y": 3398
+    "y": 3398,
+    "spawnNotes": [
+      "Taverley Dungeon",
+      "Ardougne Zoo",
+      "Heroes Guild"
+    ]
   },
   "blue moon": {
     "allSpawns": [
@@ -9238,12 +9249,17 @@
     ],
     "category": "monster",
     "leagueRegion": null,
-    "note": "Waterfall Dungeon (Kandarin)",
+    "note": "Waterfall Dungeon",
     "resolvedTitle": "Fire Giant",
     "source": "curated",
     "title": "Fire Giant",
     "x": 2512,
-    "y": 3464
+    "y": 3464,
+    "spawnNotes": [
+      "Waterfall Dungeon",
+      "Deep Wilderness Dungeon",
+      "Mount Karuulm"
+    ]
   },
   "fish stall": {
     "allSpawns": [
@@ -31728,18 +31744,22 @@
         3539
       ],
       [
-        2891,
-        3678
+        2744,
+        3719
       ]
     ],
     "category": "monster",
     "leagueRegion": null,
-    "note": "Burthorpe (Asgarnia)",
+    "note": "Burthorpe",
     "resolvedTitle": "Troll",
     "source": "curated",
     "title": "Troll",
     "x": 2881,
-    "y": 3539
+    "y": 3539,
+    "spawnNotes": [
+      "Burthorpe",
+      "Keldagrim entrance (south-of-Keldagrim tunnel — fairy ring DKS)"
+    ]
   },
   "troll stronghold (location)": {
     "allSpawns": [

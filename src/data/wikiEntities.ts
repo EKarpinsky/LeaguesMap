@@ -43,6 +43,15 @@ interface RawEntity {
   y: number;
   source: "map" | "locline" | "curated";
   allSpawns: [number, number][];
+  /**
+   * Optional parallel array to `allSpawns`: `spawnNotes[i]` is the curated
+   * blurb for spawn `i`. Used by multi-anchor curated entities where the
+   * entity-level `note` can only describe ONE region's pin — e.g. "Troll"
+   * has a Burthorpe (Asgarnia) spawn AND a Keldagrim entrance (Fremennik)
+   * spawn. Without this, every regional pin would inherit the first spawn's
+   * note and the Fremennik pin would render "Burthorpe" as its blurb.
+   */
+  spawnNotes?: (string | null)[];
   category: string | null;
   leagueRegion: string | null;
   note?: string;
@@ -233,6 +242,14 @@ export const ENTITY_LOCATIONS: EntityLocation[] = (() => {
     const rawSpawns: [number, number][] = ent.allSpawns.length > 0
       ? ent.allSpawns
       : [[ent.x, ent.y]];
+    // Keep `spawnNotes` parallel to the filtered spawns so we can attach
+    // the right per-spawn blurb to each region's medoid pin later.
+    const noteByCoord = new Map<string, string | null>();
+    if (ent.spawnNotes) {
+      ent.allSpawns.forEach((s, i) => {
+        noteByCoord.set(`${s[0]},${s[1]}`, ent.spawnNotes?.[i] ?? null);
+      });
+    }
     const spawns = rawSpawns.filter(([sx, sy]) => isOnMap(sx, sy));
     if (spawns.length === 0) continue;
     for (const [sx, sy] of spawns) {
@@ -285,6 +302,12 @@ export const ENTITY_LOCATIONS: EntityLocation[] = (() => {
       // "Warriors' Guild (Asgarnia)" is redundant. Curated `ent.note`
       // still passes through for hand-written hints (e.g. dungeon
       // entrance pointers).
+      // Per-spawn blurb wins over the entity-level `note`, so the Fremennik
+      // Troll pin gets "Keldagrim entrance" and the Asgarnia Burthorpe pin
+      // gets "Burthorpe" — instead of both inheriting whichever happened
+      // to be the entity's first-spawn note.
+      const perSpawnNote = noteByCoord.get(`${best[0]},${best[1]}`);
+      const blurb = perSpawnNote ?? ent.note;
       out.push({
         id: `${entityLocationId(key)}${suffix}`,
         name: displayName,
@@ -293,7 +316,7 @@ export const ENTITY_LOCATIONS: EntityLocation[] = (() => {
         region,
         category: mapCategory(ent.category),
         aliases: [...aliasSet],
-        blurb: ent.note,
+        blurb,
         wikiTitle: ent.title,
         spawnIndex: idx,
       });

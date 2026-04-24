@@ -263,7 +263,7 @@ CURATED_COORDS: dict[str, tuple[int, int, str]] = {
     "desert-treasure-ii":(2666, 3691, "DT2 pins scattered; anchor at Quetzacalli Gorge signpost"),
     "gotr":              (1572, 3842, "Guardians of the Rift minigame portal in Temple of the Eye"),
     "nex-lair":          (2915, 3745, "GWD entrance at the foot of Trollheim (Ancient Prison below)"),
-    "keldagrim":         (2923, 3536, "Keldagrim surface entrance via Dwarven Mine ladder"),
+    "keldagrim":         (2744, 3719, "Keldagrim entrance — surface cave east of Rellekka (fairy ring DKS lands right next to the cave per the Keldagrim wiki page). Previous coord (2923, 3536) was near Heroes' Guild / Chaos Temple, not actually a route to Keldagrim."),
     "dagannoth-kings":   (2522, 3745, "Waterbirth Island Dungeon entrance stairs"),
     "aerial-fishing":    (1740, 3738, "Aerial Fishing platform (Molch), north-east of Lovakengj"),
     "abyssal-nexus":     (3040, 3571, "Abyssal Sire entrance ruins north of Edgeville (ruined temple)"),

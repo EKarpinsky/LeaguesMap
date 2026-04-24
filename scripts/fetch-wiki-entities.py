@@ -121,6 +121,21 @@ ANCHOR_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
     # (and therefore the surface route to Neypotzli / Moons of Peril) is the
     # walk-in from Quetzacalli Gorge at the foot of Ralos' Rise.
     "Cam Torum": (1421, 3114),
+    # The Mountain Troll wiki has only ONE Fremennik LocLine — "South of
+    # Keldagrim" at mapID=10 (underground tunnel between the surface trapdoor
+    # and Keldagrim itself, x:2825-2844, y:10083-10101). The previous Fremennik
+    # troll pin (Trollheim, 2891, 3678) was actually the Trollheim plateau in
+    # *Asgarnia* — wrong region for Fremennik tasks AND wrong physical area for
+    # what players want from a Fremennik troll pin. The right surface pin for
+    # the south-of-Keldagrim tunnel is the cave entrance east of Rellekka,
+    # which the wiki canonically reaches via fairy ring DKS at (2744, 3719) —
+    # the Keldagrim wiki page even names the fairy ring as the recommended
+    # entry point: "Players can use fairy ring code DKS to teleport right next
+    # to the cave entrance to Keldagrim." There is no wiki page with a
+    # surface {{Map}} for the cave entrance scenery itself (its infobox map
+    # points to (2781, 10161) inside the cave), so we override the anchor to
+    # the wiki-confirmed fairy ring landing tile.
+    "Keldagrim entrance": (2744, 3719),
 }
 
 
@@ -274,7 +289,14 @@ CURATED_ENTITIES: dict[str, dict] = {
     ], "category": "monster"},
     "troll":                     {"spawns": [
         {"anchor": "Burthorpe",            "region_hint": "Asgarnia"},
-        {"anchor": "Trollheim",            "region_hint": "Fremennik"},
+        # Fremennik Mountain Trolls only spawn underground in the south-of-
+        # Keldagrim tunnel (Mountain_troll wiki LocLine, mapID=10, leagueRegion
+        # = Fremennik). Surface entry is the cave east of Rellekka, reachable
+        # via fairy ring DKS — see ANCHOR_COORD_OVERRIDES["Keldagrim entrance"].
+        # Trollheim itself sits in Asgarnia (region_hint "Fremennik" on a
+        # Trollheim coord would mis-tag the pin), so we anchor on the
+        # Keldagrim entrance area instead.
+        {"anchor": "Keldagrim entrance",   "region_hint": "Fremennik"},
     ], "category": "monster"},
     "fire giant":                {"spawns": [
         {"anchor": "Waterfall Dungeon",    "region_hint": "Kandarin"},
@@ -814,8 +836,15 @@ def main() -> int:
             for s in override["spawns"]:
                 xy = resolve_anchor_coord(s["anchor"], s.get("location_match"))
                 if xy:
+                    # Per-spawn note is JUST the anchor name (e.g. "Burthorpe",
+                    # "Trollheim"). The "(region)" suffix is redundant — the
+                    # popup already renders a region badge above the blurb,
+                    # and worse: when the runtime split this into per-region
+                    # locations it would render "Burthorpe (Asgarnia)" on the
+                    # Fremennik Trollheim pin if the suffix was retained AND
+                    # the entity-level note leaked.
                     resolved_spawns.append({"x": xy[0], "y": xy[1],
-                                            "note": f"{s['anchor']} ({s.get('region_hint','')})"})
+                                            "note": s["anchor"]})
         else:
             xy = resolve_anchor_coord(override["anchor"], override.get("location_match"))
             resolved_spawns = [{"x": xy[0], "y": xy[1], "note": override["anchor"]}] if xy else []
@@ -824,14 +853,20 @@ def main() -> int:
             continue
         first = resolved_spawns[0]
         # De-dupe spawns by (x,y) — multiple anchor titles may map to same coord.
+        # Track per-spawn notes in the same order so the runtime can look up
+        # the right blurb for each regional pin (e.g. the Fremennik Troll pin
+        # gets "Trollheim" instead of inheriting the Asgarnia "Burthorpe"
+        # blurb from the entity-level `note`).
         seen_xy: set[tuple[int, int]] = set()
         all_spawns: list[list[int]] = []
+        spawn_notes: list[str | None] = []
         for s in resolved_spawns:
             xy = (s["x"], s["y"])
             if xy in seen_xy:
                 continue
             seen_xy.add(xy)
             all_spawns.append([xy[0], xy[1]])
+            spawn_notes.append(s.get("note") or None)
         entities[key] = {
             "title": existing["title"] if existing else key.title(),
             "resolvedTitle": existing["resolvedTitle"] if existing else key.title(),
@@ -839,6 +874,10 @@ def main() -> int:
             "y": first["y"],
             "source": "curated",
             "allSpawns": all_spawns,
+            # Only emit spawnNotes when at least one spawn has a non-empty
+            # note — keeps the JSON small for single-anchor entities where
+            # the entity-level `note` already does the job.
+            **({"spawnNotes": spawn_notes} if any(spawn_notes) else {}),
             "category": override.get("category") or (existing and existing.get("category")) or "landmark",
             "leagueRegion": existing["leagueRegion"] if existing else None,
             "note": first.get("note", ""),

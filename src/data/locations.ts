@@ -297,10 +297,19 @@ export const LOCATIONS: WorldLocation[] = [
      "fremennik achievement diary", "fremennik diary",
      "fremennik trials", "fremennik lyre", "enchanted lyre", "lyre"],
     "Fremennik capital (Thorvald — Fremennik diary; Fremennik Trials lyre)"),
-  L("keldagrim", "Keldagrim", 2923, 3536, "Fremennik", "city",
+  // Surface pin = the Keldagrim entrance cave east of Rellekka (canonical
+  // surface entry per the Keldagrim wiki page: "fairy ring code DKS to
+  // teleport right next to the cave entrance to Keldagrim"). Keldagrim
+  // itself sits underground at mapID=10 (~2879,10176) so it has no
+  // walk-to surface coord — the previous pin (2923, 3536) was somewhere
+  // near Heroes' Guild / Chaos Temple, miles south of any actual route
+  // to the city. Same coord we use for the Fremennik Mountain Troll pin
+  // (see ANCHOR_COORD_OVERRIDES["Keldagrim entrance"] in fetch-wiki-entities.py).
+  L("keldagrim", "Keldagrim entrance", 2744, 3719, "Fremennik", "city",
     ["keldagrim",
-     "crossbow stall", "wooden stock"],
-    "Dwarven underground city (Keldagrim thieving — Crossbow Stall)"),
+     "crossbow stall", "wooden stock",
+     "fairy ring (dks)", "dks"],
+    "Surface entry to the dwarven underground city (cave east of Rellekka — fairy ring DKS). Keldagrim thieving stalls (Crossbow Stall, Wooden Stock) are inside the city."),
   L("miscellania", "Miscellania", 2560, 3870, "Fremennik", "city",
     ["miscellania", "etceteria", "royal trouble", "throne of miscellania"],
     "Offshore kingdom (Royal Trouble / Throne of Miscellania)"),

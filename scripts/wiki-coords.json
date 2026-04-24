@@ -1081,21 +1081,21 @@
   },
   {
     "id": "keldagrim",
-    "name": "Keldagrim",
+    "name": "Keldagrim entrance",
     "current": [
-      2879,
-      3500
+      2744,
+      3719
     ],
     "region": "Fremennik",
     "category": "city",
     "wiki_page": "Keldagrim",
     "wiki": [
-      2923,
-      3536
+      2744,
+      3719
     ],
-    "delta_tiles": 56.9,
+    "delta_tiles": 0,
     "source": "curated",
-    "note": "curated: Keldagrim surface entrance via Dwarven Mine ladder"
+    "note": "curated: Keldagrim entrance — surface cave east of Rellekka (fairy ring DKS lands right next to the cave per the Keldagrim wiki page). Previous coord (2923, 3536) was near Heroes' Guild / Chaos Temple, not actually a route to Keldagrim."
   },
   {
     "id": "miscellania",
