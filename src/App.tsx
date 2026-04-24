@@ -1,4 +1,5 @@
 import { Suspense, lazy, useCallback, useMemo, useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import FilterSidebar from "./components/FilterSidebar";
 import TaskList from "./components/TaskList";
 import { defaultFilters, matchesFilter } from "./lib/filters";
@@ -162,6 +163,13 @@ function App() {
           />
         </Suspense>
       </main>
+      {/*
+        Vercel Web Analytics. Auto no-ops outside of Vercel-hosted builds
+        (e.g. `vite preview` on localhost) so it's safe to always mount —
+        the script only loads for production visitors on the deployed
+        domain. The dashboard toggle must also be enabled (already done).
+      */}
+      <Analytics />
     </div>
   );
 }
