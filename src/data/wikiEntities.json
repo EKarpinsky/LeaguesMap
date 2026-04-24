@@ -2337,17 +2337,36 @@
   "black dragon": {
     "allSpawns": [
       [
+        2884,
+        3398
+      ],
+      [
+        2446,
+        2848
+      ],
+      [
         2155,
         3427
+      ],
+      [
+        3072,
+        3854
       ]
     ],
     "category": "monster",
     "leagueRegion": "N",
+    "note": "Taverley Dungeon",
     "resolvedTitle": "Black dragon",
-    "source": "locline",
+    "source": "curated",
+    "spawnNotes": [
+      "Taverley Dungeon",
+      "Myths' Guild",
+      "Mynydd",
+      "Lava Maze"
+    ],
     "title": "black dragon",
-    "x": 2155,
-    "y": 3427
+    "x": 2884,
+    "y": 3398
   },
   "black knight": {
     "allSpawns": [
@@ -7722,14 +7741,6 @@
       [
         1184,
         3591
-      ],
-      [
-        2161,
-        2818
-      ],
-      [
-        2165,
-        2819
       ],
       [
         3437,

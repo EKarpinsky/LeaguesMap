@@ -369,6 +369,22 @@ CURATED_ENTITIES: dict[str, dict] = {
         {"anchor": "Ardougne Zoo",         "region_hint": "Kandarin"},
         {"anchor": "Heroes' Guild",        "region_hint": "Asgarnia"},
     ], "category": "monster"},
+    # Black dragon's wiki page lists 8 LocLine entries but every Demonic
+    # Pacts-reachable spawn is underground (mapID > 0), so the auto-scrape
+    # only catches the Mynydd surface dragon in Tirannwn — leaving a
+    # Kandarin task ("Cast water surge at a Black dragon in Kandarin") to
+    # mis-pin onto Mynydd because there's no Kandarin candidate. The wiki
+    # tags the Demonic Pacts-reachable surface entrances as: Taverley
+    # Dungeon (Asgarnia), Myths' Guild basement / Corsair Cove Dungeon
+    # (Kandarin), Mynydd summit (Tirannwn), Lava Maze Dungeon + Wilderness
+    # Slayer Cave (Wilderness). Charred Dungeon and Evil Chicken's Lair
+    # both lack a Demonic Pacts region tag so they're omitted.
+    "black dragon":              {"spawns": [
+        {"anchor": "Taverley Dungeon",     "region_hint": "Asgarnia"},
+        {"anchor": "Myths' Guild",         "region_hint": "Kandarin"},
+        {"anchor": "Mynydd",               "region_hint": "Tirannwn"},
+        {"anchor": "Lava Maze",            "region_hint": "Wilderness"},
+    ], "category": "monster"},
     "black demon":               {"spawns": [
         {"anchor": "Taverley Dungeon",     "region_hint": "Asgarnia"},
         {"anchor": "Brimhaven Dungeon",    "region_hint": "Karamja"},
@@ -565,6 +581,16 @@ SAILING_LEAK_COORDS: set[tuple[int, int]] = {
     (2581, 2848),  # south-central ocean Sailing port (the original BAD pin)
     (3061, 2985),  # south-Asgarnia Sailing port
     (3148, 2826),  # south-Desert Sailing port
+    # Crimson swift — Dognose Island, an Unquiet Ocean island reachable
+    # only with Sailing 40 (post-launch content, locked in Demonic Pacts).
+    # The wiki Crimson_swift page lists Dognose with `leagueRegion = N/A`
+    # in the human-readable column but the underlying LocLine template
+    # carries no per-coord leagueRegion tag, so the N/A filter doesn't
+    # see it. Without this entry the 2 Dognose spawns fall back to the
+    # entity-level leagueRegion ("Desert", from the Ullek wiki entry that
+    # happens to be first), polluting the Desert medoid.
+    (2161, 2818),
+    (2165, 2819),
 }
 
 

@@ -128,7 +128,17 @@ const REGION_BBOXES: { region: Region; xmin: number; xmax: number; ymin: number;
   // this extension, the Anvil entity collapses its General-region
   // medoid onto a Sailing port instead of pinning to Myths' Guild.
   { region: "Kandarin",   xmin: 2150, xmax: 2850, ymin: 2820, ymax: 3580 },
-  { region: "Kourend",    xmin: 1200, xmax: 1900, ymin: 3420, ymax: 3980 },
+  // Kourend extends west to x=1170 to capture the south-west coast of the
+  // Kebos Lowlands (Crimson Swift snare site at game ~1185, ~3595 — wiki
+  // page tags this cluster as Kourend explicitly). Without the extension
+  // these coords match no bbox and fall back to the entity-level
+  // leagueRegion, which on Crimson Swift is "Desert" (the wiki's first
+  // LocLine entry is the single Ruins of Ullek spawn). The result: 5
+  // Kebos spawns medoid-collapsed onto a "Desert" pin rendered in Kebos
+  // Lowlands. Same fix incidentally re-classifies a Rock Crab spawn
+  // (1197, 3587) from Fremennik fallback to Kourend, which is correct
+  // (Land's End rock crabs are canonically Kourend).
+  { region: "Kourend",    xmin: 1170, xmax: 1900, ymin: 3420, ymax: 3980 },
   { region: "Morytania",  xmin: 3400, xmax: 3800, ymin: 3100, ymax: 3530 },
   // Fremennik extends west to x=2050 to cover Lunar Isle, Suqah Isle,
   // and the Pirates' Cove / Lunar dock approaches (game ~2117 to ~2210
