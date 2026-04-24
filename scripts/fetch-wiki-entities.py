@@ -402,7 +402,10 @@ CURATED_ENTITIES: dict[str, dict] = {
     # Voices alongside the other Prifddinas-instanced bosses.
     "fragment of seren":               {"anchor": "Prifddinas",                 "category": "boss"},
     "frost crab":                      {"anchor": "Sunset Coast",               "category": "monster"},
-    "jubster":                         {"anchor": "Feldip Hills",               "category": "monster"},
+    # Jubster is a player-created Creature Creation monster, only spawnable
+    # in the Tower of Life basement (Ardougne) — not a wild Feldip Hills
+    # creature, despite some old wiki revisions tagging it that way.
+    "jubster":                         {"anchor": "Tower of Life",              "category": "monster"},
     "steel dragon":                    {"anchor": "Brimhaven Dungeon",          "category": "monster"},
     "revenant dragon":                 {"anchor": "Bone Yard",                  "category": "monster"},
     "kalphite":                        {"anchor": "Shantay Pass",               "category": "monster"},

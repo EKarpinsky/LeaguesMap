@@ -14780,18 +14780,18 @@
   "jubster": {
     "allSpawns": [
       [
-        2560,
-        2944
+        2649,
+        3213
       ]
     ],
     "category": "monster",
-    "leagueRegion": null,
-    "note": "Feldip Hills",
+    "leagueRegion": "Kandarin",
+    "note": "Tower of Life basement (Creature Creation)",
     "resolvedTitle": "Jubster",
     "source": "curated",
     "title": "Jubster",
-    "x": 2560,
-    "y": 2944
+    "x": 2649,
+    "y": 3213
   },
   "jugs of wine": {
     "allSpawns": [
