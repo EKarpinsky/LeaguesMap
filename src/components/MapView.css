@@ -59,6 +59,27 @@
   box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.85);
   letter-spacing: 0.02em;
 }
+/* "All done" checkmark badge — green so it reads as success at glance,
+   wider than the count badge so the ✓ glyph doesn't crop on iOS. */
+.pin-badge.done {
+  background: #1f8a4a;
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 0;
+}
+
+/* Pin treatment when every task at this location is complete: drop
+   saturation hard so the pin recedes behind active pins, but keep it
+   clickable so the user can revisit. Hover snaps back to full color
+   so re-discovery isn't punishing. */
+.pin-wrap.all-done .pin-body {
+  filter: saturate(0.25) brightness(0.7);
+  opacity: 0.7;
+}
+.pin-wrap.all-done:hover .pin-body {
+  filter: none;
+  opacity: 1;
+}
 
 .leaflet-popup-content-wrapper {
   background: #141418;
@@ -213,4 +234,64 @@
   background: #2a1a24;
   border: 1px solid #4a2a30;
   flex-shrink: 0;
+}
+
+/* ────────── Popup completion checkbox — mirrors the sidebar one ─────
+   The popup is rendered into a Leaflet-controlled DOM tree that lives
+   outside React's reconciliation, so we can't just reuse <TaskRow>.
+   The classes here intentionally parallel `.task-row-check*` in
+   TaskList.css; if you restyle one, restyle the other. */
+.task-line-check {
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.task-line-check input[type="checkbox"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.task-line-check-box {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1.5px solid #3a3a48;
+  background: #0f0f14;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.task-line-check:hover .task-line-check-box {
+  border-color: #5a5a6a;
+  background: #1a1a22;
+}
+.task-line-check input[type="checkbox"]:focus-visible + .task-line-check-box {
+  outline: 2px solid #ff5a00;
+  outline-offset: 2px;
+}
+.task-line-check input[type="checkbox"]:checked + .task-line-check-box {
+  background: #ff5a00;
+  border-color: #ff5a00;
+  color: #fff;
+}
+
+.task-line.done .task-name {
+  text-decoration: line-through;
+  text-decoration-color: rgba(212, 212, 220, 0.4);
+  color: #8a8a99;
+}
+.task-line.done .diff-icon,
+.task-line.done .pact-tag {
+  opacity: 0.6;
 }

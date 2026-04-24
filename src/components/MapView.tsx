@@ -18,31 +18,161 @@ export interface MapViewProps {
   selectedLocationId: string | null;
   onSelectLocation: (id: string | null) => void;
   onSelectTask: (id: string) => void;
+  /**
+   * Set of task ids the user has marked complete. Threaded through so
+   * pin badges show REMAINING tasks, fully-done pins can dim out, and
+   * popup checkboxes render with the right initial state.
+   */
+  completed: ReadonlySet<string>;
+  /** Toggle a single task's completion state (bound to popup checkboxes). */
+  onToggleComplete: (taskId: string) => void;
 }
 
-function pinIcon(color: string, pact: boolean, count: number, selected: boolean) {
-  const size = 28;
-  const ring = pact ? "#ff5a00" : color;
+/**
+ * Build the inner HTML for a pin icon. Split out from `pinIcon` so the
+ * completion-update effect can patch a marker's existing icon DOM in
+ * place (avoiding `setIcon`, which detaches the popup anchor and
+ * causes Leaflet to close any open popup on the marker).
+ *
+ * @param remaining  Tasks still to do at this pin (controls badge count).
+ * @param total      Total tasks at this pin (used to detect "all done").
+ */
+function pinIconHtml(
+  color: string,
+  pact: boolean,
+  remaining: number,
+  total: number,
+  selected: boolean,
+): string {
+  const ring = pact && remaining > 0 ? "#ff5a00" : color;
   const border = selected ? "#fff" : "rgba(0,0,0,0.55)";
   const glow = selected ? "0 0 0 3px #fff, 0 0 0 5px rgba(255,90,0,0.9)" : "none";
+  const allDone = total > 0 && remaining === 0;
+  // When the player has finished every task at a pin we keep the pin
+  // visible (in case they want to revisit it) but desaturate hard so
+  // it visually drops behind the active pins. A small ✓ replaces the
+  // count badge to make the "done" state explicit.
+  const wrapClass = "pin-wrap" + (allDone ? " all-done" : "");
   const badge =
-    count > 1
-      ? `<span class="pin-badge">${count > 99 ? "99+" : count}</span>`
-      : "";
-  const html = `
-    <div class="pin-wrap" style="box-shadow:${glow}">
+    allDone
+      ? `<span class="pin-badge done" aria-label="all complete">✓</span>`
+      : remaining > 1
+        ? `<span class="pin-badge">${remaining > 99 ? "99+" : remaining}</span>`
+        : "";
+  return `
+    <div class="${wrapClass}" style="box-shadow:${glow}">
       <div class="pin-body" style="background:${color};border-color:${border}">
         <div class="pin-inner" style="background:${ring}"></div>
       </div>
       ${badge}
     </div>
   `;
+}
+
+function pinIcon(
+  color: string,
+  pact: boolean,
+  remaining: number,
+  total: number,
+  selected: boolean,
+) {
+  const size = 28;
   return L.divIcon({
     className: "osrs-pin",
-    html,
+    html: pinIconHtml(color, pact, remaining, total, selected),
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   });
+}
+
+/**
+ * Build the popup body for a pin. Returns an HTMLElement so we can
+ * attach event listeners directly to the checkbox / task line — much
+ * simpler than re-parsing innerHTML on every popupopen.
+ */
+function buildPopupContent(
+  loc: { name: string; region: string; blurb?: string },
+  tasks: Task[],
+  completed: ReadonlySet<string>,
+  onSelectTask: (id: string) => void,
+  onToggleComplete: (id: string) => void,
+): HTMLElement {
+  const el = document.createElement("div");
+  el.className = "pin-popup";
+  const regionSlug = loc.region.toLowerCase();
+  const regionBadge =
+    loc.region !== "General"
+      ? `<img class="region-badge" src="/icons/region/${regionSlug}.png" alt="" width="12" height="18" />`
+      : "";
+  const remaining = tasks.reduce(
+    (n, t) => (completed.has(t.id) ? n : n + 1),
+    0,
+  );
+  const countLabel =
+    remaining === tasks.length
+      ? `${tasks.length} task${tasks.length === 1 ? "" : "s"}`
+      : `${remaining} of ${tasks.length} remaining`;
+  el.innerHTML = `
+    <div class="pin-popup-header">
+      <div class="pin-popup-name">${escapeHtml(loc.name)}</div>
+      <div class="pin-popup-meta">${regionBadge}<span>${loc.region} · ${countLabel}</span></div>
+      ${loc.blurb ? `<div class="pin-popup-blurb">${escapeHtml(loc.blurb)}</div>` : ""}
+    </div>
+    <ul class="pin-popup-list"></ul>
+  `;
+  const list = el.querySelector(".pin-popup-list") as HTMLUListElement;
+  const sorted = [...tasks].sort((a, b) => {
+    const ac = completed.has(a.id) ? 1 : 0;
+    const bc = completed.has(b.id) ? 1 : 0;
+    if (ac !== bc) return ac - bc;
+    const diffOrder = DIFF_ORDER[a.difficulty] - DIFF_ORDER[b.difficulty];
+    if (diffOrder !== 0) return diffOrder;
+    return a.name.localeCompare(b.name);
+  });
+  for (const t of sorted.slice(0, 30)) {
+    const li = document.createElement("li");
+    const done = completed.has(t.id);
+    li.className =
+      `task-line diff-${t.difficulty.toLowerCase()}` + (done ? " done" : "");
+    li.dataset.taskId = t.id;
+    const diffSlug = t.difficulty.toLowerCase();
+    li.innerHTML = `
+      <label class="task-line-check" title="${done ? "Mark as incomplete" : "Mark as complete"}">
+        <input type="checkbox" ${done ? "checked" : ""} aria-label="${done ? "Mark as incomplete" : "Mark as complete"}: ${escapeHtml(t.name)}" />
+        <span class="task-line-check-box" aria-hidden>
+          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+            <path d="M3 8.4l3 3 7-7.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </span>
+      </label>
+      <img class="diff-icon" src="/icons/difficulty/${diffSlug}.png" alt="${t.difficulty}" title="${t.difficulty}" width="16" height="16" />
+      ${t.isDemonicPact ? '<span class="pact-tag" title="Earns a Demonic Pact">DP</span>' : ""}
+      <span class="task-name">${escapeHtml(t.name)}</span>
+    `;
+    const checkbox = li.querySelector("input[type=checkbox]") as HTMLInputElement;
+    const checkLabel = li.querySelector(".task-line-check") as HTMLLabelElement;
+    // Stop label/checkbox interactions from bubbling up to the li click
+    // handler (which would jump to the task instead of toggling).
+    checkLabel.addEventListener("click", (e) => e.stopPropagation());
+    checkbox.addEventListener("change", (e) => {
+      e.stopPropagation();
+      onToggleComplete(t.id);
+    });
+    li.addEventListener("click", (e) => {
+      // Only treat clicks outside the checkbox as a "jump to task".
+      const target = e.target as HTMLElement;
+      if (target.closest(".task-line-check")) return;
+      onSelectTask(t.id);
+    });
+    list.appendChild(li);
+  }
+  if (sorted.length > 30) {
+    const more = document.createElement("li");
+    more.className = "task-line more";
+    more.textContent = `+ ${sorted.length - 30} more — use the task list`;
+    list.appendChild(more);
+  }
+  return el;
 }
 
 export default function MapView({
@@ -50,6 +180,8 @@ export default function MapView({
   selectedLocationId,
   onSelectLocation,
   onSelectTask,
+  completed,
+  onToggleComplete,
 }: MapViewProps) {
   const mapEl = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -81,10 +213,18 @@ export default function MapView({
    */
   const onSelectLocationRef = useRef(onSelectLocation);
   const onSelectTaskRef = useRef(onSelectTask);
+  const onToggleCompleteRef = useRef(onToggleComplete);
+  // We thread `completed` through a ref so the marker-rebuild effect
+  // can read the current set when binding popup builders WITHOUT having
+  // to depend on `completed` itself (which would tear down every marker
+  // on every checkbox toggle and slam any open popup shut).
+  const completedRef = useRef(completed);
   useEffect(() => {
     onSelectLocationRef.current = onSelectLocation;
     onSelectTaskRef.current = onSelectTask;
-  }, [onSelectLocation, onSelectTask]);
+    onToggleCompleteRef.current = onToggleComplete;
+    completedRef.current = completed;
+  }, [onSelectLocation, onSelectTask, onToggleComplete, completed]);
 
   useEffect(() => {
     if (!mapEl.current || mapRef.current) return;
@@ -191,10 +331,11 @@ export default function MapView({
 
   /**
    * Rebuild the marker layer whenever the visible set changes (filters,
-   * task data). Deliberately does NOT depend on `selectedLocationId` —
-   * rebuilding on selection would destroy the marker whose popup Leaflet
-   * just opened, forcing a second click to see the tasks. Selection
-   * highlighting + popup opening lives in the effect below.
+   * task data). Deliberately does NOT depend on `selectedLocationId` or
+   * `completed` — rebuilding on either would destroy the marker whose
+   * popup Leaflet just opened, forcing a second click to see the tasks.
+   * Selection highlighting + popup opening lives in the effect below;
+   * completion-driven icon refresh in the one after.
    */
   useEffect(() => {
     const group = markerLayerRef.current;
@@ -207,73 +348,46 @@ export default function MapView({
     for (const { loc, tasks } of visibleEntries) {
       const hasPact = tasks.some((t) => t.isDemonicPact);
       const color = REGION_PALETTE[loc.region]?.base ?? "#888";
+      const remaining = tasks.reduce(
+        (n, t) => (completedRef.current.has(t.id) ? n : n + 1),
+        0,
+      );
       const marker = L.marker(gameToLatLng(map, loc.x, loc.y), {
-        icon: pinIcon(color, hasPact, tasks.length, false),
+        icon: pinIcon(color, hasPact, remaining, tasks.length, false),
         riseOnHover: true,
         riseOffset: 400,
         keyboard: false,
       });
 
-      const popup = document.createElement("div");
-      popup.className = "pin-popup";
-      const regionSlug = loc.region.toLowerCase();
-      const regionBadge =
-        loc.region !== "General"
-          ? `<img class="region-badge" src="/icons/region/${regionSlug}.png" alt="" width="12" height="18" />`
-          : "";
-      popup.innerHTML = `
-        <div class="pin-popup-header">
-          <div class="pin-popup-name">${escapeHtml(loc.name)}</div>
-          <div class="pin-popup-meta">${regionBadge}<span>${loc.region} · ${tasks.length} task${tasks.length === 1 ? "" : "s"}</span></div>
-          ${loc.blurb ? `<div class="pin-popup-blurb">${escapeHtml(loc.blurb)}</div>` : ""}
-        </div>
-        <ul class="pin-popup-list"></ul>
-      `;
-      const list = popup.querySelector(".pin-popup-list") as HTMLUListElement;
-      const sorted = [...tasks].sort((a, b) => {
-        const diffOrder = DIFF_ORDER[a.difficulty] - DIFF_ORDER[b.difficulty];
-        if (diffOrder !== 0) return diffOrder;
-        return a.name.localeCompare(b.name);
-      });
-      for (const t of sorted.slice(0, 30)) {
-        const li = document.createElement("li");
-        li.className = `task-line diff-${t.difficulty.toLowerCase()}`;
-        const diffSlug = t.difficulty.toLowerCase();
-        li.innerHTML = `
-          <img class="diff-icon" src="/icons/difficulty/${diffSlug}.png" alt="${t.difficulty}" title="${t.difficulty}" width="16" height="16" />
-          ${t.isDemonicPact ? '<span class="pact-tag" title="Earns a Demonic Pact">DP</span>' : ""}
-          <span class="task-name">${escapeHtml(t.name)}</span>
-        `;
-        li.addEventListener("click", () => onSelectTaskRef.current(t.id));
-        list.appendChild(li);
-      }
-      if (sorted.length > 30) {
-        const more = document.createElement("li");
-        more.className = "task-line more";
-        more.textContent = `+ ${sorted.length - 30} more — use the task list`;
-        list.appendChild(more);
-      }
-
-      // Stash loc/color/tasks on the marker so the selection effect can
-      // rebuild the icon with the "selected" style without closing over
-      // stale React props.
+      // Stash loc/color/tasks on the marker so the selection &
+      // completion effects can rebuild the icon and popup contents
+      // without re-running this whole rebuild.
       (marker as MarkerWithMeta)._meta = {
         locationId: loc.id,
         color,
         hasPact,
-        taskCount: tasks.length,
+        tasks,
       };
 
-      // Leave generous bottom padding so Leaflet's auto-pan shifts the
-      // popup clear of the mobile bottom sheet (sheet peek ≈ 150 px
-      // including safe-area). On desktop the extra bottom margin is
-      // harmless — popups just open a little higher than center.
-      marker.bindPopup(popup, {
-        maxWidth: 360,
-        maxHeight: 420,
-        autoPanPaddingTopLeft: L.point(24, 24),
-        autoPanPaddingBottomRight: L.point(24, 200),
-      });
+      // bindPopup with a function so each open builds a fresh DOM tree
+      // reflecting the CURRENT completion set (read via ref). This is
+      // why the rebuild effect doesn't need to depend on `completed`.
+      marker.bindPopup(
+        () =>
+          buildPopupContent(
+            loc,
+            tasks,
+            completedRef.current,
+            (id) => onSelectTaskRef.current(id),
+            (id) => onToggleCompleteRef.current(id),
+          ),
+        {
+          maxWidth: 360,
+          maxHeight: 420,
+          autoPanPaddingTopLeft: L.point(24, 24),
+          autoPanPaddingBottomRight: L.point(24, 200),
+        },
+      );
       marker.on("popupopen", () => onSelectLocationRef.current(loc.id));
       marker.on("popupclose", () => {
         // Only deselect on close if this pin is still the selected one
@@ -289,6 +403,69 @@ export default function MapView({
   }, [visibleEntries]);
 
   /**
+   * React to completion-set changes. For each marker we recompute its
+   * remaining-task count and either:
+   *   • patch the icon's DOM in place (when the marker's icon element
+   *     is already on screen) — this avoids `setIcon`, which destroys
+   *     the icon node and closes any open popup anchored to it; or
+   *   • call `setIcon` (the icon hasn't been rendered yet, so there's
+   *     nothing to patch and no popup to lose).
+   *
+   * Either way we then refresh the popup body via `setPopupContent`
+   * for the marker whose popup is open, so the freshly-toggled task
+   * line shows its new strike-through and the header's "X of N
+   * remaining" updates immediately.
+   */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    for (const [id, marker] of markersByIdRef.current.entries()) {
+      const meta = (marker as MarkerWithMeta)._meta;
+      if (!meta) continue;
+      const remaining = meta.tasks.reduce(
+        (n, t) => (completed.has(t.id) ? n : n + 1),
+        0,
+      );
+      const html = pinIconHtml(
+        meta.color,
+        meta.hasPact,
+        remaining,
+        meta.tasks.length,
+        highlightedIdRef.current === id,
+      );
+      const iconEl = (marker as L.Marker & { _icon?: HTMLElement })._icon;
+      if (iconEl) {
+        // In-place patch — keeps the popup's anchor element alive.
+        iconEl.innerHTML = html;
+      } else {
+        marker.setIcon(
+          pinIcon(
+            meta.color,
+            meta.hasPact,
+            remaining,
+            meta.tasks.length,
+            highlightedIdRef.current === id,
+          ),
+        );
+      }
+      if (marker.isPopupOpen()) {
+        const loc = getLocation(id);
+        if (loc) {
+          marker.setPopupContent(
+            buildPopupContent(
+              loc,
+              meta.tasks,
+              completed,
+              (tid) => onSelectTaskRef.current(tid),
+              (tid) => onToggleCompleteRef.current(tid),
+            ),
+          );
+        }
+      }
+    }
+  }, [completed]);
+
+  /**
    * React to selection changes (from either a pin click or the sidebar):
    *   1. Swap the previous selected pin's icon back to the default.
    *   2. Swap the new pin's icon to the "selected" highlight.
@@ -301,13 +478,27 @@ export default function MapView({
     const map = mapRef.current;
     if (!map) return;
 
+    const computeRemaining = (tasks: Task[]) =>
+      tasks.reduce(
+        (n, t) => (completedRef.current.has(t.id) ? n : n + 1),
+        0,
+      );
+
     const prevId = highlightedIdRef.current;
     if (prevId && prevId !== selectedLocationId) {
       const prev = markersByIdRef.current.get(prevId);
       if (prev) {
         const meta = (prev as MarkerWithMeta)._meta;
         if (meta) {
-          prev.setIcon(pinIcon(meta.color, meta.hasPact, meta.taskCount, false));
+          prev.setIcon(
+            pinIcon(
+              meta.color,
+              meta.hasPact,
+              computeRemaining(meta.tasks),
+              meta.tasks.length,
+              false,
+            ),
+          );
         }
       }
     }
@@ -326,7 +517,15 @@ export default function MapView({
 
     const meta = (next as MarkerWithMeta)._meta;
     if (meta) {
-      next.setIcon(pinIcon(meta.color, meta.hasPact, meta.taskCount, true));
+      next.setIcon(
+        pinIcon(
+          meta.color,
+          meta.hasPact,
+          computeRemaining(meta.tasks),
+          meta.tasks.length,
+          true,
+        ),
+      );
     }
     highlightedIdRef.current = selectedLocationId;
 
@@ -373,7 +572,13 @@ type MarkerWithMeta = L.Marker & {
     locationId: string;
     color: string;
     hasPact: boolean;
-    taskCount: number;
+    /**
+     * Full task list for this pin (not just count). The completion
+     * effect needs the ids to recompute remaining-task badges, and the
+     * popup-refresh path needs the tasks themselves to rebuild content
+     * without a `tasksByLocation` lookup.
+     */
+    tasks: Task[];
   };
 };
 

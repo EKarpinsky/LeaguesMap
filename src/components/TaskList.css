@@ -74,6 +74,89 @@
   align-items: flex-start;
   gap: 6px;
 }
+
+/* ─────────────────────── Completion checkbox ───────────────────────────
+   Custom-styled checkbox sitting at the start of every task row. The
+   real <input> is visually hidden but kept in the DOM so screen readers
+   and keyboard users get the native control; the visible square (.
+   task-row-check-box) renders the on/off state with a checkmark SVG that
+   sits inside it.
+
+   Why the box+SVG over a native checkbox: on the dark sidebar a default
+   checkbox looks washed-out and inconsistent across Safari/Chrome/Firefox,
+   and we want a focus ring that matches the rest of the UI. */
+.task-row-check {
+  position: relative;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  /* Sit on the first line of the task name (line-height 1.2 × 13 px ≈
+     15.6 px) so the box visually centres with the row title. */
+  margin-top: -1px;
+}
+.task-row-check input[type="checkbox"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.task-row-check-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid #3a3a48;
+  background: #0f0f14;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.task-row-check:hover .task-row-check-box {
+  border-color: #5a5a6a;
+  background: #1a1a22;
+}
+.task-row-check input[type="checkbox"]:focus-visible + .task-row-check-box {
+  outline: 2px solid #ff5a00;
+  outline-offset: 2px;
+}
+.task-row-check input[type="checkbox"]:checked + .task-row-check-box {
+  background: #ff5a00;
+  border-color: #ff5a00;
+  color: #fff;
+}
+
+/* Completed-row treatment: dim the text + strike through the title so
+   the row reads as "done" at a glance, but keep it interactive (the
+   user may want to revisit the location). The 0.5 opacity + strike is
+   the same convention every todo app converges on for a reason. */
+.task-row.done .task-row-name {
+  text-decoration: line-through;
+  text-decoration-color: rgba(240, 240, 242, 0.4);
+  color: #8a8a99;
+}
+.task-row.done .task-row-desc,
+.task-row.done .task-row-pts {
+  opacity: 0.55;
+}
+.task-row.done .diff-icon {
+  opacity: 0.6;
+}
+.task-row.done .task-row-meta {
+  opacity: 0.7;
+}
+/* Don't dim a completed row that's currently selected — the selection
+   highlight should still be vivid so the user can find it on the map. */
+.task-row.done.selected .task-row-name {
+  color: #d4d4dc;
+}
 .task-row-name {
   flex: 1;
   font-weight: 600;

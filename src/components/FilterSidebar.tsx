@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DIFFICULTIES, REGION_DISPLAY_ORDER } from "../types";
 import type { Difficulty, Region } from "../types";
 import { matchesFilter } from "../lib/filters";
 import type { FilterState } from "../lib/filters";
 import { ALL_PLACEMENTS, ALL_TASKS } from "../lib/taskIndex";
+import type { ProgressStats } from "../lib/useCompletedTasks";
 import "./FilterSidebar.css";
 
 // Render `⌘K` on macOS (where Cmd+K is muscle memory) and `Ctrl K` on every
@@ -29,6 +30,12 @@ export interface FilterSidebarProps {
   setFilters: (updater: (prev: FilterState) => FilterState) => void;
   open: boolean;
   onToggle: () => void;
+  /** Read-only completion set (drives the progress bar + facet recounts). */
+  completed: ReadonlySet<string>;
+  /** Aggregate progress stats — pre-computed in the parent hook. */
+  progress: ProgressStats;
+  /** Reset the entire completion set. Confirmed locally before firing. */
+  onResetProgress: () => void;
 }
 
 interface FacetCounts {
@@ -40,9 +47,14 @@ interface FacetCounts {
  * Leave-one-out counts: each number answers "how many tasks are in this
  * bucket if every other filter stays where it is". Lets users see the
  * impact of toggling a row without double-counting their current
- * selection on the same axis.
+ * selection on the same axis. With Hide Completed on, the count
+ * reflects remaining (not-yet-done) tasks per bucket — matching what
+ * the user actually sees in the task list / map.
  */
-function useFacetCounts(filters: FilterState): FacetCounts {
+function useFacetCounts(
+  filters: FilterState,
+  completed: ReadonlySet<string>,
+): FacetCounts {
   return useMemo(() => {
     const regionCounts = Object.fromEntries(
       REGION_DISPLAY_ORDER.map((r) => [r, 0]),
@@ -63,15 +75,18 @@ function useFacetCounts(filters: FilterState): FacetCounts {
     for (let i = 0; i < ALL_TASKS.length; i++) {
       const t = ALL_TASKS[i];
       const p = ALL_PLACEMENTS[i];
-      if (matchesFilter(t, p, regionsAllOn) && t.region in regionCounts) {
+      if (
+        matchesFilter(t, p, regionsAllOn, completed) &&
+        t.region in regionCounts
+      ) {
         regionCounts[t.region as Region] += 1;
       }
-      if (matchesFilter(t, p, diffAllOn)) {
+      if (matchesFilter(t, p, diffAllOn, completed)) {
         difficultyCounts[t.difficulty] += 1;
       }
     }
     return { regionCounts, difficultyCounts };
-  }, [filters]);
+  }, [filters, completed]);
 }
 
 export default function FilterSidebar({
@@ -79,8 +94,17 @@ export default function FilterSidebar({
   setFilters,
   open,
   onToggle,
+  completed,
+  progress,
+  onResetProgress,
 }: FilterSidebarProps) {
-  const { regionCounts, difficultyCounts } = useFacetCounts(filters);
+  const { regionCounts, difficultyCounts } = useFacetCounts(filters, completed);
+  const [confirmReset, setConfirmReset] = useState(false);
+  // Manual JSON export/import was deliberately removed: nobody
+  // hand-rolls JSON for their league progress. A future "Sync from
+  // RuneLite" flow will hit the LeaguesSync community plugin's
+  // public backend (api.osrsleaguetracker.com/player/{rsn}) and
+  // diff the returned task IDs against the in-memory set.
 
   const searchRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -141,7 +165,29 @@ export default function FilterSidebar({
     (filters.search ? 1 : 0) +
     (filters.pactOnly ? 1 : 0) +
     (!filters.includeCentroidFallbacks ? 1 : 0) +
-    (!filters.includeUnmappable ? 1 : 0);
+    (!filters.includeUnmappable ? 1 : 0) +
+    (filters.hideCompleted ? 1 : 0);
+
+  const handleReset = () => {
+    if (!confirmReset) {
+      setConfirmReset(true);
+      // Cancel after a few seconds if the user doesn't follow through —
+      // a stuck "Confirm reset?" button is a footgun if they walk away.
+      setTimeout(() => setConfirmReset(false), 4000);
+      return;
+    }
+    onResetProgress();
+    setConfirmReset(false);
+  };
+
+  const pct =
+    progress.totalCount > 0
+      ? Math.round((progress.completedCount / progress.totalCount) * 100)
+      : 0;
+  const ptsPct =
+    progress.totalPoints > 0
+      ? Math.round((progress.completedPoints / progress.totalPoints) * 100)
+      : 0;
 
   return (
     <div className={`filters-region ${open ? "open" : "collapsed"}`}>
@@ -158,6 +204,99 @@ export default function FilterSidebar({
         )}
       </button>
       <div className="filters-body" hidden={!open}>
+      {/*
+        Progress section. Lives at the top of the body because "where am
+        I in the league" is the question players reach for first when
+        they reopen the tab. Two bars (tasks done + points earned) keep
+        both denominators legible at a glance, and the meta row spells
+        out the per-difficulty breakdown so completionists can see which
+        tier they're under-attacking.
+      */}
+      <section className="sect sect-progress">
+        <div className="sect-head">
+          <h2>
+            Progress
+            <span className="sect-meta tabular">
+              {progress.completedCount} / {progress.totalCount} ({pct}%)
+            </span>
+          </h2>
+        </div>
+        <div
+          className="prog-bar"
+          role="progressbar"
+          aria-label="Tasks completed"
+          aria-valuenow={pct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <div className="prog-bar-fill" style={{ width: `${pct}%` }} />
+        </div>
+        <div className="prog-row">
+          <span>Points</span>
+          <span className="tabular">
+            {progress.completedPoints.toLocaleString()} /{" "}
+            {progress.totalPoints.toLocaleString()} ({ptsPct}%)
+          </span>
+        </div>
+        <div className="prog-bar prog-bar-thin">
+          <div className="prog-bar-fill" style={{ width: `${ptsPct}%` }} />
+        </div>
+        <div className="prog-tiers">
+          {DIFFICULTIES.map((d) => {
+            const done = progress.completedByDifficulty[d] ?? 0;
+            const total = progress.totalByDifficulty[d] ?? 0;
+            return (
+              <span
+                key={d}
+                className={`prog-tier diff-${d.toLowerCase()}`}
+                title={`${d}: ${done} of ${total} done`}
+              >
+                <img
+                  src={`/icons/difficulty/${d.toLowerCase()}.png`}
+                  alt={d}
+                  width={14}
+                  height={14}
+                />
+                <span className="tabular">
+                  {done}/{total}
+                </span>
+              </span>
+            );
+          })}
+        </div>
+        <div className="prog-actions">
+          <label
+            className={`optrow optrow-inline ${filters.hideCompleted ? "on" : "off"}`}
+          >
+            <input
+              type="checkbox"
+              checked={filters.hideCompleted}
+              onChange={(e) =>
+                setFilters((f) => ({ ...f, hideCompleted: e.target.checked }))
+              }
+            />
+            <span className="optrow-check" aria-hidden />
+            <span className="optrow-label">Hide completed</span>
+          </label>
+          <div className="prog-buttons">
+            <button
+              type="button"
+              className={`prog-btn danger${confirmReset ? " confirming" : ""}`}
+              onClick={handleReset}
+              disabled={progress.completedCount === 0 && !confirmReset}
+              title={
+                confirmReset
+                  ? "Click again to confirm — this can't be undone"
+                  : "Mark every task as not done"
+              }
+              aria-label="Reset all progress"
+            >
+              {confirmReset ? "Confirm reset?" : "Reset progress"}
+            </button>
+          </div>
+        </div>
+      </section>
+
       <div className="sb">
         <SearchIcon />
         <input

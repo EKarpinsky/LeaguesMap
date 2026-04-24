@@ -425,13 +425,23 @@
   flex: 0 0 auto;
 }
 
-/* Shared accordion header — the clickable row that toggles each panel. */
+/* Shared accordion header — the clickable row that toggles each panel.
+ *
+ * `min-height` is intentional: the optional `.accordion-badge` chip is
+ * ~18px tall and pushes the header from 37 → 39px when it appears. The
+ * header sits above a flex-grow body, so a 2px header bump steals 2px
+ * from the scrollable content beneath it — visible as a tiny "container
+ * shrunk" jitter when the user toggles Hide-completed (which flips
+ * `activeCount` and therefore the badge's existence). Reserving the
+ * tall variant unconditionally costs us nothing and kills the jitter.
+ */
 .accordion-head {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
+  min-height: 39px;
   padding: 11px 16px;
   background: transparent;
   border: 0;
@@ -471,6 +481,17 @@
   text-transform: none;
   text-align: center;
   font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+/* Slash separator inside the "X / Y" badge form (rendered when there
+   are completed tasks in the visible bucket). Lighter weight so the
+   numbers themselves stay legible at a glance. */
+.accordion-badge-sep {
+  color: #5a5a6a;
+  font-weight: 400;
+  margin: 0 1px;
 }
 .chevron {
   flex: 0 0 auto;

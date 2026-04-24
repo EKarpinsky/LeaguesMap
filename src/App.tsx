@@ -13,6 +13,7 @@ import TaskList from "./components/TaskList";
 import { defaultFilters, matchesFilter } from "./lib/filters";
 import type { FilterState } from "./lib/filters";
 import { ALL_PLACEMENTS, ALL_TASKS, getPlacement } from "./lib/taskIndex";
+import { useCompletedTasks } from "./lib/useCompletedTasks";
 import type { Task } from "./types";
 import "./App.css";
 
@@ -57,13 +58,31 @@ function App() {
   const [filtersOpen, setFiltersOpen] = useState(!isMobileInitial);
   const [tasksOpen, setTasksOpen] = useState(!isMobileInitial);
 
+  // Completion state lives in localStorage and drives both the
+  // "Hide completed" filter and the visual state of every task row /
+  // pin / popup. Owned at App-level so the sidebar's progress bar and
+  // the map's pin badges all see the same source of truth without
+  // needing to thread a context.
+  const {
+    completed,
+    toggleTask,
+    resetAll,
+    stats: progressStats,
+  } = useCompletedTasks();
+
+  // Only forward `completed` into matchesFilter when the user actually
+  // turned on "Hide completed". Otherwise the filter ignores it anyway,
+  // and mixing it into the dep list rebuilds tasksByLocation (and thus
+  // MapView's `entries` reference) on every checkbox tick — which
+  // destroys & recreates every marker, slamming open popups shut.
+  const completedForFilter = filters.hideCompleted ? completed : undefined;
   const { mappableTasks, unmappableTasks, tasksByLocation } = useMemo(() => {
     const mappable: Task[] = [];
     const unmappable: Task[] = [];
     const byLoc = new Map<string, Task[]>();
     for (const task of ALL_TASKS) {
       const placement = ALL_PLACEMENTS.find((p) => p.taskId === task.id)!;
-      if (!matchesFilter(task, placement, filters)) continue;
+      if (!matchesFilter(task, placement, filters, completedForFilter)) continue;
       if (placement.unmappable) {
         unmappable.push(task);
       } else {
@@ -97,7 +116,7 @@ function App() {
       unmappableTasks: unmappable,
       tasksByLocation: byLoc,
     };
-  }, [filters]);
+  }, [filters, completedForFilter]);
 
 
   const handleSelectTask = useCallback((id: string) => {
@@ -316,6 +335,9 @@ function App() {
           setFilters={setFilters}
           open={filtersOpen}
           onToggle={toggleFilters}
+          completed={completed}
+          progress={progressStats}
+          onResetProgress={resetAll}
         />
         <TaskList
           tasks={mappableTasks}
@@ -325,6 +347,8 @@ function App() {
           onSelectLocation={handleSelectLocation}
           open={tasksOpen}
           onToggle={toggleTasks}
+          completed={completed}
+          onToggleComplete={toggleTask}
         />
       </aside>
       <main className="app-map">
@@ -334,6 +358,8 @@ function App() {
             selectedLocationId={selectedLocationId}
             onSelectLocation={handleSelectLocation}
             onSelectTask={handleSelectTask}
+            completed={completed}
+            onToggleComplete={toggleTask}
           />
         </Suspense>
       </main>

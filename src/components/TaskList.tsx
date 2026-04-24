@@ -11,6 +11,15 @@ export interface TaskListProps {
   onSelectLocation: (id: string) => void;
   open: boolean;
   onToggle: () => void;
+  /**
+   * Set of task ids the user has marked complete. Lives in
+   * `useCompletedTasks` (localStorage); we receive it read-only here so
+   * the row can dim/strikethrough completed tasks and the header can
+   * show a "X of Y done" sub-count for the currently visible bucket.
+   */
+  completed: ReadonlySet<string>;
+  /** Toggle a task's completion state. Bound to the row checkbox. */
+  onToggleComplete: (taskId: string) => void;
 }
 
 const DIFF_ORDER: Record<string, number> = {
@@ -29,23 +38,46 @@ export default function TaskList({
   onSelectLocation,
   open,
   onToggle,
+  completed,
+  onToggleComplete,
 }: TaskListProps) {
+  // Sort with completed tasks pushed to the bottom of each difficulty
+  // group. Players will scan the top of the list expecting "what to do
+  // next" — leaving done tasks in their original alphabetical slot
+  // dilutes that signal. They're still visible (until Hide Completed
+  // is on) but out of the way.
   const mappableSorted = useMemo(() => {
     return [...tasks].sort((a, b) => {
+      const ac = completed.has(a.id) ? 1 : 0;
+      const bc = completed.has(b.id) ? 1 : 0;
+      if (ac !== bc) return ac - bc;
       const d = DIFF_ORDER[a.difficulty] - DIFF_ORDER[b.difficulty];
       if (d !== 0) return d;
       if (a.region !== b.region) return a.region.localeCompare(b.region);
       return a.name.localeCompare(b.name);
     });
-  }, [tasks]);
+  }, [tasks, completed]);
 
   const unmappableSorted = useMemo(() => {
     return [...unmappableTasks].sort((a, b) => {
+      const ac = completed.has(a.id) ? 1 : 0;
+      const bc = completed.has(b.id) ? 1 : 0;
+      if (ac !== bc) return ac - bc;
       const d = DIFF_ORDER[a.difficulty] - DIFF_ORDER[b.difficulty];
       if (d !== 0) return d;
       return a.name.localeCompare(b.name);
     });
-  }, [unmappableTasks]);
+  }, [unmappableTasks, completed]);
+
+  // Sub-count for the accordion header: "82 / 412" tells the player at
+  // a glance how much of the currently-filtered slice they've finished.
+  const visibleDone = useMemo(() => {
+    let n = 0;
+    for (const t of tasks) if (completed.has(t.id)) n += 1;
+    for (const t of unmappableTasks) if (completed.has(t.id)) n += 1;
+    return n;
+  }, [tasks, unmappableTasks, completed]);
+  const visibleTotal = tasks.length + unmappableTasks.length;
 
   const listRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -68,7 +100,20 @@ export default function TaskList({
       >
         <Chevron open={open} />
         <span className="accordion-title">Tasks</span>
-        <span className="accordion-badge">{mappableSorted.length}</span>
+        <span
+          className="accordion-badge"
+          title={`${visibleDone} done of ${visibleTotal} visible`}
+        >
+          {visibleDone > 0 ? (
+            <>
+              <span className="tabular">{visibleDone}</span>
+              <span className="accordion-badge-sep">/</span>
+              <span className="tabular">{visibleTotal}</span>
+            </>
+          ) : (
+            <span className="tabular">{visibleTotal}</span>
+          )}
+        </span>
       </button>
       <div className="task-list-scroll" ref={listRef} hidden={!open}>
         {mappableSorted.map((t) => {
@@ -81,6 +126,8 @@ export default function TaskList({
               selected={selectedTaskId === t.id}
               onSelectTask={onSelectTask}
               onSelectLocation={onSelectLocation}
+              done={completed.has(t.id)}
+              onToggleComplete={onToggleComplete}
             />
           );
         })}
@@ -107,6 +154,8 @@ export default function TaskList({
                 onSelectTask={onSelectTask}
                 onSelectLocation={onSelectLocation}
                 nonSpatial
+                done={completed.has(t.id)}
+                onToggleComplete={onToggleComplete}
               />
             ))}
           </section>
@@ -144,6 +193,8 @@ interface TaskRowProps {
   onSelectTask: (id: string) => void;
   onSelectLocation: (id: string) => void;
   nonSpatial?: boolean;
+  done: boolean;
+  onToggleComplete: (taskId: string) => void;
 }
 
 function TaskRow({
@@ -153,6 +204,8 @@ function TaskRow({
   onSelectTask,
   onSelectLocation,
   nonSpatial,
+  done,
+  onToggleComplete,
 }: TaskRowProps) {
   const primaryLoc = placement?.primary
     ? getLocation(placement.primary)
@@ -174,13 +227,49 @@ function TaskRow({
       }
     : undefined;
 
+  // Stop propagation so toggling completion never doubles as a row-click
+  // (which would re-open the popup / fly-to the pin every time).
+  const handleCheckboxClick = (e: React.MouseEvent) => e.stopPropagation();
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    onToggleComplete(task.id);
+  };
+
   return (
     <div
-      className={`task-row diff-${task.difficulty.toLowerCase()}${selected && interactive ? " selected" : ""}${interactive ? "" : " non-spatial"}`}
+      className={`task-row diff-${task.difficulty.toLowerCase()}${selected && interactive ? " selected" : ""}${interactive ? "" : " non-spatial"}${done ? " done" : ""}`}
       data-task-id={task.id}
       onClick={handleClick}
     >
       <div className="task-row-top">
+        <label
+          className="task-row-check"
+          onClick={handleCheckboxClick}
+          title={done ? "Mark as incomplete" : "Mark as complete"}
+        >
+          <input
+            type="checkbox"
+            checked={done}
+            onChange={handleCheckboxChange}
+            aria-label={
+              done
+                ? `Mark "${task.name}" as incomplete`
+                : `Mark "${task.name}" as complete`
+            }
+          />
+          <span className="task-row-check-box" aria-hidden>
+            <svg viewBox="0 0 16 16" width={12} height={12} aria-hidden>
+              <path
+                d="M3 8.4l3 3 7-7.4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+        </label>
         <img
           className="diff-icon"
           src={`/icons/difficulty/${task.difficulty.toLowerCase()}.png`}

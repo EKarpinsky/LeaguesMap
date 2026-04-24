@@ -15,6 +15,13 @@ export interface FilterState {
   includeUnmappable: boolean;
   /** Show region-centroid fallback pins and their tasks. */
   includeCentroidFallbacks: boolean;
+  /**
+   * When true, hide tasks the player has already marked complete. The
+   * completion set itself lives in `useCompletedTasks` (localStorage);
+   * this flag is just the toggle that opts the filter pass into using
+   * it. Default is false so a fresh visit shows the full league.
+   */
+  hideCompleted: boolean;
   /** Minimum skill requirement filter, e.g. { Agility: 70 }. */
   skillMin: Partial<Record<string, number>>;
 }
@@ -28,6 +35,7 @@ export function defaultFilters(): FilterState {
     pactOnly: false,
     includeUnmappable: true,
     includeCentroidFallbacks: true,
+    hideCompleted: false,
     skillMin: {},
   };
 }
@@ -36,6 +44,7 @@ export function matchesFilter(
   task: Task,
   placement: TaskPlacement,
   f: FilterState,
+  completed?: ReadonlySet<string>,
 ): boolean {
   if (!f.regions.has(task.region)) return false;
   if (!f.difficulties.has(task.difficulty)) return false;
@@ -43,6 +52,7 @@ export function matchesFilter(
   if (!f.includeUnmappable && placement.unmappable) return false;
   if (!f.includeCentroidFallbacks && placement.matchMethod === "region-fallback")
     return false;
+  if (f.hideCompleted && completed?.has(task.id)) return false;
 
   if (f.search.trim()) {
     const q = f.search.trim().toLowerCase();
