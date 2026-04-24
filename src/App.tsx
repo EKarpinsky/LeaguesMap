@@ -162,6 +162,21 @@ function App() {
   // eli@karpinsky.io via Resend. Kept inline here rather than a new
   // component because (a) it owns no reusable logic and (b) the project
   // rule is to prefer existing files over new ones.
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const openAboutDialog = useCallback(() => setAboutOpen(true), []);
+  const closeAboutDialog = useCallback(() => setAboutOpen(false), []);
+  // Global Escape close for the About modal mirrors the bug dialog's
+  // a11y contract — the listener only attaches while the modal is open
+  // so we don't intercept Escape elsewhere in the app.
+  useEffect(() => {
+    if (!aboutOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeAboutDialog();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [aboutOpen, closeAboutDialog]);
+
   const [bugOpen, setBugOpen] = useState(false);
   const [bugMessage, setBugMessage] = useState("");
   const [bugStatus, setBugStatus] = useState<BugStatus>("idle");
@@ -271,19 +286,30 @@ function App() {
             </a>
           </div>
           {/*
-            Unobtrusive bug-report entry point. Opens an in-app dialog
-            that POSTs to /api/report-bug → Resend → eli@karpinsky.io.
-            Kept as a low-contrast ghost link so it never competes with
-            the page title or the filters underneath.
+            Header utility links — both styled as low-contrast ghost links
+            so they never compete with the page title or the filters
+            underneath. "About" opens a modal carrying the Jagex Fan
+            Content Guidelines non-affiliation notice + trademark
+            attribution; "Report a bug" opens the bug-report dialog
+            (POSTs to /api/report-bug → Resend → eli@karpinsky.io).
           */}
-          <button
-            type="button"
-            className="bug-report-link"
-            onClick={openBugDialog}
-            title="Send a bug report to eli@karpinsky.io"
-          >
-            Report a bug
-          </button>
+          <div className="app-title-actions">
+            <button
+              type="button"
+              className="bug-report-link"
+              onClick={openAboutDialog}
+            >
+              About
+            </button>
+            <button
+              type="button"
+              className="bug-report-link"
+              onClick={openBugDialog}
+              title="Send a bug report to eli@karpinsky.io"
+            >
+              Report a bug
+            </button>
+          </div>
         </header>
         <FilterSidebar
           filters={filters}
@@ -324,6 +350,74 @@ function App() {
       */}
       {typeof window !== "undefined" &&
         window.location.hostname === "leagues-map.karpinsky.io" && <Analytics />}
+      {/*
+        About modal. Carries the Jagex Fan Content Policy required
+        non-affiliation notice + trademark attribution. Reuses the
+        bug-dialog backdrop / shell styles so we don't duplicate modal
+        CSS — the body content is small enough to inline.
+      */}
+      {aboutOpen && (
+        <div
+          className="bug-dialog-backdrop"
+          onMouseDown={closeAboutDialog}
+          role="presentation"
+        >
+          <div
+            className="bug-dialog about-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="about-dialog-title"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <header className="bug-dialog-head">
+              <h2 id="about-dialog-title">About this map</h2>
+              <button
+                type="button"
+                className="bug-dialog-close"
+                onClick={closeAboutDialog}
+                aria-label="Close about dialog"
+              >
+                ×
+              </button>
+            </header>
+            <div className="about-dialog-body">
+              <p>
+                A community-built tile map of every Old School RuneScape
+                Demonic Pacts League task, by{" "}
+                <a
+                  href="https://karpinsky.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Karpinsky
+                </a>
+                . Source data scraped from the OSRS Wiki.
+              </p>
+              <p>
+                This is an unofficial fan project published under the{" "}
+                <a
+                  href="https://legal.jagex.com/docs/policies/fan-content-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Jagex Fan Content Policy
+                </a>
+                . It is not endorsed by, sponsored by, or affiliated with
+                Jagex Ltd in any way.
+              </p>
+              <p>
+                <em>
+                  RuneScape and Old School RuneScape are the trademarks of
+                  Jagex Ltd and are used here in accordance with the Fan
+                  Content Policy. All in-game artwork, icons, and map
+                  imagery shown on this site remain the property of Jagex
+                  Ltd.
+                </em>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       {/*
         Bug-report dialog. Rendered conditionally so the textarea isn't
         in the tab order when closed. Backdrop click and Escape both

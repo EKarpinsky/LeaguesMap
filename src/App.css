@@ -75,6 +75,18 @@
   outline: none;
 }
 
+/* Right-aligned cluster of header utility links (About + Report a bug).
+   Stacks the two links vertically on the desktop sidebar so neither
+   shrinks the title text; on mobile the parent .app-title flips to
+   horizontal and these inline next to each other. */
+.app-title-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
 /* Ghost button in the top-right of the title bar — opens the bug-report
    dialog. Renders as a <button> for semantic correctness (it's not
    navigation), but is styled like a low-contrast text link so it never
@@ -204,6 +216,45 @@
   font-size: 12.5px;
   line-height: 1.45;
   color: #a4a4b2;
+}
+
+/* About modal body. Reuses .bug-dialog shell + .bug-dialog-head from
+   above; only the content-area styling is bespoke. Larger and higher-
+   contrast than the body of the bug dialog because this is text the
+   user is here to *read* (legal/attribution notice), not glance over.
+   Contrast: #cfcfd6 on #14141b ≈ 12.4 : 1 — comfortably above WCAG AAA. */
+.about-dialog-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 14px 18px 18px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #cfcfd6;
+}
+.about-dialog-body p {
+  margin: 0 0 12px;
+}
+.about-dialog-body p:last-child {
+  margin-bottom: 0;
+}
+.about-dialog-body a {
+  color: #d8d8e0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.about-dialog-body a:hover,
+.about-dialog-body a:focus-visible {
+  color: #ffffff;
+  outline: none;
+}
+.about-dialog-body em {
+  display: block;
+  font-style: normal;
+  font-size: 12px;
+  color: #9c9caa;
+  border-top: 1px solid #1f1f29;
+  padding-top: 10px;
+  margin-top: 4px;
 }
 
 .bug-dialog-textarea {
@@ -533,6 +584,10 @@
   .app-title-byline {
     font-size: 9.5px;
     letter-spacing: 0.05em;
+  }
+  .app-title-actions {
+    flex-direction: row;
+    gap: 12px;
   }
   .bug-report-link {
     font-size: 10.5px;
