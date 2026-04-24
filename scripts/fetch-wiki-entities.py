@@ -250,12 +250,38 @@ CURATED_ENTITIES: dict[str, dict] = {
     "commander zilyana":        {"anchor": "God Wars Dungeon",        "category": "boss"},
     "general graardor":         {"anchor": "God Wars Dungeon",        "category": "boss"},
     "k'ril tsutsaroth":         {"anchor": "God Wars Dungeon",        "category": "boss"},
-    "duke sucellus":            {"anchor": "Ghorrock",                "category": "boss"},
-    "vardorvis":                {"anchor": "Strangled",               "category": "boss"},
-    "the leviathan":            {"anchor": "Edgeville",               "category": "boss"},
-    "leviathan":                {"anchor": "Edgeville",               "category": "boss"},
-    "the whisperer":            {"anchor": "Edgeville",               "category": "boss"},
-    "whisperer":                {"anchor": "Edgeville",               "category": "boss"},
+    # The four DT2 bosses (Vardorvis, The Whisperer, The Leviathan, Duke
+    # Sucellus) used to live here as curated entities, but they were all
+    # broken: "Strangled" resolved to (1170, 3414) in Varlamore Sunset
+    # Coast (some random NPC page that happened to title-match), and
+    # "Edgeville" was a pure placeholder for the three remaining bosses
+    # — all three pinned to the Edgeville bank tile, even though their
+    # lairs are nowhere near each other (Whisperer beneath Ice Mountain,
+    # Leviathan in Lithkren Vault, Duke Sucellus at Ghorrock). On top of
+    # that the four DT2 *vestige rings* (Bellator/Magus/Ultor/Venator)
+    # all collapsed onto the single `desert-treasure-ii` quest-start pin
+    # (2666, 3691) because each ring is its own item with no entity hook
+    # — visually, all four ring tasks "huddled in one spot" north of Al
+    # Kharid instead of pointing players at the boss that actually drops
+    # them.
+    #
+    # Both problems are now solved by **landmarks** in
+    # src/data/locations.ts (search for "vardorvis-arena",
+    # "whisperer-lair", "duke-sucellus-lair", "leviathan-lair"). Each
+    # landmark holds the boss aliases (so "Defeat Vardorvis" still
+    # resolves) AND the dropped-ring/bow aliases (so "Equip the Ultor
+    # Ring" lands on Vardorvis's lair, not the DT2 quest start). Keeping
+    # them as *landmarks* instead of curated entities means they pin to
+    # exactly one well-chosen surface entrance per boss with no chance
+    # of the wiki scraper later overwriting the coord with whatever
+    # {{Map}} template happens to live on the boss's own wiki page
+    # (Vardorvis's page resolves to mapID=11421, an instance coord).
+    #
+    # If you ever want to re-add them here, the right anchors are:
+    #   Whisperer    → "Frozen Door"          (3008, 3501) Asgarnia
+    #   Leviathan    → "Lithkren Vault"       (3551, 3553) Morytania
+    #   Duke Sucellus→ "Ghorrock"             (2915, 3935) Wilderness  ✓ correct already
+    #   Vardorvis    → "Stranglewood" / "The Strangled"  (3623, 3378) Morytania
 
     # ───── Wilderness & classic bosses ─────
     "king black dragon":         {"anchor": "Lava Maze",              "category": "boss"},
@@ -411,10 +437,14 @@ CURATED_ENTITIES: dict[str, dict] = {
     # NPC infobox has {{Map|x=1646|y=3574}} which the anchor resolver
     # picks up automatically from the wiki.
     "mimic":                           {"anchor": "Watson",                     "category": "boss"},
-    "duke sucellus sleeper":           {"anchor": "Ghorrock",                   "category": "boss"},
-    "leviathan sleeper":               {"anchor": "Edgeville",                  "category": "boss"},
-    "vardorvis sleeper":               {"anchor": "Strangled",                  "category": "boss"},
-    "whispered":                       {"anchor": "Edgeville",                  "category": "boss"},
+    # DT2 Awakened/Sleeper variants live in the same lairs as their base
+    # bosses — see the long comment on the base "vardorvis"/"whisperer"/
+    # "leviathan"/"duke sucellus" entries above for why these are now
+    # handled as landmarks in src/data/locations.ts. The base boss
+    # landmark aliases ("whisperer", "vardorvis", etc.) catch the
+    # Awakened-variant tasks too via the description-text scan in
+    # the resolver — every Awakened task description still contains
+    # the base boss name (e.g. "Defeat Awakened Whisperer.").
     "unbound jaltok-jad":              {"anchor": "Mor Ul Rek",                 "category": "boss"},
     "royal titans":                    {"anchor": "Burthorpe",                  "category": "boss"},
 

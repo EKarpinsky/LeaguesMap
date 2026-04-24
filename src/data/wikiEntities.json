@@ -8152,38 +8152,6 @@
     "x": 3152,
     "y": 2909
   },
-  "duke sucellus": {
-    "allSpawns": [
-      [
-        2915,
-        3935
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": null,
-    "note": "Ghorrock",
-    "resolvedTitle": "Duke Sucellus",
-    "source": "curated",
-    "title": "Duke Sucellus",
-    "x": 2915,
-    "y": 3935
-  },
-  "duke sucellus sleeper": {
-    "allSpawns": [
-      [
-        2915,
-        3935
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": null,
-    "note": "Ghorrock",
-    "resolvedTitle": "Duke Sucellus Sleeper",
-    "source": "curated",
-    "title": "Duke Sucellus Sleeper",
-    "x": 2915,
-    "y": 3935
-  },
   "dummy": {
     "allSpawns": [
       [
@@ -16644,38 +16612,6 @@
     "title": "Law Altar",
     "x": 2857,
     "y": 3380
-  },
-  "leviathan": {
-    "allSpawns": [
-      [
-        3080,
-        3492
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": null,
-    "note": "Edgeville",
-    "resolvedTitle": "Leviathan",
-    "source": "curated",
-    "title": "Leviathan",
-    "x": 3080,
-    "y": 3492
-  },
-  "leviathan sleeper": {
-    "allSpawns": [
-      [
-        3080,
-        3492
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": null,
-    "note": "Edgeville",
-    "resolvedTitle": "Leviathan Sleeper",
-    "source": "curated",
-    "title": "Leviathan Sleeper",
-    "x": 3080,
-    "y": 3492
   },
   "lizardmen shaman": {
     "allSpawns": [
@@ -31236,22 +31172,6 @@
     "x": 2856,
     "y": 3168
   },
-  "the leviathan": {
-    "allSpawns": [
-      [
-        3080,
-        3492
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": null,
-    "note": "Edgeville",
-    "resolvedTitle": "The Leviathan",
-    "source": "curated",
-    "title": "The Leviathan",
-    "x": 3080,
-    "y": 3492
-  },
   "the mimic": {
     "allSpawns": [
       [
@@ -31298,22 +31218,6 @@
     "title": "The Old Nite",
     "x": 3152,
     "y": 3644
-  },
-  "the whisperer": {
-    "allSpawns": [
-      [
-        3080,
-        3492
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": null,
-    "note": "Edgeville",
-    "resolvedTitle": "The Whisperer",
-    "source": "curated",
-    "title": "The Whisperer",
-    "x": 3080,
-    "y": 3492
   },
   "theatre of blood": {
     "allSpawns": [
@@ -31690,7 +31594,7 @@
     "y": 3539,
     "spawnNotes": [
       "Burthorpe",
-      "Keldagrim entrance (south-of-Keldagrim tunnel \u2014 fairy ring DKS)"
+      "Keldagrim entrance (south-of-Keldagrim tunnel — fairy ring DKS)"
     ]
   },
   "troll stronghold (location)": {
@@ -31936,38 +31840,6 @@
     "title": "Vale Totems",
     "x": 1417,
     "y": 3360
-  },
-  "vardorvis": {
-    "allSpawns": [
-      [
-        1170,
-        3414
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Varlamore",
-    "note": "Strangled",
-    "resolvedTitle": "Vardorvis",
-    "source": "curated",
-    "title": "Vardorvis",
-    "x": 1170,
-    "y": 3414
-  },
-  "vardorvis sleeper": {
-    "allSpawns": [
-      [
-        1170,
-        3414
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": null,
-    "note": "Strangled",
-    "resolvedTitle": "Vardorvis Sleeper",
-    "source": "curated",
-    "title": "Vardorvis Sleeper",
-    "x": 1170,
-    "y": 3414
   },
   "venenatis": {
     "allSpawns": [
@@ -33650,38 +33522,6 @@
     "title": "wheat",
     "x": 1391,
     "y": 2899
-  },
-  "whispered": {
-    "allSpawns": [
-      [
-        3080,
-        3492
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": null,
-    "note": "Edgeville",
-    "resolvedTitle": "Whispered",
-    "source": "curated",
-    "title": "Whispered",
-    "x": 3080,
-    "y": 3492
-  },
-  "whisperer": {
-    "allSpawns": [
-      [
-        3080,
-        3492
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": null,
-    "note": "Edgeville",
-    "resolvedTitle": "Whisperer",
-    "source": "curated",
-    "title": "Whisperer",
-    "x": 3080,
-    "y": 3492
   },
   "white berries": {
     "allSpawns": [

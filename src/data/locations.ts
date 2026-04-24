@@ -280,14 +280,58 @@ export const LOCATIONS: WorldLocation[] = [
   L("pyramid-plunder", "Pyramid Plunder", 3289, 2793, "Desert", "minigame",
     ["pyramid plunder", "mummy"],
     "Thieving minigame (Jaldraocht — mummies guard the chambers)"),
-  L("desert-treasure-ii", "Desert Treasure II bosses", 2666, 3691, "Desert", "boss",
+  // DT2 quest-start aggregator. Used ONLY for drops that combine pieces from
+  // ALL FOUR DT2 bosses — Virtus armour and the Soulreaper Axe (assembled
+  // from each boss's hilt fragment). Boss-specific drops (the four vestige
+  // rings + Venator Bow) deliberately do NOT alias here — they live on the
+  // individual boss landmarks below so each ring task pins to the boss
+  // that actually drops it. Without that split, all four ring tasks
+  // collapsed to this single tile north of Al Kharid.
+  L("desert-treasure-ii", "Desert Treasure II", 2666, 3691, "Desert", "quest",
     ["desert treasure ii", "the fallen empire",
-     "vardorvis", "leviathan", "whisperer", "duke sucellus",
-     "vestige", "ultor ring", "magus ring", "bellator ring", "venator ring",
      "soulreaper axe", "soul reaper axe",
-     "virtus", "virtus top", "virtus mask", "virtus robe",
+     "virtus", "virtus top", "virtus mask", "virtus robe", "virtus robes"],
+    "Desert Treasure II quest start (shared DT2 boss drops: Virtus armour, Soulreaper Axe)"),
+
+  // ─── DT2 boss arenas (one landmark per boss, with the ring/bow they drop) ───
+  // These four landmarks replace the curated wiki-entities of the same
+  // name (which all collapsed to placeholder coords — Vardorvis to a
+  // Varlamore NPC tile, the other three all to Edgeville bank). Each
+  // landmark pins to the SURFACE entrance the player actually walks to
+  // for that boss, holds aliases for both the boss name and the unique
+  // vestige ring it drops, and (for Leviathan only) the Venator Bow
+  // pieces. Awakened/Sleeper variants don't need their own aliases —
+  // the resolver's description-text scan picks them up via the base
+  // name in "Defeat Awakened Vardorvis." etc.
+  //
+  // Rationale: each pin sits at the surface entrance the player actually
+  // walks to, so the badge region matches that surface tile rather than
+  // the league's task-region tag. Same pattern as Cerberus — tagged
+  // Kourend by the league but pinned in Asgarnia where Taverley Dungeon
+  // sits. All four canonical coords are pulled from the boss pages'
+  // {{LocLine}} surface mapref on the OSRS Wiki.
+  L("whisperer-lair", "The Whisperer", 3008, 3501, "Asgarnia", "boss",
+    ["whisperer", "the whisperer",
+     "bellator ring", "bellator vestige"],
+    "The Whisperer (Lassar Undercity Sunken Cathedral, accessed via the sinkhole north-west of the Ruins of Camdozaal beneath Ice Mountain). Drops the Bellator vestige."),
+  // Stranglewood Ritual Site, south of Mount Quidamortem — Varlamore.
+  L("vardorvis-arena", "Vardorvis", 1128, 3417, "Varlamore", "boss",
+    ["vardorvis",
+     "ultor ring", "ultor vestige"],
+    "Vardorvis (The Stranglewood Ritual Site, north-west of the forest south of Mount Quidamortem). Drops the Ultor vestige."),
+  // Ghorrock Prison Asylum is reached via Ghorrock Dungeon under Weiss's
+  // Salt Mine — surface entrance is in Fremennik, not deep Wilderness.
+  L("duke-sucellus-lair", "Duke Sucellus", 2870, 3940, "Fremennik", "boss",
+    ["duke sucellus",
+     "magus ring", "magus vestige"],
+    "Duke Sucellus (Ghorrock Prison Asylum, accessed through Ghorrock Dungeon beneath Weiss's Salt Mine). Drops the Magus vestige."),
+  // The Scar in Abyssal Space, accessed by talking to the Catalytic
+  // Guardian inside the Temple of the Eye (Mysterious Ruins, Arceuus).
+  L("leviathan-lair", "The Leviathan", 1581, 3851, "Kourend", "boss",
+    ["leviathan", "the leviathan",
+     "venator ring", "venator vestige",
      "venator bow"],
-    "Desert Treasure II bosses (Rings, Virtus, Venator Bow, Soulreaper Axe)"),
+    "The Leviathan (The Scar in Abyssal Space, accessed via the Catalytic Guardian inside the Temple of the Eye in the Mysterious Ruins, Arceuus). Drops the Venator vestige and Venator Bow shards."),
   L("gotr", "Guardians of the Rift", 1572, 3842, "General", "minigame",
     ["guardians of the rift", "abyssal pearls", "wrath talisman",
      "divine rune pouch", "divine spirit shield",
