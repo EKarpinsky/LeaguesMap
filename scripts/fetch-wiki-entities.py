@@ -303,6 +303,15 @@ CURATED_ENTITIES: dict[str, dict] = {
     "turoth":                          {"anchor": "Fremennik Slayer Dungeon",   "category": "monster"},
     "wallasalki":                      {"anchor": "Fremennik Slayer Dungeon",   "category": "monster"},
     "wallasaki":                       {"anchor": "Fremennik Slayer Dungeon",   "category": "monster"},
+    # Pyrefiend's wiki page has 6 LocLines but every Fremennik / Asgarnia /
+    # Morytania / Desert / Wilderness entry is underground (mapID > 0 or
+    # y > 4094, both filtered out). The only mapID=0 entry is the Isle
+    # of Souls (Soul Wars), which is tagged `leagueRegion = misthalin`
+    # — locked in Demonic Pacts and now dropped at scrape time. With
+    # zero surface spawns left, the curated anchor pins Pyrefiend at the
+    # Fremennik Slayer Dungeon trapdoor (north-east of Rellekka), which
+    # is the actual surface route to the Fremennik Slayer Cave.
+    "pyrefiend":                       {"anchor": "Fremennik Slayer Dungeon",   "category": "monster"},
     "penguin":                         {"anchor": "Iceberg",                    "category": "monster"},
     "werewolf":                        {"anchor": "Canifis",                    "category": "monster"},
     "snail":                           {"anchor": "Mort Myre Swamp",            "category": "monster"},
@@ -523,8 +532,24 @@ def is_surface_pin(m: dict) -> bool:
     # Without this filter the Sailing scorpion spawns at y≈2350 leak
     # into the Scorpion (Desert) pin and render in the southern ocean.
     lr = m.get("leagueRegion")
-    if lr and lr.strip().upper() in {"N/A", "NA", "NONE"}:
-        return False
+    if lr:
+        lr_upper = lr.strip().upper()
+        if lr_upper in {"N/A", "NA", "NONE"}:
+            return False
+        # Misthalin is locked in Demonic Pacts. Per-spawn `leagueRegion =
+        # misthalin` flags content the player can never reach — most
+        # notably the Isle of Souls (Soul Wars) entries the wiki tags as
+        # misthalin even though their (x, y) sits outside our Misthalin
+        # bbox. Without this filter, e.g. Pyrefiend's only mapID=0 spawns
+        # are the 10 Isle of Souls coords; they leak into the entity-
+        # level fallback ("Fremennik" from the infobox) and render the
+        # Pyrefiend (Fremennik Province) task pin smack on Soul Wars.
+        # This is the per-spawn analogue of the runtime
+        # INACCESSIBLE_REGIONS check in src/data/wikiEntities.ts — we
+        # apply it at scrape time so the JSON doesn't ship with phantom
+        # Misthalin spawns waiting to be misclassified at runtime.
+        if lr_upper == "MISTHALIN":
+            return False
     return True
 
 
