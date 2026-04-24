@@ -59,7 +59,24 @@ function App() {
         unmappable.push(task);
       } else {
         mappable.push(task);
-        for (const locId of placement.locations) {
+        // Pin the task at one place per task, not at every wiki-linked
+        // entity. Without this, "Enter the Wizards' Guild in Yanille"
+        // (wikiLinks: [Wizards' Guild, Yanille]) shows up at BOTH the
+        // Wizards' Guild entity pin AND the Yanille landmark pin —
+        // user-visible duplication. The resolver already picks the
+        // best-fit primary (entity-name-in-task-name + same-region),
+        // so we trust it and pin there.
+        //
+        // Exception: "General"-region tasks like "Pickpocket a Citizen"
+        // are intentionally pinned in every region the entity spawns
+        // in, so the player sees a marker in each league area they've
+        // unlocked. For those we keep the full locations fan-out.
+        const ids =
+          task.region === "General"
+            ? placement.locations
+            : [placement.primary ?? placement.locations[0]];
+        for (const locId of ids) {
+          if (!locId) continue;
           const arr = byLoc.get(locId) ?? [];
           arr.push(task);
           byLoc.set(locId, arr);
