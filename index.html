@@ -2,14 +2,123 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- ─── Favicons ────────────────────────────────────────────────────
+         The favicon is the OSRS Leagues "Master" tier badge — the highest
+         task tier we use in-app — generated from public/icons/difficulty/
+         master.png so brand and tab-icon stay in sync. We provide both
+         PNG sizes (modern browsers) and a multi-size .ico fallback for
+         the long tail of crawlers and old IE/Edge previews.
+
+         The legacy /favicon.svg is intentionally NOT linked anymore so
+         browsers don't quietly prefer the old generic mark.            -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0f0f14" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- ─── Core SEO ───────────────────────────────────────────────────
+         Title and description are the single highest-leverage SEO fields.
+         Description is kept under 160 chars so it survives Google's SERP
+         truncation. The phrasing front-loads the keywords most users
+         actually type ("OSRS Demonic Pacts League tasks map"). -->
     <title>LeaguesMap — Demonic Pacts League Tasks</title>
-    <meta name="description" content="Interactive map of every OSRS Demonic Pacts League task, pinned to its location in Gielinor." />
+    <meta
+      name="description"
+      content="Interactive map of every OSRS Demonic Pacts League task pinned to its real Gielinor location. Filter by region, difficulty, or pact, and search across 1,177 tasks."
+    />
+    <meta name="author" content="Eli Karpinsky" />
+
+    <!-- Canonical URL pins indexing to the production domain so Vercel
+         preview deployments (PR URLs, *.vercel.app) don't accidentally
+         get crawled and split signal with the real site. -->
+    <link rel="canonical" href="https://leagues-map.karpinsky.io/" />
+
+    <!-- Web app manifest (Android install prompts, A2HS name/colors). -->
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- ─── Open Graph (Facebook, Discord, Slack, LinkedIn, iMessage) ─ -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="LeaguesMap" />
+    <meta property="og:title" content="LeaguesMap — Demonic Pacts League Tasks" />
+    <meta
+      property="og:description"
+      content="Interactive map of every OSRS Demonic Pacts League task pinned to its real Gielinor location. Filter, search, and find every pact target on one screen."
+    />
+    <meta property="og:url" content="https://leagues-map.karpinsky.io/" />
+    <meta property="og:image" content="https://leagues-map.karpinsky.io/og-image.jpg" />
+    <meta property="og:image:secure_url" content="https://leagues-map.karpinsky.io/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Screenshot of LeaguesMap showing the Demonic Pacts task filters and dozens of pinned tasks across the Asgarnia region of Gielinor" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- ─── Twitter / X cards ────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="LeaguesMap — Demonic Pacts League Tasks" />
+    <meta
+      name="twitter:description"
+      content="Interactive map of every OSRS Demonic Pacts League task pinned to its real Gielinor location."
+    />
+    <meta name="twitter:image" content="https://leagues-map.karpinsky.io/og-image.jpg" />
+    <meta name="twitter:image:alt" content="Screenshot of LeaguesMap showing the Demonic Pacts task filters and dozens of pinned tasks across the Asgarnia region of Gielinor" />
+
+    <!-- ─── Structured data (JSON-LD) ────────────────────────────────
+         WebSite + WebApplication. The WebSite block declares a
+         SearchAction so Google can render a sitelink searchbox under
+         the result — App.tsx initial filter state reads `?q=` from the
+         URL and seeds the in-app search box with it. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://leagues-map.karpinsky.io/#website",
+            "url": "https://leagues-map.karpinsky.io/",
+            "name": "LeaguesMap",
+            "description": "Interactive map of every OSRS Demonic Pacts League task.",
+            "inLanguage": "en",
+            "publisher": { "@id": "https://leagues-map.karpinsky.io/#person" },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://leagues-map.karpinsky.io/?q={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@type": "WebApplication",
+            "@id": "https://leagues-map.karpinsky.io/#app",
+            "name": "LeaguesMap — Demonic Pacts League Tasks",
+            "url": "https://leagues-map.karpinsky.io/",
+            "applicationCategory": "GameApplication",
+            "operatingSystem": "Any",
+            "browserRequirements": "Requires JavaScript and a modern browser.",
+            "isAccessibleForFree": true,
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+            "creator": { "@id": "https://leagues-map.karpinsky.io/#person" },
+            "about": "Old School RuneScape — Demonic Pacts League"
+          },
+          {
+            "@type": "Person",
+            "@id": "https://leagues-map.karpinsky.io/#person",
+            "name": "Eli Karpinsky",
+            "url": "https://karpinsky.io"
+          }
+        ]
+      }
+    </script>
+
     <!-- The map is delivered as a Leaflet tile pyramid (see
          scripts/tile-map-image.py). The visible viewport at the
          initial fit-to-world zoom is only 4 tiles ≈ 30 KB total, so
@@ -18,7 +127,28 @@
          the moment MapView mounts. -->
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static SEO/unfurl fallback. Visible only to crawlers and
+           pre-hydration paint (then immediately replaced by React's
+           render output). Gives non-JS bots (Twitter/Slack/Discord
+           unfurlers, Bing, ChatGPT, Perplexity) a real H1 + summary
+           to index instead of the empty SPA shell.
+
+           Not wrapped in <noscript> on purpose: that would hide it
+           from JS-capable bots like Googlebot during the brief
+           pre-hydration window where this content is the only thing
+           on the page. React swaps it out the moment it mounts. -->
+      <div hidden aria-hidden="true">
+        <h1>LeaguesMap — Demonic Pacts League Tasks</h1>
+        <p>
+          Interactive map of every Old School RuneScape Demonic Pacts
+          League task, pinned to its real location in Gielinor. Filter
+          1,177 tasks by region (Asgarnia, Desert, Fremennik, Kandarin,
+          Karamja, Kourend, Morytania, Tirannwn, Varlamore, Wilderness),
+          by tier (Easy, Medium, Hard, Elite, Master), or by pact.
+        </p>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

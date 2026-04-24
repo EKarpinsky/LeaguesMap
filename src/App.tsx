@@ -30,7 +30,18 @@ const BUG_MAX_LEN = 5000;
 const MapView = lazy(() => import("./components/MapView"));
 
 function App() {
-  const [filters, setFilters] = useState<FilterState>(defaultFilters);
+  // Initial filter state honors `?q=…` from the URL so the schema.org
+  // SearchAction (declared in index.html) actually does something — Google
+  // can route sitelink-searchbox queries here, and any user with a search
+  // URL (bookmark, Discord share, etc.) lands on a pre-filtered view.
+  const [filters, setFilters] = useState<FilterState>(() => {
+    const base = defaultFilters();
+    if (typeof window === "undefined") return base;
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q");
+    if (q && q.trim()) base.search = q.trim().slice(0, 200);
+    return base;
+  });
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
     null,
@@ -301,12 +312,18 @@ function App() {
         </Suspense>
       </main>
       {/*
-        Vercel Web Analytics. Auto no-ops outside of Vercel-hosted builds
-        (e.g. `vite preview` on localhost) so it's safe to always mount —
-        the script only loads for production visitors on the deployed
-        domain. The dashboard toggle must also be enabled (already done).
+        Vercel Web Analytics. We gate on hostname (not import.meta.env.PROD)
+        because `vite preview` and Lighthouse's audit of it run a
+        production build locally — `PROD` is true there too, so a PROD-only
+        gate still 404s on /_vercel/insights/script.js (the script only
+        exists when served from Vercel's edge). Hostname-gating skips
+        localhost and the *.vercel.app preview deployments where the
+        script also isn't injected, leaving only the canonical production
+        domain to load it. In SSR/Node the typeof check trivially fails
+        and we render nothing.
       */}
-      <Analytics />
+      {typeof window !== "undefined" &&
+        window.location.hostname === "leagues-map.karpinsky.io" && <Analytics />}
       {/*
         Bug-report dialog. Rendered conditionally so the textarea isn't
         in the tab order when closed. Backdrop click and Escape both

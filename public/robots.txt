@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://leagues-map.karpinsky.io/sitemap.xml
