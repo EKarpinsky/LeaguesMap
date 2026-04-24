@@ -204,7 +204,15 @@ CURATED_ENTITIES: dict[str, dict] = {
     "grotesque guardians":       {"anchor": "Canifis",                "category": "boss"},
     "dusk":                      {"anchor": "Canifis",                "category": "boss"},
     "dawn":                      {"anchor": "Canifis",                "category": "boss"},
-    "the mimic":                 {"anchor": "Varrock Museum",         "category": "boss"},
+    # The Mimic boss is fought at the Strange Casket UPSTAIRS in Watson's
+    # house in Hosidius (Kourend) — NOT at the Varrock Museum. The wiki
+    # explicitly calls this out: "players must first speak to the strange
+    # casket upstairs in Watson's house in Hosidius to enable Mimic
+    # encounters". The old Varrock anchor was wrong (and made the pin
+    # disappear entirely under Demonic Pacts because Misthalin is locked,
+    # which is what triggered the user's "Defeat the Mimic" task to fall
+    # back to the Kourend region centroid).
+    "the mimic":                 {"anchor": "Watson",                 "category": "boss"},
     "phantom muspah":            {"anchor": "Ancient Cavern",         "category": "boss"},
 
     # ───── Dagannoth Kings (Waterbirth) ─────
@@ -302,7 +310,11 @@ CURATED_ENTITIES: dict[str, dict] = {
     "urium shade":                     {"anchor": "Shades of Mort'ton",         "category": "monster"},
     "sarachnis":                       {"anchor": "Forthos Dungeon",            "category": "boss"},
     "yama":                            {"anchor": "Slepe",                      "category": "boss"},
-    "mimic":                           {"anchor": "Varrock Museum",             "category": "boss"},
+    # See the long comment on `"the mimic"` above — Mimic challenge is at
+    # the Strange Casket upstairs in Watson's house, Hosidius. Watson's
+    # NPC infobox has {{Map|x=1646|y=3574}} which the anchor resolver
+    # picks up automatically from the wiki.
+    "mimic":                           {"anchor": "Watson",                     "category": "boss"},
     "duke sucellus sleeper":           {"anchor": "Ghorrock",                   "category": "boss"},
     "leviathan sleeper":               {"anchor": "Edgeville",                  "category": "boss"},
     "vardorvis sleeper":               {"anchor": "Strangled",                  "category": "boss"},

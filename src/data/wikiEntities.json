@@ -19145,18 +19145,18 @@
   "mimic": {
     "allSpawns": [
       [
-        3260,
-        3449
+        1646,
+        3574
       ]
     ],
     "category": "boss",
     "leagueRegion": null,
-    "note": "Varrock Museum",
+    "note": "Strange Casket upstairs in Watson's house, Hosidius",
     "resolvedTitle": "Mimic",
     "source": "curated",
     "title": "Mimic",
-    "x": 3260,
-    "y": 3449
+    "x": 1646,
+    "y": 3574
   },
   "miscellania": {
     "allSpawns": [
@@ -31486,18 +31486,18 @@
   "the mimic": {
     "allSpawns": [
       [
-        3260,
-        3449
+        1646,
+        3574
       ]
     ],
     "category": "boss",
     "leagueRegion": null,
-    "note": "Varrock Museum",
+    "note": "Strange Casket upstairs in Watson's house, Hosidius",
     "resolvedTitle": "The Mimic",
     "source": "curated",
     "title": "The Mimic",
-    "x": 3260,
-    "y": 3449
+    "x": 1646,
+    "y": 3574
   },
   "the nightmare": {
     "allSpawns": [

@@ -419,8 +419,15 @@ export const LOCATIONS: WorldLocation[] = [
      "the garden of death", "garden of death",
      "redwood log", "redwood tree", "redwood arrow",
      "farmer's outfit", "farmers outfit",
-     "juniper log", "juniper charcoal", "juniper tree"],
-    "Farming district / Kourend & Kebos diary reward-giver (Redwood trees, Farmer's outfit, Garden of Death)"),
+     "juniper log", "juniper charcoal", "juniper tree",
+     // Herb sack (and its silklined upgrade) is sold in Kourend by Farmer
+     // Gricoller at the Tithe Farm in Hosidius for 250 Tithe Farm points
+     // — the only Kourend vendor for both items. The silklined upgrade
+     // itself is craft-anywhere (pristine spider silk on herb sack), but
+     // the task is region-tagged Kourend, so anchoring it on the Hosidius
+     // herb-sack vendor is the only defensible Kourend pin.
+     "herb sack", "silklined herb sack"],
+    "Farming district / Kourend & Kebos diary reward-giver (Redwood trees, Farmer's outfit, Garden of Death). Tithe Farm = Farmer Gricoller (herb sack vendor)."),
   L("lovakengj", "Lovakengj", 1505, 3801, "Kourend", "city",
     ["lovakengj", "lovakite", "blast mine",
      "dynamite", "volcanic sulphur", "saltpetre"],
