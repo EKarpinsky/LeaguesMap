@@ -108,12 +108,38 @@ const REGION_BBOXES: { region: Region; xmin: number; xmax: number; ymin: number;
   // region (like Master Farmer, Wheat, Man) keep their valid-region
   // pins; the only effect is that Draynor-cluster medoids stop leaking
   // into the Asgarnia bucket.
-  { region: "Misthalin",  xmin: 3070, xmax: 3330, ymin: 3160, ymax: 3520 },
+  // Misthalin extends slightly south + east to absorb Giants' Plateau /
+  // Giants' Foundry (game ~3360, ~3155 — the Anvil pin "East of Al
+  // Kharid, west of Citharede Abbey"), which is canonically Misthalin
+  // and therefore unreachable in Demonic Pacts. Without this, the
+  // anvil there falls back to "General" and the Smith-bar tasks pin
+  // their primary to a place the player can never reach. The new
+  // (3070-3400, 3140-3520) bbox is still tighter than Asgarnia at the
+  // overlap strip on the east side of Edgeville/Falador, so it doesn't
+  // bleed into reachable Asgarnia coords.
+  { region: "Misthalin",  xmin: 3070, xmax: 3400, ymin: 3140, ymax: 3520 },
   { region: "Desert",     xmin: 3150, xmax: 3550, ymin: 2700, ymax: 3150 },
-  { region: "Kandarin",   xmin: 2150, xmax: 2850, ymin: 3050, ymax: 3580 },
+  // Kandarin extends south to y=2820 to cover Feldip Hills + Myths' Guild
+  // (game ~2464, ~2848 — the upstairs anvil from Dragon Slayer II) and
+  // surrounding Corsair Cove / Castle Wars approaches. The southern
+  // extension overlaps Karamja's western edge (Karamja xmin=2700,
+  // ymin=2900) but the tightest-bbox tiebreak keeps Karamja-region
+  // coords on Karamja since Karamja's bbox is ~5× smaller. Without
+  // this extension, the Anvil entity collapses its General-region
+  // medoid onto a Sailing port instead of pinning to Myths' Guild.
+  { region: "Kandarin",   xmin: 2150, xmax: 2850, ymin: 2820, ymax: 3580 },
   { region: "Kourend",    xmin: 1200, xmax: 1900, ymin: 3420, ymax: 3980 },
   { region: "Morytania",  xmin: 3400, xmax: 3800, ymin: 3100, ymax: 3530 },
-  { region: "Fremennik",  xmin: 2300, xmax: 2900, ymin: 3580, ymax: 4100 },
+  // Fremennik extends west to x=2050 to cover Lunar Isle, Suqah Isle,
+  // and the Pirates' Cove / Lunar dock approaches (game ~2117 to ~2210
+  // at y > 3800). The Lunar Isle pin itself was already classified as
+  // Fremennik via the entity-level leagueRegion fallback, but coords
+  // packed into multi-spawn templates without per-coord leagueRegion
+  // tags (e.g. the Port master entity at game 2146, 3879) need a real
+  // bbox match to avoid collapsing to "General". The extension can't
+  // absorb Tirannwn coords because the y-ranges don't overlap (Tirannwn
+  // ymax=3500 < Fremennik ymin=3580).
+  { region: "Fremennik",  xmin: 2050, xmax: 2900, ymin: 3580, ymax: 4100 },
   { region: "Tirannwn",   xmin: 2100, xmax: 2350, ymin: 3050, ymax: 3500 },
   { region: "Wilderness", xmin: 2940, xmax: 3400, ymin: 3520, ymax: 4000 },
 ];

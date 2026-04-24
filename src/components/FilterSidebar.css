@@ -51,6 +51,23 @@
   color: var(--fs-text-dim);
 }
 
+/*
+ * Belt-and-suspenders: even with `type="text"` some WebKit builds still
+ * render a clear-X on inputs used for searching (and we can't rule out
+ * role="searchbox" being treated like type="search" in some Safari
+ * revs). These pseudo-elements are the native clear button and spinner
+ * WebKit drops into search-like fields; hide them so only the custom
+ * `.sb-clear` button remains visible next to the typed query.
+ */
+.sb input::-webkit-search-cancel-button,
+.sb input::-webkit-search-decoration,
+.sb input::-webkit-search-results-button,
+.sb input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
 .sb input:hover {
   background: var(--fs-surface-hi);
 }

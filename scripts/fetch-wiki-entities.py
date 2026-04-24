@@ -136,6 +136,52 @@ ANCHOR_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
     # points to (2781, 10161) inside the cave), so we override the anchor to
     # the wiki-confirmed fairy ring landing tile.
     "Keldagrim entrance": (2744, 3719),
+    # The Prifddinas wiki page's {{Map}} points at (2210, 3390), the
+    # Tower of Voices teleport pad. Players who walk to ANY Prifddinas-
+    # instanced boss (Zalcano, The Gauntlet / Corrupted Gauntlet,
+    # Fragment of Seren) arrive at the Crystal Gate just north of the
+    # tower — the tile players actually stand on to launch the instance,
+    # and the same coord locations.ts uses for these bosses. Locking the
+    # anchor here keeps every Prifddinas-instanced-boss pin co-located on
+    # the gate row instead of drifting to whatever the next wiki re-scrape
+    # of "Prifddinas" returns. Lletya remains its own pin via the wiki's
+    # native (2338, 3171) coord — this override only fires for entities
+    # that explicitly anchor to "Prifddinas" in CURATED_ENTITIES.
+    "Prifddinas": (2210, 3415),
+}
+
+
+# ---------------------------------------------------------------------------
+# Post-scrape entity coord overrides
+# ---------------------------------------------------------------------------
+# Applied AFTER the default wiki-scrape has populated (x, y) for each entity.
+# Use for entities where the wiki page's own {{Map}} coord is canonically
+# correct (points at a real in-game tile) but lands the pin far from where
+# the wiki's world-map PNG prints that entity's LABEL. The distinction from
+# ANCHOR_COORD_OVERRIDES is that these are looked up by the entity's lower-
+# cased wiki title (matching the key used in wikiEntities.json) — they are
+# not tied to the CURATED_ENTITIES anchor flow.
+#
+# Each override MUST document why the wiki coord is at one place but the
+# visible label renders elsewhere. Coords are validated against the world-
+# map PNG by scripts/verify-calibration.ts conventions (src-px ±15 of the
+# rendered label center).
+ENTITY_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
+    # The Colossal Wyrm Remains wiki page's {{Map}} points at (1640, 2921),
+    # which is the NORTHERN RIM of the crater where the Colossal Wyrm
+    # Agility Course starts. That coord is physically correct — players
+    # walking to the agility entrance land there — but the "Colossal Wyrm
+    # Remains" TEXT LABEL is printed in the middle of the crater on the
+    # wiki world-map PNG, ~130 src-px south of the rim. Both entries also
+    # currently share the exact same scraped coord (both (1640, 2921)), so
+    # every wyrm-region task stacks on a pin sitting above the visible
+    # crater. Measured label center in /tmp/osrs_worldmap.orig.png is
+    # src ≈ (2050, 3940); inverting through the CURRENT piecewise
+    # calibration gives game (1657, 2890), which puts the pin ON the
+    # label. See scripts/verify-calibration.ts + /tmp/cal_debug/y_check/
+    # Colossal_Wyrm_Remains_label.jpg for the visual derivation.
+    "colossal wyrm remains":        (1657, 2890),
+    "colossal wyrm agility course": (1657, 2890),
 }
 
 
@@ -176,11 +222,19 @@ CURATED_ENTITIES: dict[str, dict] = {
     "sol heredit":              {"anchor": "Fortis Colosseum",        "category": "boss"},
 
     # ───── Instanced quest bosses ─────
-    "zalcano":                  {"anchor": "Lletya",                  "category": "boss"},
-    "corrupted hunllef":        {"anchor": "Lletya",                  "category": "boss"},
-    "the hunllef":              {"anchor": "Lletya",                  "category": "boss"},
-    "the corrupted gauntlet":   {"anchor": "Lletya",                  "category": "boss"},
-    "the gauntlet":             {"anchor": "Lletya",                  "category": "boss"},
+    # All anchored to Prifddinas (Tower of Voices area), NOT Lletya. The
+    # Gauntlet portal sits at the Crystal Gate next to the Tower of Voices,
+    # and Zalcano lives inside the Trahaearn smithing district. Lletya is
+    # ~225 game tiles southeast and would put every elf-quest pin in the
+    # wrong elven settlement. ANCHOR_COORD_OVERRIDES["Prifddinas"] below
+    # locks the resolved coord to the Tower of Voices area so a single
+    # marker covers all of these instanced bosses + Song of the Elves
+    # endgame, matching where players actually walk in.
+    "zalcano":                  {"anchor": "Prifddinas",              "category": "boss"},
+    "corrupted hunllef":        {"anchor": "Prifddinas",              "category": "boss"},
+    "the hunllef":              {"anchor": "Prifddinas",              "category": "boss"},
+    "the corrupted gauntlet":   {"anchor": "Prifddinas",              "category": "boss"},
+    "the gauntlet":             {"anchor": "Prifddinas",              "category": "boss"},
 
     # ───── God Wars & DT2 bosses (surface entrances) ─────
     "nex":                      {"anchor": "God Wars Dungeon",        "category": "boss"},
@@ -309,7 +363,10 @@ CURATED_ENTITIES: dict[str, dict] = {
     "moss giant (iorwerth dungeon)":   {"anchor": "Lletya",                     "category": "monster"},
     "elf":                             {"anchor": "Lletya",                     "category": "monster"},
     "elf (disambiguation)":            {"anchor": "Lletya",                     "category": "monster"},
-    "fragment of seren":               {"anchor": "Lletya",                     "category": "boss"},
+    # Song of the Elves final boss — fought in Prifddinas's Grand Library,
+    # NOT Lletya. Anchor to Prifddinas so the pin lands at the Tower of
+    # Voices alongside the other Prifddinas-instanced bosses.
+    "fragment of seren":               {"anchor": "Prifddinas",                 "category": "boss"},
     "frost crab":                      {"anchor": "Sunset Coast",               "category": "monster"},
     "jubster":                         {"anchor": "Feldip Hills",               "category": "monster"},
     "steel dragon":                    {"anchor": "Brimhaven Dungeon",          "category": "monster"},
@@ -409,6 +466,66 @@ _STYLE_KEYWORDS = (
 _INFOBOX_RE = re.compile(r"\{\{Infobox\s+([A-Za-z][A-Za-z ]*)", re.IGNORECASE)
 _LEAGUE_REGION_RE = re.compile(r"leagueRegion\s*=\s*([A-Za-z' ]+)", re.IGNORECASE)
 
+# Detects a {{Map}} template that lives inside an EMPTY `leagues-global-flag`
+# table cell. Wiki convention on multi-location pages (e.g. Furnace, Anvil
+# in newer table format) is to flag each row with its league region:
+#   |class="leagues-global-flag"|{{LeagueRegion|Karamja}}
+#   |{{Map|...|x=2857|y=2967|...}}
+# Rows tagged for Sailing / post-launch content leave that cell EMPTY:
+#   |class="leagues-global-flag"|
+#   |{{Map|...|x=1948|y=2755|...}}     ← Deepfin Point (Sailing 67)
+# The empty cell is the wiki's own "this content isn't in any league area"
+# signal — same semantics as `leagueRegion = N/A` on a per-LocLine page,
+# just expressed structurally instead of via a parameter. We catch it here
+# so the scraper auto-drops these spawns instead of leaking them into the
+# entity-level `leagueRegion` fallback (which renders the pin in random
+# southern ocean as a "General"-region marker).
+_EMPTY_LEAGUE_FLAG_THEN_MAP_RE = re.compile(
+    r'class="leagues-global-flag"\|[ \t]*\n[ \t]*\|\s*(\{\{Map\b[^{}]*?(?:\{\{[^{}]*\}\}[^{}]*?)*\}\})',
+    re.IGNORECASE | re.DOTALL,
+)
+
+# Coords known to be Sailing / post-launch content that the wiki doesn't
+# tag with `leagueRegion = N/A` and that fall outside the empty-flag
+# pattern above. Empirical fallback for cases the structural detection
+# can't catch:
+#
+#   • (2218, 2784) — Anvil on Isle of Souls (Soul Wars). The wiki Anvil
+#     page uses an old-format table with no leagues-global-flag column;
+#     the row text "Isle of Souls" is the only signal and we don't parse
+#     row context.
+#
+#   • Port master Sailing-port coords. The Port_master wiki page packs
+#     all 30 Sailing ports into ONE {{Map}} template with no per-coord
+#     leagueRegion parameter, so neither the structural detector nor
+#     `is_surface_pin`'s leagueRegion gate can split league-area ports
+#     from Sailing ports. Coords listed here are the Port_master spawns
+#     that don't fall in any league bbox AND lie in the southern Sailing
+#     y-band (post-league ocean ports the player can't reach pre-Sailing).
+#
+# Adding a coord here causes `is_surface_pin` to reject it BEFORE region
+# inference, so the affected entity loses the bad spawn but keeps every
+# legitimate league-area spawn. Tested against tasks pinning to these
+# entities — Smelt/Smith/Talk-to-Port-Master tasks now fan out to all
+# real regional pins instead of collapsing onto the Sailing-port medoid.
+SAILING_LEAK_COORDS: set[tuple[int, int]] = {
+    # Anvil — Isle of Souls (Soul Wars), old-format table row
+    (2218, 2784),
+    # Anvil — Sailing-only locations (no league flag column, no bbox
+    # match, y > POST_LEAGUE_SOUTH_Y so runtime fallback can't drop
+    # them either). Per Anvil wiki page table: Shipyard / Deepfin Point
+    # Bank Chest area and similar post-launch ports.
+    (1949, 2761),  # Anvil at southern Sailing port (Deepfin-class)
+    (2066, 2719),  # Anvil at Shipyard / Deepfin Point Bank Chest
+    # Port master — Sailing ports outside any reachable league region.
+    # Manually triaged from the Port_master wiki page's 30-coord {{Map}}
+    # template against REGION_BBOXES in src/data/wikiEntities.ts.
+    (1927, 2761),  # south-Varlamore Sailing port
+    (2581, 2848),  # south-central ocean Sailing port (the original BAD pin)
+    (3061, 2985),  # south-Asgarnia Sailing port
+    (3148, 2826),  # south-Desert Sailing port
+}
+
 
 def _split_top_level(body: str) -> list[str]:
     out, depth, buf = [], 0, []
@@ -458,6 +575,16 @@ def parse_coords(wt: str) -> list[dict]:
                        leak into the Desert pin and render in the southern
                        ocean. The runtime drops `N/A` spawns entirely.
     """
+    # Pre-scan: collect start positions of {{Map}} templates that follow
+    # an EMPTY `leagues-global-flag` table cell. Their league region is
+    # implicit-N/A — see _EMPTY_LEAGUE_FLAG_THEN_MAP_RE comment for the
+    # full rationale. We tag them inline below by overriding their
+    # parsed `leagueRegion` so the existing N/A filter in is_surface_pin
+    # drops them without any other scraper-side change.
+    tainted_template_starts: set[int] = set()
+    for tm in _EMPTY_LEAGUE_FLAG_THEN_MAP_RE.finditer(wt):
+        tainted_template_starts.add(tm.start(1))
+
     out: list[dict] = []
     for m in _TEMPLATE_RE.finditer(wt):
         kind = m.group(1).lower()
@@ -467,6 +594,7 @@ def parse_coords(wt: str) -> list[dict]:
         mapID: int | None = None
         location: str = ""
         league_region: str | None = None
+        is_empty_flag_tainted = m.start() in tainted_template_starts
         xs: list[tuple[int, int]] = []
         inline_x: int | None = None
         inline_y: int | None = None
@@ -503,6 +631,14 @@ def parse_coords(wt: str) -> list[dict]:
             mm = _XY_POS_STRICT_RE.match(ps)
             if mm:
                 xs.append((int(mm.group(1)), int(mm.group(2))))
+        # An empty `leagues-global-flag` table cell directly preceding this
+        # {{Map}} template is the wiki's structural signal that the row's
+        # content is unreachable Sailing / post-launch material. Force
+        # `leagueRegion = "N/A"` so the existing N/A filter in
+        # `is_surface_pin` drops every coord this template emits — same
+        # outcome as if the wiki author had explicitly written
+        # `leagueRegion = N/A`, just inferred from the table structure.
+        effective_league_region = "N/A" if is_empty_flag_tainted else league_region
         seen: set[tuple[int, int]] = set()
         for (x, y) in xs:
             if (x, y) in seen:
@@ -512,7 +648,7 @@ def parse_coords(wt: str) -> list[dict]:
                 "x": x, "y": y,
                 "plane": plane, "mapID": mapID,
                 "kind": kind, "location": location,
-                "leagueRegion": league_region,
+                "leagueRegion": effective_league_region,
             })
     return out
 
@@ -548,6 +684,12 @@ def is_surface_pin(m: dict) -> bool:
     if m["mapID"] not in (None, 0, -1):
         return False
     if not (900 <= m["x"] <= 4100 and 2300 <= m["y"] <= 4094):
+        return False
+    # Hardcoded Sailing / post-launch coord blocklist — see
+    # SAILING_LEAK_COORDS doc-comment for the per-coord justification.
+    # Caught BEFORE the leagueRegion gate because these coords come from
+    # wiki templates that lack any leagueRegion signal at all.
+    if (m["x"], m["y"]) in SAILING_LEAK_COORDS:
         return False
     # Per-LocLine `leagueRegion = N/A` flags content that's outside the
     # league entirely (Sailing islands, post-launch additions, etc.).
@@ -887,6 +1029,28 @@ def main() -> int:
         else:
             curated_added += 1
     print(f"\nCurated overrides: replaced {curated_applied}, added {curated_added} new entities, skipped {curated_skipped} (unresolvable).")
+
+    # -------------------------------------------------------------------
+    # Apply ENTITY_COORD_OVERRIDES as a final pass. These correct entities
+    # whose wiki-scraped coord is physically right but visually mis-
+    # renders on the wiki world-map PNG (see ENTITY_COORD_OVERRIDES docs).
+    # -------------------------------------------------------------------
+    coord_overrides_applied = 0
+    for key, (nx, ny) in ENTITY_COORD_OVERRIDES.items():
+        e = entities.get(key)
+        if not e:
+            print(f"  WARN ENTITY_COORD_OVERRIDES: no entity '{key}' to override; skipping")
+            continue
+        e["x"] = nx
+        e["y"] = ny
+        # Rewrite allSpawns to a single-entry list so downstream medoid
+        # logic doesn't pull the pin back to the old rim coord. The agility
+        # course's original multi-spawn wiki data would average out to the
+        # rim again if we kept it.
+        e["allSpawns"] = [[nx, ny]]
+        coord_overrides_applied += 1
+    print(f"Entity coord overrides applied: {coord_overrides_applied}")
+
     print(f"Final entity count: {len(entities)}")
 
     OUTPUT_JSON.parent.mkdir(parents=True, exist_ok=True)

@@ -129,7 +129,15 @@ export const LOCATIONS: WorldLocation[] = [
   L("custodia-pass", "Custodia Pass", 1271, 3349, "Varlamore", "dungeon",
     ["custodia pass", "antler guard", "shadows of custodia", "shadow of custodia"],
     "Slayer dungeon in Varlamore Part 3"),
-  L("varlamore-agility", "Colossal Wyrm Agility", 1640, 2921, "Varlamore", "minigame",
+  // Pinned to the VISIBLE CENTER of the Colossal Wyrm Remains crater
+  // (under the label on the wiki world-map PNG) rather than the wiki's
+  // canonical (1640, 2921), which is the NORTHERN RIM agility-course
+  // entrance tile — physically correct for players walking to the course,
+  // but puts the pin ~130 src-px north of where the label actually prints.
+  // See scripts/fetch-wiki-entities.py ENTITY_COORD_OVERRIDES for the
+  // matching override on the colossal-wyrm wiki-entity entries so wiki-
+  // link resolution lands on the same spot.
+  L("varlamore-agility", "Colossal Wyrm Agility", 1657, 2890, "Varlamore", "minigame",
     ["colossal wyrm", "varlamore agility", "termites"],
     "Colossal Wyrm Remains Agility course"),
   L("kastori", "Kastori", 1373, 3042, "Varlamore", "landmark",

@@ -552,10 +552,6 @@
         2427
       ],
       [
-        1949,
-        2761
-      ],
-      [
         2652,
         2658
       ],
@@ -660,10 +656,6 @@
         3060
       ],
       [
-        2218,
-        2784
-      ],
-      [
         3190,
         3938
       ],
@@ -722,10 +714,6 @@
       [
         3754,
         3320
-      ],
-      [
-        2066,
-        2719
       ],
       [
         2790,
@@ -7479,44 +7467,8 @@
   "colossal wyrm agility course": {
     "allSpawns": [
       [
-        1640,
-        2921
-      ],
-      [
-        1640,
-        2924
-      ],
-      [
-        1655,
-        2918
-      ],
-      [
-        1649,
-        2910
-      ],
-      [
-        1635,
-        2910
-      ],
-      [
-        1627,
-        2914
-      ],
-      [
-        1627,
-        2931
-      ],
-      [
-        1635,
-        2907
-      ],
-      [
-        1625,
-        2916
-      ],
-      [
-        1624,
-        2931
+        1657,
+        2890
       ]
     ],
     "category": "landmark",
@@ -7524,14 +7476,14 @@
     "resolvedTitle": "Colossal Wyrm Agility Course",
     "source": "map",
     "title": "Colossal Wyrm Agility Course",
-    "x": 1640,
-    "y": 2921
+    "x": 1657,
+    "y": 2890
   },
   "colossal wyrm remains": {
     "allSpawns": [
       [
-        1640,
-        2921
+        1657,
+        2890
       ]
     ],
     "category": "landmark",
@@ -7539,8 +7491,8 @@
     "resolvedTitle": "Colossal Wyrm Remains",
     "source": "map",
     "title": "Colossal Wyrm Remains",
-    "x": 1640,
-    "y": 2921
+    "x": 1657,
+    "y": 2890
   },
   "commander zilyana": {
     "allSpawns": [
@@ -7616,18 +7568,18 @@
   "corrupted hunllef": {
     "allSpawns": [
       [
-        2338,
-        3171
+        2210,
+        3415
       ]
     ],
     "category": "boss",
-    "leagueRegion": null,
-    "note": "Lletya",
+    "leagueRegion": "Tirannwn",
+    "note": "Prifddinas (Tower of Voices, Crystal Gate)",
     "resolvedTitle": "Corrupted Hunllef",
     "source": "curated",
     "title": "Corrupted Hunllef",
-    "x": 2338,
-    "y": 3171
+    "x": 2210,
+    "y": 3415
   },
   "crafting guild": {
     "allSpawns": [
@@ -10518,18 +10470,18 @@
   "fragment of seren": {
     "allSpawns": [
       [
-        2338,
-        3171
+        2210,
+        3413
       ]
     ],
     "category": "boss",
-    "leagueRegion": null,
-    "note": "Lletya",
+    "leagueRegion": "Tirannwn",
+    "note": "Prifddinas (Grand Library — Song of the Elves boss fight)",
     "resolvedTitle": "Fragment Of Seren",
     "source": "curated",
     "title": "Fragment Of Seren",
-    "x": 2338,
-    "y": 3171
+    "x": 2210,
+    "y": 3413
   },
   "frank (bloodveld)": {
     "allSpawns": [
@@ -10874,10 +10826,6 @@
       [
         2857,
         2967
-      ],
-      [
-        1948,
-        2755
       ],
       [
         3110,
@@ -20775,10 +20723,6 @@
         3306
       ],
       [
-        1927,
-        2761
-      ],
-      [
         2146,
         3879
       ],
@@ -20801,10 +20745,6 @@
       [
         2401,
         3788
-      ],
-      [
-        2581,
-        2848
       ],
       [
         2612,
@@ -20853,14 +20793,6 @@
       [
         3028,
         3194
-      ],
-      [
-        3061,
-        2985
-      ],
-      [
-        3148,
-        2826
       ],
       [
         3173,
@@ -31193,18 +31125,18 @@
   "the corrupted gauntlet": {
     "allSpawns": [
       [
-        2338,
-        3171
+        2210,
+        3415
       ]
     ],
     "category": "boss",
-    "leagueRegion": null,
-    "note": "Lletya",
+    "leagueRegion": "Tirannwn",
+    "note": "Prifddinas (Tower of Voices, Crystal Gate)",
     "resolvedTitle": "The Corrupted Gauntlet",
     "source": "curated",
     "title": "The Corrupted Gauntlet",
-    "x": 2338,
-    "y": 3171
+    "x": 2210,
+    "y": 3415
   },
   "the forsaken tower (location)": {
     "allSpawns": [
@@ -31224,18 +31156,18 @@
   "the gauntlet": {
     "allSpawns": [
       [
-        2338,
-        3171
+        2210,
+        3415
       ]
     ],
     "category": "boss",
-    "leagueRegion": null,
-    "note": "Lletya",
+    "leagueRegion": "Tirannwn",
+    "note": "Prifddinas (Tower of Voices, Crystal Gate)",
     "resolvedTitle": "The Gauntlet",
     "source": "curated",
     "title": "The Gauntlet",
-    "x": 2338,
-    "y": 3171
+    "x": 2210,
+    "y": 3415
   },
   "the golem": {
     "allSpawns": [
@@ -31275,18 +31207,18 @@
   "the hunllef": {
     "allSpawns": [
       [
-        2338,
-        3171
+        2210,
+        3415
       ]
     ],
     "category": "boss",
-    "leagueRegion": null,
-    "note": "Lletya",
+    "leagueRegion": "Tirannwn",
+    "note": "Prifddinas (Tower of Voices, Crystal Gate)",
     "resolvedTitle": "The Hunllef",
     "source": "curated",
     "title": "The Hunllef",
-    "x": 2338,
-    "y": 3171
+    "x": 2210,
+    "y": 3415
   },
   "the inferno": {
     "allSpawns": [
@@ -31758,7 +31690,7 @@
     "y": 3539,
     "spawnNotes": [
       "Burthorpe",
-      "Keldagrim entrance (south-of-Keldagrim tunnel — fairy ring DKS)"
+      "Keldagrim entrance (south-of-Keldagrim tunnel \u2014 fairy ring DKS)"
     ]
   },
   "troll stronghold (location)": {
@@ -36170,18 +36102,18 @@
   "zalcano": {
     "allSpawns": [
       [
-        2338,
-        3171
+        2209,
+        3396
       ]
     ],
     "category": "boss",
-    "leagueRegion": null,
-    "note": "Lletya",
+    "leagueRegion": "Tirannwn",
+    "note": "Prifddinas (Trahaearn tower)",
     "resolvedTitle": "Zalcano",
     "source": "curated",
     "title": "Zalcano",
-    "x": 2338,
-    "y": 3171
+    "x": 2209,
+    "y": 3396
   },
   "zombie pirate": {
     "allSpawns": [

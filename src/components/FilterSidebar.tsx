@@ -162,7 +162,13 @@ export default function FilterSidebar({
         <SearchIcon />
         <input
           ref={searchRef}
-          type="search"
+          // Intentionally `type="text"` (not `"search"`): Chromium and Safari
+          // render their own clear-on-hover "×" button on `type="search"`
+          // inputs, which stacks on top of our custom `.sb-clear` button and
+          // shows a second X next to it. `role="searchbox"` preserves the
+          // a11y semantics without the native decoration.
+          type="text"
+          role="searchbox"
           placeholder="Search tasks"
           value={filters.search}
           onChange={(e) =>
