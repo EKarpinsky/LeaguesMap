@@ -10,7 +10,12 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <title>LeaguesMap — Demonic Pacts League Tasks</title>
     <meta name="description" content="Interactive map of every OSRS Demonic Pacts League task, pinned to its location in Gielinor." />
-    <link rel="preload" as="image" href="/map/osrs_worldmap.webp" type="image/webp" fetchpriority="high" />
+    <!-- The map is delivered as a Leaflet tile pyramid (see
+         scripts/tile-map-image.py). The visible viewport at the
+         initial fit-to-world zoom is only 4 tiles ≈ 30 KB total, so
+         a single-image preload would actually waste bandwidth on
+         tiles outside the viewport. Leaflet kicks off tile fetches
+         the moment MapView mounts. -->
   </head>
   <body>
     <div id="root"></div>
