@@ -6,6 +6,24 @@ import type { FilterState } from "../lib/filters";
 import { ALL_PLACEMENTS, ALL_TASKS } from "../lib/taskIndex";
 import "./FilterSidebar.css";
 
+// Render `⌘K` on macOS (where Cmd+K is muscle memory) and `Ctrl K` on every
+// other platform — Windows users seeing a ⌘ glyph get a confusing "is this
+// some control character?" moment, since the keyboard shortcut their browser
+// actually responds to is Ctrl+K (the listener below already handles both
+// metaKey and ctrlKey, so the hint just needs to advertise the right one).
+//
+// Mac detection uses navigator.platform first (still the most reliable signal
+// for desktop UA, even though MDN marks it deprecated) with a userAgent
+// fallback. iPadOS 13+ reports "MacIntel" via navigator.platform, but the
+// CSS already hides .sb-kbd on `(hover: none)` and narrow viewports — so an
+// iPad-as-Mac false positive never reaches the user.
+const IS_MAC =
+  typeof navigator !== "undefined" &&
+  /Mac|iPhone|iPad|iPod/i.test(
+    navigator.platform || navigator.userAgent || "",
+  );
+const SHORTCUT_HINT = IS_MAC ? "⌘K" : "Ctrl K";
+
 export interface FilterSidebarProps {
   filters: FilterState;
   setFilters: (updater: (prev: FilterState) => FilterState) => void;
@@ -162,7 +180,7 @@ export default function FilterSidebar({
           </button>
         ) : (
           <kbd className="sb-kbd" aria-hidden>
-            ⌘K
+            {SHORTCUT_HINT}
           </kbd>
         )}
       </div>

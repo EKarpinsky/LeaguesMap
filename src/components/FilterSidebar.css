@@ -94,9 +94,9 @@
   display: none;
 }
 
-/* The ⌘K affordance is a pure keyboard cue — hide it on touch devices
-   where it's both meaningless and just eats horizontal space next to
-   the input. */
+/* The ⌘K / Ctrl K affordance (rendered OS-aware in FilterSidebar.tsx) is a
+   pure keyboard cue — hide it on touch devices where it's both meaningless
+   and just eats horizontal space next to the input. */
 @media (hover: none), (max-width: 900px) {
   .sb-kbd {
     display: none;
