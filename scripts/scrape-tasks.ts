@@ -181,7 +181,12 @@ async function main(): Promise<void> {
     const parts = splitTemplateArgs(row);
     // parts[0] is the template name ("DPLTaskRow"); positional args follow.
     // Positional: [template, name, description, ...named]
-    const name = parts[1]?.trim();
+    // Run names through stripWikiMarkup so wiki annotations like {{sic}}
+    // (which the wiki uses to flag intentionally-preserved in-game typos,
+    // e.g. "Defeat the Doom of Mokhiatl{{sic}}") don't survive into the
+    // task title shown in the UI. Description and otherRequirements
+    // already get this treatment below.
+    const name = stripWikiMarkup(parts[1]?.trim() ?? "");
     const description = parts[2]?.trim() ?? "";
     const named: Record<string, string> = {};
     for (let i = 3; i < parts.length; i++) {
