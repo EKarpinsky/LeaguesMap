@@ -182,6 +182,14 @@ ENTITY_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
     # Colossal_Wyrm_Remains_label.jpg for the visual derivation.
     "colossal wyrm remains":        (1657, 2890),
     "colossal wyrm agility course": (1657, 2890),
+    # King Sand Crabs live on the Hosidius SAND CRAB BEACH (south coast of
+    # Kourend), NOT at Hosidius town centre. The curated anchor "Hosidius"
+    # resolves to the town-hall coord (1762, 3598), which is ~130 game tiles
+    # NORTH of the beach where players actually afk King Sand Crabs. This
+    # override pins to the Xeric's talisman "Sand Crabs" teleport destination,
+    # which is the canonical middle of the sand-crab line on the Hosidius
+    # beach — players land on top of King Sand Crab spawns there.
+    "king sand crab":               (1782, 3469),
 }
 
 

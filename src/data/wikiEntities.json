@@ -16161,18 +16161,18 @@
   "king sand crab": {
     "allSpawns": [
       [
-        1762,
-        3598
+        1782,
+        3469
       ]
     ],
     "category": "monster",
-    "leagueRegion": null,
-    "note": "Hosidius",
+    "leagueRegion": "Kourend",
+    "note": "Hosidius Sand Crab beach (Xeric's talisman ‘Sand Crabs' teleport)",
     "resolvedTitle": "King Sand Crab",
     "source": "curated",
     "title": "King Sand Crab",
-    "x": 1762,
-    "y": 3598
+    "x": 1782,
+    "y": 3469
   },
   "knight of ardougne": {
     "allSpawns": [
