@@ -1,4 +1,12 @@
-import { Suspense, lazy, useCallback, useMemo, useState } from "react";
+import {
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Analytics } from "@vercel/analytics/react";
 import FilterSidebar from "./components/FilterSidebar";
 import TaskList from "./components/TaskList";
@@ -7,6 +15,13 @@ import type { FilterState } from "./lib/filters";
 import { ALL_PLACEMENTS, ALL_TASKS, getPlacement } from "./lib/taskIndex";
 import type { Task } from "./types";
 import "./App.css";
+
+// Bug-report dialog states. Discriminated string union so renderers can
+// switch exhaustively without bool soup.
+type BugStatus = "idle" | "sending" | "sent" | "error";
+
+const BUG_MIN_LEN = 5;
+const BUG_MAX_LEN = 5000;
 
 // Leaflet + MapView together are ~230 KB gz. Lazy-load them so the
 // initial paint (title, filters, task list) doesn't wait on the map
@@ -131,11 +146,123 @@ function App() {
     .filter(Boolean)
     .join(" ");
 
+  // ─────────────────── Bug-report dialog state ────────────────────────
+  // POSTs to /api/report-bug (Vercel Edge Function) which forwards to
+  // eli@karpinsky.io via Resend. Kept inline here rather than a new
+  // component because (a) it owns no reusable logic and (b) the project
+  // rule is to prefer existing files over new ones.
+  const [bugOpen, setBugOpen] = useState(false);
+  const [bugMessage, setBugMessage] = useState("");
+  const [bugStatus, setBugStatus] = useState<BugStatus>("idle");
+  const [bugError, setBugError] = useState<string | null>(null);
+  // Honeypot — bots fill hidden inputs reflexively. We never read this
+  // for content; we just send its value to the server which silently
+  // 200s when it's non-empty, so the bot thinks it got through.
+  const [bugHoneypot, setBugHoneypot] = useState("");
+  const bugTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const openBugDialog = useCallback(() => {
+    setBugStatus("idle");
+    setBugError(null);
+    setBugOpen(true);
+  }, []);
+  const closeBugDialog = useCallback(() => {
+    setBugOpen(false);
+    // Clear after the close transition so the next open is clean.
+    setTimeout(() => {
+      setBugMessage("");
+      setBugStatus("idle");
+      setBugError(null);
+      setBugHoneypot("");
+    }, 200);
+  }, []);
+
+  // Autofocus the textarea + close on Escape — the standard modal a11y
+  // contract. ESC handler is global so it works even if focus drifted.
+  useEffect(() => {
+    if (!bugOpen) return;
+    const t = setTimeout(() => bugTextareaRef.current?.focus(), 30);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeBugDialog();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [bugOpen, closeBugDialog]);
+
+  const submitBug = useCallback(async () => {
+    const trimmed = bugMessage.trim();
+    if (trimmed.length < BUG_MIN_LEN) return;
+    setBugStatus("sending");
+    setBugError(null);
+    // Capture context at submit time, not at mount, so multi-tasking
+    // users who resized / navigated mid-session report the actual
+    // state they're looking at.
+    const context = [
+      `URL: ${window.location.href}`,
+      `Viewport: ${window.innerWidth}×${window.innerHeight}`,
+      `Language: ${navigator.language}`,
+      `UA: ${navigator.userAgent}`,
+      `Timestamp: ${new Date().toISOString()}`,
+    ].join("\n");
+    try {
+      const res = await fetch("/api/report-bug", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: trimmed,
+          context,
+          website: bugHoneypot,
+        }),
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        throw new Error(
+          data.error ?? `Server returned ${res.status}. Please try again.`,
+        );
+      }
+      setBugStatus("sent");
+      // Auto-close after a moment so the user gets a clear receipt.
+      setTimeout(() => closeBugDialog(), 1400);
+    } catch (err) {
+      setBugStatus("error");
+      setBugError(
+        err instanceof Error
+          ? err.message
+          : "Couldn't send the report — please try again.",
+      );
+    }
+  }, [bugMessage, bugHoneypot, closeBugDialog]);
+
+  const bugCharCount = bugMessage.trim().length;
+  const bugCanSubmit =
+    bugStatus !== "sending" &&
+    bugCharCount >= BUG_MIN_LEN &&
+    bugCharCount <= BUG_MAX_LEN;
+
   return (
     <div className="app-shell">
       <aside className={panelClass}>
         <header className="app-title">
           <h1>Demonic Pacts Tasks Map</h1>
+          {/*
+            Unobtrusive bug-report entry point. Opens an in-app dialog
+            that POSTs to /api/report-bug → Resend → eli@karpinsky.io.
+            Kept as a low-contrast ghost link so it never competes with
+            the page title or the filters underneath.
+          */}
+          <button
+            type="button"
+            className="bug-report-link"
+            onClick={openBugDialog}
+            title="Send a bug report to eli@karpinsky.io"
+          >
+            Report a bug
+          </button>
         </header>
         <FilterSidebar
           filters={filters}
@@ -170,6 +297,109 @@ function App() {
         domain. The dashboard toggle must also be enabled (already done).
       */}
       <Analytics />
+      {/*
+        Bug-report dialog. Rendered conditionally so the textarea isn't
+        in the tab order when closed. Backdrop click and Escape both
+        dismiss; clicks inside the panel stop propagation so dragging
+        a selection out of the textarea doesn't accidentally close it.
+      */}
+      {bugOpen && (
+        <div
+          className="bug-dialog-backdrop"
+          onMouseDown={closeBugDialog}
+          role="presentation"
+        >
+          <div
+            className="bug-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bug-dialog-title"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <header className="bug-dialog-head">
+              <h2 id="bug-dialog-title">Report a bug</h2>
+              <button
+                type="button"
+                className="bug-dialog-close"
+                onClick={closeBugDialog}
+                aria-label="Close bug report dialog"
+              >
+                ×
+              </button>
+            </header>
+            <p className="bug-dialog-blurb">
+              What went wrong? A sentence or two is plenty — your URL,
+              viewport, and browser get attached automatically.
+            </p>
+            <textarea
+              ref={bugTextareaRef}
+              className="bug-dialog-textarea"
+              value={bugMessage}
+              onChange={(e) => setBugMessage(e.target.value)}
+              placeholder="e.g. ‘King Sand Crab pin is in the wrong place — should be on the Hosidius beach not the town centre.'"
+              maxLength={BUG_MAX_LEN}
+              rows={5}
+              disabled={bugStatus === "sending" || bugStatus === "sent"}
+            />
+            {/*
+              Honeypot: positioned off-screen + tabIndex=-1 + autocomplete=off
+              so real users never see or land on it. Bots fill all visible
+              inputs they find via DOM walks; the server silently 200s when
+              this is non-empty so the bot believes its submission worked.
+            */}
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={bugHoneypot}
+              onChange={(e) => setBugHoneypot(e.target.value)}
+              aria-hidden="true"
+              className="bug-dialog-honeypot"
+            />
+            <footer className="bug-dialog-foot">
+              <span
+                className={
+                  "bug-dialog-count" +
+                  (bugCharCount > BUG_MAX_LEN ? " over" : "")
+                }
+              >
+                {bugCharCount}/{BUG_MAX_LEN}
+              </span>
+              <div className="bug-dialog-actions">
+                <button
+                  type="button"
+                  className="bug-dialog-btn ghost"
+                  onClick={closeBugDialog}
+                  disabled={bugStatus === "sending"}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="bug-dialog-btn primary"
+                  onClick={submitBug}
+                  disabled={!bugCanSubmit}
+                >
+                  {bugStatus === "sending"
+                    ? "Sending…"
+                    : bugStatus === "sent"
+                      ? "Sent ✓"
+                      : "Send report"}
+                </button>
+              </div>
+            </footer>
+            {bugStatus === "error" && (
+              <p className="bug-dialog-error" role="alert">
+                {bugError ?? "Couldn't send the report."} You can also
+                email{" "}
+                <a href="mailto:eli@karpinsky.io">eli@karpinsky.io</a>{" "}
+                directly.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

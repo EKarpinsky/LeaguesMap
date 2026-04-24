@@ -24,14 +24,20 @@
   border-right: 1px solid #22222c;
 }
 
-/* App title bar — always visible above the two accordion panels. */
+/* App title bar — always visible above the two accordion panels.
+   Flex row so the title sits on the left and the "Report a bug" link
+   tucks into the right edge without stealing visual weight from H1. */
 .app-title {
   flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
   padding: 14px 16px 12px;
   border-bottom: 1px solid #1b1b24;
   background: linear-gradient(180deg, #121218 0%, #0f0f14 100%);
 }
 .app-title h1 {
+  flex: 1 1 auto;
   margin: 0;
   font-family:
     "Futura", "Futura PT", "Avenir Next", "Century Gothic", "Trebuchet MS",
@@ -41,6 +47,266 @@
   line-height: 1.15;
   letter-spacing: 0.01em;
   color: #f4f4f8;
+}
+
+/* Ghost button in the top-right of the title bar — opens the bug-report
+   dialog. Renders as a <button> for semantic correctness (it's not
+   navigation), but is styled like a low-contrast text link so it never
+   competes with the page title or the filters underneath. */
+.bug-report-link {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #6b6b7a;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.12s;
+}
+.bug-report-link:hover,
+.bug-report-link:focus-visible {
+  color: #d8d8e0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  outline: none;
+}
+
+/* ─────────────────── Bug report dialog ─────────────────────────────
+ * Center-screen modal with backdrop. z-index sits above leaflet (which
+ * stacks at z-index ~400 for popups and 1000 for tile panes); we go
+ * comfortably above all of it so the dialog and its backdrop block
+ * map interaction while open.
+ */
+.bug-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(6, 6, 10, 0.6);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  /* Faint slide-in so the modal feels intentional rather than popping. */
+  animation: bug-dialog-fade 140ms ease-out;
+}
+@keyframes bug-dialog-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.bug-dialog {
+  width: min(440px, 100%);
+  max-height: min(80dvh, 560px);
+  display: flex;
+  flex-direction: column;
+  background: #14141b;
+  color: #e8e8ea;
+  border: 1px solid #2a2a36;
+  border-radius: 10px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 24px 60px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  animation: bug-dialog-rise 160ms ease-out;
+}
+@keyframes bug-dialog-rise {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.bug-dialog-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid #1f1f29;
+}
+.bug-dialog-head h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #e8e8ea;
+}
+.bug-dialog-close {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  line-height: 1;
+  color: #8a8a98;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.12s, color 0.12s;
+}
+.bug-dialog-close:hover,
+.bug-dialog-close:focus-visible {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f0f0f4;
+  outline: none;
+}
+
+.bug-dialog-blurb {
+  margin: 12px 16px 8px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #a4a4b2;
+}
+
+.bug-dialog-textarea {
+  margin: 0 16px;
+  padding: 10px 12px;
+  background: #0d0d13;
+  color: #e8e8ea;
+  border: 1px solid #25252f;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.45;
+  resize: vertical;
+  min-height: 110px;
+  outline: none;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+.bug-dialog-textarea::placeholder {
+  color: #56566a;
+}
+.bug-dialog-textarea:focus-visible {
+  border-color: #c4724a;
+  box-shadow: 0 0 0 3px rgba(196, 114, 74, 0.18);
+}
+.bug-dialog-textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Off-screen but still focusable enough that bots find it; visually
+   hidden from real users via clip + zero size (display:none would skip
+   it from the DOM walk some bots do). */
+.bug-dialog-honeypot {
+  position: absolute !important;
+  left: -10000px !important;
+  top: auto !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+
+.bug-dialog-foot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px 14px;
+  margin-top: 10px;
+  border-top: 1px solid #1f1f29;
+}
+.bug-dialog-count {
+  font-size: 11px;
+  color: #6e6e7c;
+  font-variant-numeric: tabular-nums;
+}
+.bug-dialog-count.over {
+  color: #e07a5f;
+}
+.bug-dialog-actions {
+  display: flex;
+  gap: 8px;
+}
+.bug-dialog-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  padding: 7px 14px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s, opacity 0.12s;
+}
+.bug-dialog-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.bug-dialog-btn.ghost {
+  background: transparent;
+  border-color: #2a2a36;
+  color: #c8c8d2;
+}
+.bug-dialog-btn.ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: #3a3a48;
+}
+.bug-dialog-btn.primary {
+  background: #c4724a;
+  border-color: #c4724a;
+  color: #1a1208;
+}
+.bug-dialog-btn.primary:hover:not(:disabled) {
+  background: #d18055;
+  border-color: #d18055;
+}
+.bug-dialog-btn.primary:focus-visible,
+.bug-dialog-btn.ghost:focus-visible {
+  outline: 2px solid #c4724a;
+  outline-offset: 2px;
+}
+
+.bug-dialog-error {
+  margin: 0 16px 14px;
+  padding: 9px 11px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #f0a890;
+  background: rgba(224, 122, 95, 0.08);
+  border: 1px solid rgba(224, 122, 95, 0.3);
+  border-radius: 6px;
+}
+.bug-dialog-error a {
+  color: #f5b8a2;
+}
+
+/* Phones — make the modal full-width with comfy touch targets. */
+@media (max-width: 480px) {
+  .bug-dialog {
+    width: 100%;
+    max-height: 86dvh;
+  }
+  .bug-dialog-blurb {
+    font-size: 12px;
+  }
+  .bug-dialog-btn {
+    padding: 9px 14px;
+  }
 }
 
 /* Filters panel — accordion. When expanded it keeps its natural height up
@@ -217,14 +483,26 @@
   .app-title {
     padding: 4px 16px 10px;
     border-bottom-color: transparent;
-    text-align: center;
     background: transparent;
+    /* Keep the flex row from desktop — the bug-report link sits to the
+       right of the title, both vertically centered. We center the
+       *title* visually by giving the link symmetric weight via the
+       gap; on the bottom-sheet the H1 is small enough that this still
+       reads as centered without an empty left counterweight. */
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
   }
   .app-title h1 {
+    flex: 1 1 auto;
+    text-align: center;
     font-size: 14px;
     font-weight: 600;
     letter-spacing: 0.04em;
     color: #c8c8d2;
+  }
+  .bug-report-link {
+    font-size: 10.5px;
   }
 
   /* Accordion heads become full-width tap rows. */
@@ -272,6 +550,9 @@
   }
   .app-title h1 {
     font-size: 13px;
+  }
+  .bug-report-link {
+    font-size: 10px;
   }
   .accordion-head {
     padding: 13px 14px;

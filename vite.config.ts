@@ -1,9 +1,83 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
+
+/**
+ * Dev-only middleware that serves `/api/report-bug` by loading the same
+ * handler that Vercel deploys as an Edge Function. Without this, hitting
+ * the endpoint from `npm run dev` would 404 because pure Vite doesn't
+ * understand the `api/` directory convention.
+ *
+ * This bridges Node's IncomingMessage → Fetch API Request so the handler
+ * code stays runtime-agnostic (same code in prod and dev). The handler
+ * still reads `process.env.RESEND_API_KEY` — set it in your shell or a
+ * `.env.local` file (Vite injects .env vars into `process.env` for
+ * server-side code) for local sends to actually mail through Resend.
+ *
+ * apply: "serve" so this code never ships in the production build.
+ */
+function devApiBridge(): Plugin {
+  return {
+    name: "report-bug-dev-bridge",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use(
+        "/api/report-bug",
+        async (req, res, _next) => {
+          // Don't fall through to Vite's static/module pipeline — without
+          // this, GET /api/report-bug would serve the compiled source of
+          // api/report-bug.ts (Vite treats it as a module). Always answer
+          // here ourselves so the dev surface mirrors production exactly.
+          if (req.method !== "POST") {
+            res.statusCode = 405;
+            res.setHeader("Content-Type", "application/json");
+            res.setHeader("Allow", "POST");
+            res.end(JSON.stringify({ error: "Method not allowed" }));
+            return;
+          }
+          try {
+            const mod = (await server.ssrLoadModule("/api/report-bug.ts")) as {
+              default: (request: Request) => Promise<Response>;
+            };
+            const handler = mod.default;
+            const chunks: Buffer[] = [];
+            for await (const chunk of req) {
+              chunks.push(chunk as Buffer);
+            }
+            const body = Buffer.concat(chunks).toString("utf-8");
+            const url = `http://${req.headers.host ?? "localhost"}${req.url}`;
+            const headers = new Headers();
+            for (const [k, v] of Object.entries(req.headers)) {
+              if (Array.isArray(v)) {
+                v.forEach((x) => headers.append(k, x));
+              } else if (v != null) {
+                headers.set(k, v);
+              }
+            }
+            const webReq = new Request(url, { method: "POST", headers, body });
+            const webRes = await handler(webReq);
+            res.statusCode = webRes.status;
+            webRes.headers.forEach((v, k) => res.setHeader(k, v));
+            const responseBody = await webRes.text();
+            res.end(responseBody);
+          } catch (err) {
+            console.error("[devApiBridge]", err);
+            res.statusCode = 500;
+            res.setHeader("Content-Type", "application/json");
+            res.end(
+              JSON.stringify({
+                error: "Dev API bridge crashed — check terminal logs.",
+              }),
+            );
+          }
+        },
+      );
+    },
+  };
+}
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), devApiBridge()],
   build: {
     sourcemap: true,
     // The `data` chunk ships tasks.json + the build-time-resolved
