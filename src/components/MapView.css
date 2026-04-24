@@ -151,7 +151,13 @@
 .task-line {
   display: flex;
   gap: 6px;
-  align-items: baseline;
+  /* `align-items: baseline` lifts the icon above the text — for an <img>
+     the baseline is its bottom edge, so baseline-aligning a 16 px icon
+     against text baseline puts the icon ~12 px above the cap height.
+     `flex-start` instead drops it onto the first text line where the eye
+     expects it (16 px icon ≈ 16 px line-height = perfect centering with
+     no nudge needed). */
+  align-items: flex-start;
   padding: 4px 2px;
   cursor: pointer;
   border-radius: 4px;
@@ -172,9 +178,14 @@
   color: #d4d4dc;
   flex: 1;
 }
-/* Authentic OSRS Leagues pact-task icons (sourced from the wiki). Rendered
-   at native 16 px with nearest-neighbour scaling to keep the pixel art crisp. */
-.diff-icon {
+/* Popup-scoped overrides. These rules MUST stay scoped under `.task-line`
+   (the popup row container) because TaskList.css also defines `.diff-icon`
+   and `.pact-tag` for the sidebar rows. When the lazy-loaded MapView
+   chunk used to declare these globally, the cascade order (MapView
+   stylesheet loaded after the main bundle) made its 16 px icon and
+   bright-orange pill leak into every task row in the sidebar. Keep
+   the selectors specific. */
+.task-line .diff-icon {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
@@ -184,16 +195,22 @@
   vertical-align: middle;
 }
 
-.pact-tag {
+/* Match the sidebar pill exactly (see `.task-row .pact-tag` in
+   TaskList.css). The pill rendered bright-white-on-orange for a while
+   because this rule used to be a different recipe — keep these in sync
+   if you ever restyle the sidebar version, otherwise the same DP badge
+   reads as two different brands depending on where you look at it. */
+.task-line .pact-tag {
   display: inline-grid;
   place-items: center;
-  padding: 0 5px;
+  padding: 0 4px;
   height: 16px;
-  border-radius: 4px;
+  border-radius: 3px;
   font-size: 9.5px;
-  font-weight: 800;
-  color: #fff;
-  background: #ff5a00;
+  font-weight: 700;
   letter-spacing: 0.05em;
+  color: #ff8a3a;
+  background: #2a1a24;
+  border: 1px solid #4a2a30;
   flex-shrink: 0;
 }

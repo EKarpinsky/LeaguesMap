@@ -2602,18 +2602,18 @@
   "blood moon": {
     "allSpawns": [
       [
-        1559,
-        3048
+        1421,
+        3114
       ]
     ],
     "category": "boss",
     "leagueRegion": null,
-    "note": "Hunter Guild",
+    "note": "Cam Torum entrance (Neypotzli, north end of the city)",
     "resolvedTitle": "Blood Moon",
     "source": "curated",
     "title": "Blood Moon",
-    "x": 1559,
-    "y": 3048
+    "x": 1421,
+    "y": 3114
   },
   "bloodveld": {
     "allSpawns": [
@@ -2728,18 +2728,18 @@
   "blue moon": {
     "allSpawns": [
       [
-        1559,
-        3048
+        1421,
+        3114
       ]
     ],
     "category": "boss",
     "leagueRegion": null,
-    "note": "Hunter Guild",
+    "note": "Cam Torum entrance (Neypotzli, north end of the city)",
     "resolvedTitle": "Blue Moon",
     "source": "curated",
     "title": "Blue Moon",
-    "x": 1559,
-    "y": 3048
+    "x": 1421,
+    "y": 3114
   },
   "body altar": {
     "allSpawns": [
@@ -8533,18 +8533,18 @@
   "eclipse moon": {
     "allSpawns": [
       [
-        1559,
-        3048
+        1421,
+        3114
       ]
     ],
     "category": "boss",
     "leagueRegion": null,
-    "note": "Hunter Guild",
+    "note": "Cam Torum entrance (Neypotzli, north end of the city)",
     "resolvedTitle": "Eclipse Moon",
     "source": "curated",
     "title": "Eclipse Moon",
-    "x": 1559,
-    "y": 3048
+    "x": 1421,
+    "y": 3114
   },
   "ectofuntus": {
     "allSpawns": [
@@ -19241,18 +19241,18 @@
   "moons of peril": {
     "allSpawns": [
       [
-        1559,
-        3048
+        1421,
+        3114
       ]
     ],
     "category": "boss",
     "leagueRegion": null,
-    "note": "Hunter Guild",
+    "note": "Cam Torum entrance (Neypotzli, north end of the city)",
     "resolvedTitle": "Moons Of Peril",
     "source": "curated",
     "title": "Moons Of Peril",
-    "x": 1559,
-    "y": 3048
+    "x": 1421,
+    "y": 3114
   },
   "mor ul rek": {
     "allSpawns": [

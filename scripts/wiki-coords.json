@@ -253,21 +253,21 @@
   },
   {
     "id": "moons-of-peril",
-    "name": "Shrine of Ralos",
+    "name": "Neypotzli (Cam Torum)",
     "current": [
-      1460,
-      3288
+      1421,
+      3114
     ],
     "region": "Varlamore",
     "category": "boss",
     "wiki_page": "Neypotzli",
     "wiki": [
-      1460,
-      3284
+      1421,
+      3114
     ],
-    "delta_tiles": 4.0,
+    "delta_tiles": 0.0,
     "source": "curated",
-    "note": "curated: Neypotzli gate entrance to the Shrine of Ralos"
+    "note": "curated: Cam Torum entrance — Neypotzli (Moons of Peril prison) sits at the north end inside the city"
   },
   {
     "id": "vale-totems",
@@ -2469,19 +2469,19 @@
     "id": "magics-auburn",
     "name": "Magic Trees \u2014 Auburn Valley",
     "current": [
-      1293,
-      3073
+      1450,
+      3322
     ],
     "region": "Varlamore",
     "category": "resource",
     "wiki_page": "",
     "wiki": [
-      1293,
-      3073
+      1450,
+      3322
     ],
     "delta_tiles": 0.0,
     "source": "curated",
-    "note": "curated: Magic trees in Auburn Valley (Vale Totems area)"
+    "note": "curated: East Auburn Valley magic-tree grove (medoid of wiki LocLine 1449,3323 and 1452,3320)"
   },
   {
     "id": "iron-mine-dwarven",

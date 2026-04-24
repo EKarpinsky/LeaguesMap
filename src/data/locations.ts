@@ -88,13 +88,20 @@ export const LOCATIONS: WorldLocation[] = [
   L("amoxliatl-cave", "Amoxliatl's Cave", 1262, 3132, "Varlamore", "boss",
     ["amoxliatl"],
     "Ice boss in the Hunter Guild caves"),
-  L("moons-of-peril", "Shrine of Ralos", 1460, 3284, "Varlamore", "boss",
+  // Surface pin = Cam Torum entrance. Neypotzli (where the three Moons
+  // are imprisoned) sits at the north end of Cam Torum, which itself is
+  // beneath Ralos' Rise. The walk-in coord (1421, 3114) is the same one
+  // we use for the cam-torum landmark; players reach Neypotzli by going
+  // through Cam Torum. The previous coords (1460, 3284) put a phantom
+  // pin nowhere near the actual entrance, and the previous label
+  // ("Shrine of Ralos") is a different in-game location entirely.
+  L("moons-of-peril", "Neypotzli (Cam Torum)", 1421, 3114, "Varlamore", "boss",
     ["moons of peril", "blood moon", "blue moon", "eclipse moon",
      "varlamore moon chest", "moon key",
      "blood moon armour", "blue moon armour", "eclipse moon armour",
-     "sulphur blades",
+     "sulphur blades", "neypotzli",
      "moon-lite", "moonlite"],
-    "Perilous Moons minigame (Neypotzli — Sulphur Blades, Moon-lite)"),
+    "Perilous Moons minigame entrance (via Cam Torum, beneath Ralos' Rise)"),
   L("vale-totems", "Vale Totems", 1365, 3370, "Varlamore", "minigame",
     ["vale totems"],
     "Fletching minigame in Auburn Valley"),
@@ -635,9 +642,14 @@ export const LOCATIONS: WorldLocation[] = [
   L("magics-sorceress", "Magic Trees — Sorcerer's Garden", 2710, 3488, "Kandarin", "resource",
     ["magic log", "magic longbow", "magic shortbow", "magic shield"],
     "Magic trees in the garden (Seers')"),
-  L("magics-auburn", "Magic Trees — Auburn Valley", 1293, 3073, "Varlamore", "resource",
+  // East Auburn Valley magic-tree grove — wiki LocLine has two trees at
+  // (1449, 3323) and (1452, 3320); the medoid below is the on-grove pin.
+  // Previous coord (1293, 3073) was nowhere near Auburn Valley — it sat
+  // in the Tlati Rainforest south of the Hunter Guild, presumably copy-
+  // pasted from a different landmark and never verified.
+  L("magics-auburn", "Magic Trees — Auburn Valley", 1450, 3322, "Varlamore", "resource",
     ["magic log", "magic logs in varlamore"],
-    "Magic trees in the Auburn Valley"),
+    "Magic trees in the Auburn Valley (east of Auburnvale)"),
   L("iron-mine-dwarven", "Iron Rocks — Dwarven Mine", 3018, 3450, "Asgarnia", "resource",
     ["iron ore"],
     "Central iron mining (Falador)"),

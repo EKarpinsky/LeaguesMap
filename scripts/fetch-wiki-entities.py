@@ -105,12 +105,34 @@ def should_skip(title: str) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Hand-curated coord overrides for anchor pages
+# ---------------------------------------------------------------------------
+# Some wiki pages (Cam Torum, Camdozaal, Mor Ul Rek…) only have an instanced
+# / underground {{Map}} coord, so `pick_surface_coord` returns nothing and
+# the anchor stays unresolved. For those pages we hand-curate the SURFACE
+# entrance coord here. `resolve_anchor_coord` checks this dict before doing
+# any wiki lookup, so the override always wins.
+#
+# Coords MUST be the surface walk-in tile visible on the world map PNG.
+# Mirror any change here in scripts/fetch-wiki-coords.py CURATED_COORDS so
+# the landmark layer stays in sync.
+ANCHOR_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
+    # Cam Torum's wiki infobox map points underground; the surface entrance
+    # (and therefore the surface route to Neypotzli / Moons of Peril) is the
+    # walk-in from Quetzacalli Gorge at the foot of Ralos' Rise.
+    "Cam Torum": (1421, 3114),
+}
+
+
+# ---------------------------------------------------------------------------
 # Curated entity overrides — WIKI-AUTHORITATIVE
 # ---------------------------------------------------------------------------
 # Keys are lowercased wikiLink titles. Each override specifies the name of
 # a real WIKI PAGE ("anchor") whose {{Map}} coord should be used as the pin.
 # The fetcher resolves anchors by hitting the wiki API, so no coord is ever
-# hand-typed — every pin traces back to a wiki-sourced (x,y) pair.
+# hand-typed — every pin traces back to a wiki-sourced (x,y) pair, except
+# for anchors listed in ANCHOR_COORD_OVERRIDES above where we substitute a
+# curated surface entrance because the wiki page only has subsurface coords.
 #
 # Format:
 #   Single pin:  "title": {"anchor": "Wiki Page Title", "category": "boss"}
@@ -127,10 +149,14 @@ CURATED_ENTITIES: dict[str, dict] = {
     "the hueycoatl":            {"anchor": "Hunter Guild",            "category": "boss"},
     "doom of mokhaiotl":        {"anchor": "Hunter Guild",            "category": "boss"},
     "mokhaiotl":                {"anchor": "Hunter Guild",            "category": "boss"},
-    "moons of peril":           {"anchor": "Hunter Guild",            "category": "boss"},
-    "blood moon":               {"anchor": "Hunter Guild",            "category": "boss"},
-    "blue moon":                {"anchor": "Hunter Guild",            "category": "boss"},
-    "eclipse moon":             {"anchor": "Hunter Guild",            "category": "boss"},
+    # Moons of Peril live in Neypotzli, beneath Cam Torum (NOT in the Hunter
+    # Guild — the previous anchor was just plain wrong). The Cam Torum anchor
+    # resolves via ANCHOR_COORD_OVERRIDES because the wiki infobox map for
+    # Cam Torum points to the underground city, not the surface entrance.
+    "moons of peril":           {"anchor": "Cam Torum",               "category": "boss"},
+    "blood moon":               {"anchor": "Cam Torum",               "category": "boss"},
+    "blue moon":                {"anchor": "Cam Torum",               "category": "boss"},
+    "eclipse moon":             {"anchor": "Cam Torum",               "category": "boss"},
     "gemstone crab":            {"anchor": "Sunset Coast",            "category": "boss"},
     "sol heredit":              {"anchor": "Fortis Colosseum",        "category": "boss"},
 
@@ -714,7 +740,16 @@ def main() -> int:
         anchor_coord[anchor] = (pick["x"], pick["y"])
 
     def resolve_anchor_coord(anchor: str, location_match: str | None) -> tuple[int, int] | None:
-        """Return (x, y) for an anchor, optionally filtered by sub-location."""
+        """Return (x, y) for an anchor, optionally filtered by sub-location.
+
+        Order of resolution:
+          1. ANCHOR_COORD_OVERRIDES (hand-curated surface coord — used when
+             the wiki page only has an instanced/underground {{Map}}).
+          2. Wiki-scraped coords filtered by `location_match` (sub-region).
+          3. Wiki-scraped default coord for the anchor.
+        """
+        if anchor in ANCHOR_COORD_OVERRIDES and not location_match:
+            return ANCHOR_COORD_OVERRIDES[anchor]
         if not location_match:
             return anchor_coord.get(anchor)
         coords = anchor_all_coords.get(anchor)

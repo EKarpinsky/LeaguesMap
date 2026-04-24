@@ -68,7 +68,10 @@
 
 .task-row-top {
   display: flex;
-  align-items: center;
+  /* Top-align so a wrapping name keeps the icon next to its FIRST line.
+     `align-items: center` would visually drop the icon between the two
+     lines on multi-line names — looks like the icon belongs to neither. */
+  align-items: flex-start;
   gap: 6px;
 }
 .task-row-name {
@@ -85,18 +88,26 @@
   font-weight: 500;
 }
 /* Authentic OSRS Leagues pact-task icons (sourced from the wiki). Rendered
-   at native 16–18 px size with nearest-neighbour scaling so the pixel art
-   stays crisp on any zoom level. */
-.diff-icon {
+   at native 18 px with nearest-neighbour scaling so the pixel art stays
+   crisp on any zoom level. The negative top margin lifts the 18 px icon
+   so its vertical centre sits on the 15.6 px first text line of the name
+   (line-height 1.2 × font 13 px). Without it the icon reads ~1 px low
+   relative to the first line — fine for a single line, slightly off for
+   wrapping names. */
+.task-row .diff-icon {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
   object-fit: contain;
-  vertical-align: middle;
+  margin-top: -1px;
 }
-.pact-tag {
+/* The pact pill is ~15.5 px tall (9.5 px glyph + 4 px padding + 2 px
+   border) which already lines up with the first text line centre, so no
+   nudge needed — but it does need `margin-top: 0` to override anything
+   future me might add to .diff-icon by mistake. */
+.task-row .pact-tag {
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -106,6 +117,12 @@
   color: #ff8a3a;
   border: 1px solid #4a2a30;
   flex-shrink: 0;
+}
+/* Points number sits on the right; baseline-align it with the first text
+   line of the name so it doesn't float up when the name wraps. */
+.task-row .task-row-pts {
+  align-self: flex-start;
+  margin-top: 1px;
 }
 .task-row-desc {
   font-size: 12px;
@@ -187,22 +204,28 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Region colors all resolve from the palette defined in src/types.ts
-   (pushed onto :root via App.tsx). The border uses a translucent tint
-   of `base` so every region's chip reads as a distinct accent against
-   the dark panel. */
-.region-tag.region-varlamore  { color: var(--region-varlamore-text);  border-color: color-mix(in srgb, var(--region-varlamore)  35%, #2a2a34); }
-.region-tag.region-karamja    { color: var(--region-karamja-text);    border-color: color-mix(in srgb, var(--region-karamja)    35%, #2a2a34); }
-.region-tag.region-asgarnia   { color: var(--region-asgarnia-text);   border-color: color-mix(in srgb, var(--region-asgarnia)   35%, #2a2a34); }
-.region-tag.region-desert     { color: var(--region-desert-text);     border-color: color-mix(in srgb, var(--region-desert)     35%, #2a2a34); }
-.region-tag.region-fremennik  { color: var(--region-fremennik-text);  border-color: color-mix(in srgb, var(--region-fremennik)  35%, #2a2a34); }
-.region-tag.region-kandarin   { color: var(--region-kandarin-text);   border-color: color-mix(in srgb, var(--region-kandarin)   35%, #2a2a34); }
-.region-tag.region-kourend    { color: var(--region-kourend-text);    border-color: color-mix(in srgb, var(--region-kourend)    35%, #2a2a34); }
-.region-tag.region-morytania  { color: var(--region-morytania-text);  border-color: color-mix(in srgb, var(--region-morytania)  35%, #2a2a34); }
-.region-tag.region-tirannwn   { color: var(--region-tirannwn-text);   border-color: color-mix(in srgb, var(--region-tirannwn)   35%, #2a2a34); }
-.region-tag.region-wilderness { color: var(--region-wilderness-text); border-color: color-mix(in srgb, var(--region-wilderness) 35%, #2a2a34); }
-.region-tag.region-general    { color: var(--region-general-text);    border-color: color-mix(in srgb, var(--region-general)    35%, #2a2a34); }
-.region-tag.region-misthalin  { color: var(--region-misthalin-text);  border-color: color-mix(in srgb, var(--region-misthalin)  35%, #2a2a34); }
+/* Region colors. The text colour is a desaturated lift of the badge
+   accent so it reads on the dark panel, and the border is the badge
+   accent pre-mixed 35% over the panel bg (#2a2a34). Both are static
+   so the border paints on first frame — no FOUC waiting for JS to
+   set CSS variables.
+
+   Source of truth for the *base* (saturated) colour is `REGION_PALETTE`
+   in src/types.ts, which MapView reads at runtime to tint pins. If you
+   change a base there, regenerate the border hex via:
+     base*0.35 + #2a2a34*0.65  (35% color-mix in srgb).                  */
+.region-tag.region-varlamore  { color: #fbcd7d; border-color: #71532e; }
+.region-tag.region-karamja    { color: #8ed9ae; border-color: #265642; }
+.region-tag.region-asgarnia   { color: #a8c9f1; border-color: #2e4a70; }
+.region-tag.region-desert     { color: #efa3a3; border-color: #642e34; }
+.region-tag.region-fremennik  { color: #d9bfa4; border-color: #56453e; }
+.region-tag.region-kandarin   { color: #e89bbd; border-color: #5f2b47; }
+.region-tag.region-kourend    { color: #94d6c7; border-color: #2c5654; }
+.region-tag.region-morytania  { color: #c2a8e0; border-color: #483b5d; }
+.region-tag.region-tirannwn   { color: #a9e9cf; border-color: #33665c; }
+.region-tag.region-wilderness { color: #c8c8c8; border-color: #4c4c52; }
+.region-tag.region-general    { color: #d0d0dc; border-color: #4c4c57; }
+.region-tag.region-misthalin  { color: #b4cbde; border-color: #414f61; }
 
 .empty {
   color: #6a6a78;

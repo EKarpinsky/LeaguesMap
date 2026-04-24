@@ -295,40 +295,21 @@
   color: var(--fs-text-muted);
 }
 
-/* Per-region tints (hooked up to --region-xxx vars set by App.tsx) */
-.rtile.region-general {
-  --tint: #9aa0a8;
-}
-.rtile.region-varlamore {
-  --tint: var(--region-varlamore, #d4a05a);
-}
-.rtile.region-asgarnia {
-  --tint: var(--region-asgarnia, #a9bedd);
-}
-.rtile.region-desert {
-  --tint: var(--region-desert, #d4a05a);
-}
-.rtile.region-fremennik {
-  --tint: var(--region-fremennik, #7fa6c7);
-}
-.rtile.region-kandarin {
-  --tint: var(--region-kandarin, #6fb27a);
-}
-.rtile.region-karamja {
-  --tint: var(--region-karamja, #c15b3b);
-}
-.rtile.region-kourend {
-  --tint: var(--region-kourend, #b88a5e);
-}
-.rtile.region-morytania {
-  --tint: var(--region-morytania, #7d6a9f);
-}
-.rtile.region-tirannwn {
-  --tint: var(--region-tirannwn, #4ca18a);
-}
-.rtile.region-wilderness {
-  --tint: var(--region-wilderness, #b84a4a);
-}
+/* Per-region tints. Static values — MUST stay in sync with REGION_PALETTE
+   in src/types.ts (which MapView reads to tint map pins). Twelve regions
+   change basically never, so the duplication is cheaper than the FOUC
+   that JS-injected CSS variables produced. */
+.rtile.region-general    { --tint: #8a8a99; }
+.rtile.region-varlamore  { --tint: #f5a023; }
+.rtile.region-asgarnia   { --tint: #3484e0; }
+.rtile.region-desert     { --tint: #d13535; }
+.rtile.region-fremennik  { --tint: #a87750; }
+.rtile.region-kandarin   { --tint: #c22e6a; }
+.rtile.region-karamja    { --tint: #1fa85c; }
+.rtile.region-kourend    { --tint: #2fa88e; }
+.rtile.region-morytania  { --tint: #7f5aa8; }
+.rtile.region-tirannwn   { --tint: #45d6a5; }
+.rtile.region-wilderness { --tint: #8a8a8a; }
 
 /* ────────────────────── Difficulty segmented ────────────────── */
 

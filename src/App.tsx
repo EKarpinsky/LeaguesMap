@@ -1,37 +1,19 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useCallback, useMemo, useState } from "react";
 import FilterSidebar from "./components/FilterSidebar";
 import TaskList from "./components/TaskList";
 import { defaultFilters, matchesFilter } from "./lib/filters";
 import type { FilterState } from "./lib/filters";
 import { ALL_PLACEMENTS, ALL_TASKS, getPlacement } from "./lib/taskIndex";
-import { REGION_PALETTE } from "./types";
 import type { Task } from "./types";
 import "./App.css";
 
 // Leaflet + MapView together are ~230 KB gz. Lazy-load them so the
 // initial paint (title, filters, task list) doesn't wait on the map
-// runtime. The `<link rel="preload">` in index.html kicks off the map
-// image download in parallel, so visually the map still shows up fast.
+// runtime. Tile fetches kick off the moment MapView mounts, so the
+// map still shows up within the same paint window on most networks.
 const MapView = lazy(() => import("./components/MapView"));
 
-/**
- * Push the region palette from `types.ts` onto `:root` as CSS custom
- * properties (`--region-karamja`, `--region-karamja-text`, …) so CSS files
- * can reference them without hard-coding hex codes. One TS source of
- * truth, consumed by both the map pins and every region-colored chip/tag.
- */
-function applyRegionPalette(): void {
-  const root = document.documentElement;
-  for (const [region, { base, text }] of Object.entries(REGION_PALETTE)) {
-    const slug = region.toLowerCase();
-    root.style.setProperty(`--region-${slug}`, base);
-    root.style.setProperty(`--region-${slug}-text`, text);
-  }
-}
-
 function App() {
-  useEffect(applyRegionPalette, []);
-
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
