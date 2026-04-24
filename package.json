@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predev": "tsx scripts/build-runtime-data.ts",
     "build": "tsc -b && vite build",
+    "prebuild": "tsx scripts/build-runtime-data.ts",
     "lint": "eslint .",
     "preview": "vite preview"
   },

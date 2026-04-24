@@ -1,72 +1,27 @@
-import type { Task, TaskPlacement, Region, WorldLocation } from "../types";
-import { LOCATIONS } from "../data/locations";
-import { ENTITY_LOCATIONS } from "../data/wikiEntities";
-import {
-  centroidLocationId,
-  regionCentroid,
-  resolveTasks,
-} from "./resolver";
+import type { Task, TaskPlacement, WorldLocation } from "../types";
 import tasksJson from "../data/tasks.json" with { type: "json" };
+import placementsJson from "../data/generated/placements.json" with { type: "json" };
+import locationsJson from "../data/generated/locations.json" with { type: "json" };
+
+/**
+ * Runtime data is fully pre-resolved at build time by
+ * `scripts/build-runtime-data.ts`, run via the `prebuild` and `predev`
+ * npm hooks. The resolver, the wiki entity table, and the original
+ * wikiEntities.json (~450 KB) all stay out of the client bundle —
+ * the runtime only ever sees these three small JSON inputs.
+ */
 
 export const ALL_TASKS: Task[] = tasksJson as Task[];
-export const ALL_PLACEMENTS: TaskPlacement[] = resolveTasks(ALL_TASKS);
+export const ALL_PLACEMENTS: TaskPlacement[] = placementsJson as TaskPlacement[];
+export const ALL_LOCATIONS: WorldLocation[] = locationsJson as WorldLocation[];
 
 const TASK_BY_ID = new Map<string, Task>(ALL_TASKS.map((t) => [t.id, t]));
 const PLACEMENT_BY_ID = new Map<string, TaskPlacement>(
   ALL_PLACEMENTS.map((p) => [p.taskId, p]),
 );
-
-/**
- * Real world locations (landmarks + fine-grained entity pins) plus
- * synthetic centroids for region fallbacks.
- *
- * Entity pins land LAST in the array so landmarks "win" any id collision
- * but every entity still gets its own marker on the map.
- */
-export const ALL_LOCATIONS: WorldLocation[] = (() => {
-  const real: WorldLocation[] = [...LOCATIONS, ...ENTITY_LOCATIONS];
-  const regions = new Set<Region>();
-  for (const p of ALL_PLACEMENTS) {
-    if (p.matchMethod === "region-fallback") {
-      const task = TASK_BY_ID.get(p.taskId);
-      if (task) regions.add(task.region);
-    }
-  }
-  for (const region of regions) {
-    const c = regionCentroid(region);
-    if (!c) continue; // Regions without a centroid (General, Misthalin) never get a fallback pin.
-    real.push({
-      id: centroidLocationId(region),
-      name: `${region} (general area)`,
-      x: c.x,
-      y: c.y,
-      region,
-      category: "landmark",
-      blurb: "Exact spot unknown — region-level fallback pin.",
-    });
-  }
-  return real;
-})();
-
 const LOCATION_BY_ID = new Map<string, WorldLocation>(
   ALL_LOCATIONS.map((l) => [l.id, l]),
 );
-
-/** Map of locationId → tasks placed there. Built once. */
-export const TASKS_BY_LOCATION: Map<string, Task[]> = (() => {
-  const m = new Map<string, Task[]>();
-  for (const p of ALL_PLACEMENTS) {
-    if (p.unmappable || p.locations.length === 0) continue;
-    const task = TASK_BY_ID.get(p.taskId);
-    if (!task) continue;
-    for (const locId of p.locations) {
-      const arr = m.get(locId) ?? [];
-      arr.push(task);
-      m.set(locId, arr);
-    }
-  }
-  return m;
-})();
 
 export function getTask(id: string): Task | undefined {
   return TASK_BY_ID.get(id);

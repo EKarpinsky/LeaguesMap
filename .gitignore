@@ -15,6 +15,10 @@ dist-ssr
 # Local Lighthouse audit output — not meant to be versioned.
 lighthouse-reports/
 
+# Build-time resolver output — regenerated on every dev/build via the
+# `predev` and `prebuild` npm hooks (see scripts/build-runtime-data.ts).
+src/data/generated/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
