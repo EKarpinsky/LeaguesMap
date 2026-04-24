@@ -434,18 +434,18 @@
   "amoxliatl": {
     "allSpawns": [
       [
-        1559,
-        3048
+        1693,
+        3232
       ]
     ],
     "category": "boss",
-    "leagueRegion": null,
-    "note": "Hunter Guild",
+    "leagueRegion": "Varlamore",
+    "note": "Ruins of Tapoyauik (Twilight Temple)",
     "resolvedTitle": "Amoxliatl",
     "source": "curated",
     "title": "Amoxliatl",
-    "x": 1559,
-    "y": 3048
+    "x": 1693,
+    "y": 3232
   },
   "ancient cavern": {
     "allSpawns": [
@@ -8119,18 +8119,18 @@
   "doom of mokhaiotl": {
     "allSpawns": [
       [
-        1559,
-        3048
+        1309,
+        3104
       ]
     ],
     "category": "boss",
-    "leagueRegion": null,
-    "note": "Hunter Guild",
+    "leagueRegion": "Varlamore",
+    "note": "Tonali Cavern (Tlati Rainforest)",
     "resolvedTitle": "Doom Of Mokhaiotl",
     "source": "curated",
     "title": "Doom Of Mokhaiotl",
-    "x": 1559,
-    "y": 3048
+    "x": 1309,
+    "y": 3104
   },
   "drake": {
     "allSpawns": [
@@ -13687,18 +13687,18 @@
   "hueycoatl": {
     "allSpawns": [
       [
-        1559,
-        3048
+        1512,
+        3285
       ]
     ],
     "category": "boss",
     "leagueRegion": "Varlamore",
-    "note": "Hunter Guild",
+    "note": "The Darkfrost",
     "resolvedTitle": "The Hueycoatl",
     "source": "curated",
     "title": "Hueycoatl",
-    "x": 1559,
-    "y": 3048
+    "x": 1512,
+    "y": 3285
   },
   "hunter guild": {
     "allSpawns": [
@@ -18979,18 +18979,18 @@
   "mokhaiotl": {
     "allSpawns": [
       [
-        1559,
-        3048
+        1309,
+        3104
       ]
     ],
     "category": "boss",
-    "leagueRegion": null,
-    "note": "Hunter Guild",
+    "leagueRegion": "Varlamore",
+    "note": "Tonali Cavern (Tlati Rainforest)",
     "resolvedTitle": "Mokhaiotl",
     "source": "curated",
     "title": "Mokhaiotl",
-    "x": 1559,
-    "y": 3048
+    "x": 1309,
+    "y": 3104
   },
   "molch island": {
     "allSpawns": [
@@ -31138,18 +31138,18 @@
   "the hueycoatl": {
     "allSpawns": [
       [
-        1559,
-        3048
+        1512,
+        3285
       ]
     ],
     "category": "boss",
     "leagueRegion": "Varlamore",
-    "note": "Hunter Guild",
+    "note": "The Darkfrost",
     "resolvedTitle": "The Hueycoatl",
     "source": "curated",
     "title": "the Hueycoatl",
-    "x": 1559,
-    "y": 3048
+    "x": 1512,
+    "y": 3285
   },
   "the hunllef": {
     "allSpawns": [

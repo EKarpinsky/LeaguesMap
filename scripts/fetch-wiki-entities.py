@@ -148,6 +148,21 @@ ANCHOR_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
     # native (2338, 3171) coord — this override only fires for entities
     # that explicitly anchor to "Prifddinas" in CURATED_ENTITIES.
     "Prifddinas": (2210, 3415),
+    # Ruins of Tapoyauik (Amoxliatl's home) sits beneath the Twilight Temple
+    # east of Civitas illa Fortis. Its wiki page's {{Map|mtype=rectangle|...|
+    # x:1693.5,y:3232}} can't be parsed by the integer-only X/Y regex, so we
+    # hand-curate the rounded surface entrance coord here. Verified visually
+    # against the world-map PNG (Twilight Temple courtyard is the rectangle
+    # the wiki Map highlights).
+    "Ruins of Tapoyauik": (1693, 3232),
+    # Tonali Cavern is the surface entrance to the Crypt of Tonali / Ruins
+    # of Mokhaiotl (Doom of Mokhaiotl's lair). Two ladder-down points exist
+    # in the Tlati Rainforest at (1309, 3104) and (1305, 3033); we use the
+    # northern one because it's closer to the Civitas teleport hub and is
+    # the tile players actually walk to from the Mokhaiotl waystone arrival
+    # area. Wiki: {{Map|1309,3104|1305,3033|caption=Entrances to Tonali
+    # Cavern}}.
+    "Tonali Cavern": (1309, 3104),
 }
 
 
@@ -213,11 +228,35 @@ ENTITY_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
 CURATED_ENTITIES: dict[str, dict] = {
     # ───── Instanced Varlamore bosses (anchored to entrance) ─────
     "araxxor":                  {"anchor": "Morytania Spider Cave",   "category": "boss"},
-    "amoxliatl":                {"anchor": "Hunter Guild",            "category": "boss"},
-    "hueycoatl":                {"anchor": "Hunter Guild",            "category": "boss"},
-    "the hueycoatl":            {"anchor": "Hunter Guild",            "category": "boss"},
-    "doom of mokhaiotl":        {"anchor": "Hunter Guild",            "category": "boss"},
-    "mokhaiotl":                {"anchor": "Hunter Guild",            "category": "boss"},
+    # Amoxliatl is fought on the bottom floor of the Ruins of Tapoyauik,
+    # the dungeon underneath the Twilight Temple east of Civitas illa
+    # Fortis. The previous "Hunter Guild" anchor was a lazy bucketing of
+    # every Varlamore boss to the same Quetzal hub and put the pin ~140
+    # game tiles west of where players actually walk in. Anchor coord
+    # comes from ANCHOR_COORD_OVERRIDES["Ruins of Tapoyauik"] above
+    # (the wiki Map template uses non-integer x:1693.5 which the parser
+    # can't read directly).
+    "amoxliatl":                {"anchor": "Ruins of Tapoyauik",      "category": "boss"},
+    # Hueycoatl is fought at THE DARKFROST mountain on the north flank of
+    # Civitas illa Fortis (Hailstorm Mountains), NOT in the Hunter Guild.
+    # The previous "Hunter Guild" anchor was a lazy bucketing of every
+    # Varlamore boss to the same Quetzal hub and put both Hueycoatl pins
+    # on top of Civitas's Hunter Guild (1559, 3048) — wrong by ~250 game
+    # tiles. The Darkfrost wiki page's {{Map}} resolves to (1512, 3285),
+    # which is the rendered "The Darkfrost" label on the world map and
+    # matches both the LocLine on `The Hueycoatl` itself
+    # (x:1509, y:3290) and the Pendant of Ates teleport landing tile
+    # players use to reach the arena entrance.
+    "hueycoatl":                {"anchor": "The Darkfrost",           "category": "boss"},
+    "the hueycoatl":            {"anchor": "The Darkfrost",           "category": "boss"},
+    # Doom of Mokhaiotl is fought deep beneath the Crypt of Tonali in the
+    # Tlati Rainforest — surface entrance is the Tonali Cavern ladder at
+    # (1309, 3104), reached via the Mokhaiotl waystone after `The Final
+    # Dawn`. Same lazy-Hunter-Guild bucketing as the other two; pin was
+    # ~250 game tiles east of the actual cavern. Anchor coord comes from
+    # ANCHOR_COORD_OVERRIDES["Tonali Cavern"] above.
+    "doom of mokhaiotl":        {"anchor": "Tonali Cavern",           "category": "boss"},
+    "mokhaiotl":                {"anchor": "Tonali Cavern",           "category": "boss"},
     # Moons of Peril live in Neypotzli, beneath Cam Torum (NOT in the Hunter
     # Guild — the previous anchor was just plain wrong). The Cam Torum anchor
     # resolves via ANCHOR_COORD_OVERRIDES because the wiki infobox map for

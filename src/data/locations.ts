@@ -95,9 +95,16 @@ export const LOCATIONS: WorldLocation[] = [
   // through Cam Torum. The previous coords (1460, 3284) put a phantom
   // pin nowhere near the actual entrance, and the previous label
   // ("Shrine of Ralos") is a different in-game location entirely.
+  // NOTE: `moon key` and `varlamore moon chest` aliases used to live here
+  // because the Moons of Peril is where the moon key DROPS. But every
+  // moon-key task ("Open a chest with the moon key", "Open the Varlamore
+  // Moon Chest") describes the chest itself, which lives in the Ruins of
+  // Tapoyauik beneath the Twilight Temple — completely different pin.
+  // Those aliases now live on the `twilight-temple` landmark below so the
+  // chest tasks pin where players actually use the key, not where they
+  // got it.
   L("moons-of-peril", "Neypotzli (Cam Torum)", 1421, 3114, "Varlamore", "boss",
     ["moons of peril", "blood moon", "blue moon", "eclipse moon",
-     "varlamore moon chest", "moon key",
      "blood moon armour", "blue moon armour", "eclipse moon armour",
      "sulphur blades", "neypotzli",
      "moon-lite", "moonlite"],
@@ -106,18 +113,38 @@ export const LOCATIONS: WorldLocation[] = [
     ["vale totems"],
     "Fletching minigame in Auburn Valley"),
   L("the-heart-dungeon", "The Heart of Darkness", 1435, 3009, "Varlamore", "quest",
-    ["the heart of darkness", "ruins of tapoyauik", "frost crabs"],
+    ["the heart of darkness", "frost crabs"],
     "Late-Varlamore quest area"),
+  // Twilight Temple sits east of Civitas illa Fortis with the Ruins of
+  // Tapoyauik dungeon directly underneath. Coord matches the wiki Map
+  // template for Ruins of Tapoyauik (x:1693.5, y:3232) — the same
+  // surface tile Amoxliatl's curated entity uses. Carries the moon-key
+  // chest aliases so "Open a chest with the moon key inside the Ruins
+  // of Tapoyauik" lands here instead of falling through to The Heart of
+  // Darkness quest start (1435, 3009), ~250 game tiles west of the
+  // actual dungeon.
+  L("twilight-temple", "Twilight Temple", 1693, 3232, "Varlamore", "dungeon",
+    ["twilight temple", "ruins of tapoyauik",
+     "moon key", "chest (moon key)", "varlamore moon chest"],
+    "Surface entrance to the Ruins of Tapoyauik (Amoxliatl, moon-key chest)"),
   L("salvager-overlook", "Salvager Overlook", 1625, 3295, "Varlamore", "landmark",
     ["salvager overlook", "green flame"],
     "Cliffside view east of Civitas"),
-  L("doom-mokhaiotl", "Doom of Mokhaiotl", 1420, 3175, "Varlamore", "boss",
+  // Surface entrance to the Crypt of Tonali → Ruins of Mokhaiotl, where
+  // the Doom of Mokhaiotl is fought. The previous coord (1420, 3175) was
+  // a hand-eyeballed approximation between Cam Torum and the Tlati
+  // Rainforest — close to neither the cavern entrance nor the rendered
+  // Mokhaiotl label on the world-map PNG. The wiki Tonali Cavern page
+  // ({{Map|1309,3104|1305,3033|caption=Entrances to Tonali Cavern}}) lists
+  // two ladder-down points; we pin to the northern one (1309, 3104) since
+  // it's the tile players reach from the Mokhaiotl waystone arrival area.
+  L("doom-mokhaiotl", "Doom of Mokhaiotl", 1309, 3104, "Varlamore", "boss",
     ["doom of mokhaiotl", "mokhaiotl", "delve level", "deep delve",
      "confliction gauntlets", "eye of ayak", "avernic treads",
      "earthbound tecpatl", "glacial temotli", "pendant of ates",
      "oathplate helm", "oathplate chest", "oathplate legs",
      "soulflame horn"],
-    "Varlamore Part 3 delve boss (Earthbound/Glacial weapons, Pendant of Ates, Oathplate, Soulflame Horn)"),
+    "Tonali Cavern entrance — Varlamore Part 3 delve boss (Earthbound/Glacial weapons, Pendant of Ates, Oathplate, Soulflame Horn)"),
   L("gemstone-crab", "Gemstone Crab", 1275, 3160, "Varlamore", "boss",
     ["gemstone crab"],
     "Coastal boss east of Sunset Coast"),
