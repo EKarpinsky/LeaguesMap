@@ -248,7 +248,17 @@ function App() {
     <div className="app-shell">
       <aside className={panelClass}>
         <header className="app-title">
-          <h1>Demonic Pacts Tasks Map</h1>
+          <div className="app-title-text">
+            <h1>Demonic Pacts Tasks Map</h1>
+            <a
+              className="app-title-byline"
+              href="https://karpinsky.io"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              By Karpinsky
+            </a>
+          </div>
           {/*
             Unobtrusive bug-report entry point. Opens an in-app dialog
             that POSTs to /api/report-bug → Resend → eli@karpinsky.io.

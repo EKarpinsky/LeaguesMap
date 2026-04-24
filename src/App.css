@@ -36,8 +36,14 @@
   border-bottom: 1px solid #1b1b24;
   background: linear-gradient(180deg, #121218 0%, #0f0f14 100%);
 }
-.app-title h1 {
+.app-title-text {
   flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.app-title h1 {
   margin: 0;
   font-family:
     "Futura", "Futura PT", "Avenir Next", "Century Gothic", "Trebuchet MS",
@@ -47,6 +53,26 @@
   line-height: 1.15;
   letter-spacing: 0.01em;
   color: #f4f4f8;
+}
+/* Low-contrast attribution byline — stacks under the H1, links to the
+   author's site. Same hush-tone treatment as the bug-report link so it
+   never competes with the title above or filters below. */
+.app-title-byline {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: #6b6b7a;
+  text-decoration: none;
+  width: max-content;
+  max-width: 100%;
+  transition: color 0.12s;
+}
+.app-title-byline:hover,
+.app-title-byline:focus-visible {
+  color: #d8d8e0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  outline: none;
 }
 
 /* Ghost button in the top-right of the title bar — opens the bug-report
@@ -493,13 +519,20 @@
     justify-content: space-between;
     gap: 10px;
   }
+  .app-title-text {
+    align-items: center;
+    gap: 1px;
+  }
   .app-title h1 {
-    flex: 1 1 auto;
     text-align: center;
     font-size: 14px;
     font-weight: 600;
     letter-spacing: 0.04em;
     color: #c8c8d2;
+  }
+  .app-title-byline {
+    font-size: 9.5px;
+    letter-spacing: 0.05em;
   }
   .bug-report-link {
     font-size: 10.5px;
