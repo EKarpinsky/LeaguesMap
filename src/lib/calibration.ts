@@ -131,55 +131,43 @@ const STITCH_X = 2000;
 /**
  * Piecewise Y-axis calibration.
  *
- * Why piecewise on Y too? The western raster block (Kourend + Varlamore +
- * Aldarin) was composited into the wiki PNG at a slightly different Y
- * scale than mainland Gielinor. With a single global Y fit the residuals
- * on eastern landmarks (Falador, Edgeville, Camelot, Port Phasmatys,
- * Catherby) are ≤8 src px — the east is basically pixel-perfect — but
- * the western residuals show a clear two-sided pattern:
+ * Both continents use a separate (base, span) Y fit because each was
+ * composited into the wiki PNG at a slightly different Y scale. The
+ * east historically used MAP_IMAGE.gameYMin / heightPx directly, but
+ * that fit was derived against wiki LABEL-TEXT centers — which sit
+ * 20-60 src-px above the actual teleport/feature pixels that every
+ * pin in wikiEntities.json references. The bias is small at mid
+ * latitudes and grows at the extremes, producing the "plane squished
+ * vertically" symptom: extreme-north pins (Jatizso / Neitiznot / Lunar
+ * Isle / Weiss) sit south of their features, and extreme-south pins
+ * (Nardah / Pollnivneach / Shilo) sit north of theirs.
  *
- *   south Varlamore (gy ~2900-3130):   pins +20-73 src px NORTH of labels
- *   middle Kourend  (gy ~3350-3600):   pins ≈ on labels (±10 src px)
- *   north Kourend   (gy ~3780-3980):   pins +45-55 src px SOUTH of labels
+ * The east Y refit uses 20 canonical feature pixels measured directly
+ * off /tmp/osrs_worldmap.orig.png — castle centers, bank sprites, town
+ * cluster centroids, teleport landing spots — NOT label text. Free
+ * least-squares fit → slope = -2.9553 src-px/tile (vs previous
+ * -2.8272), intercept ≈ 12494.7 src px. Converted to the (base, span)
+ * form and snapped:
  *
- * That "both extremes pull inward" signature means the western block's
- * px-per-game-tile slope is STEEPER than the eastern block's — the wiki
- * stitched the west at a compressed Y scale. A free fit of the 11 western
- * landmarks gives slope = -2.9226 src-px/tile vs east's -2.8272 → about
- * 3.4% steeper. One explicit consequence users see: the Colossal Wyrm
- * Remains pin sits in Avium Savannah north of the crater's label, and
- * the Wintertodt pin drifts south of the Doors of Dinh.
+ *   GAME_Y_BASE_EAST = 2019   (was 1961; +58-tile shift of Y origin)
+ *   GAME_Y_SPAN_EAST = 2209   (was 2309; 4.3% tighter span)
  *
- * Fix: introduce GAME_Y_BASE_WEST / GAME_Y_SPAN_WEST for the western
- * segment (mirrors the X piecewise structure). East continues to use
- * MAP_IMAGE.gameYMin / heightPx directly — that path was correct and
- * stays untouched, so nothing on mainland Gielinor / Tirannwn / Lunar
- * Isle moves.
+ * Worst residual drops from 123 → 82 src-px; RMS from 54 → 34 src-px.
+ * Before/after overlay crops: /tmp/cal_debug/yfit/ (red = old, green =
+ * new, cyan diamond = measured truth). Every mid-latitude landmark
+ * (Edgeville, Camelot, Falador, Varrock, Catherby, Canifis, Port
+ * Phasmatys) moves ≤10 src-px; the fix is almost entirely at the
+ * extremes, matching the user-reported symptom.
  *
- * Derivation (reproducible): scripts/fit-calibration.py reports the
- * free-fit slope+intercept for each continent from LANDMARK_TRUTH and
- * converts to the (base, span) form used here. Worst-case residuals
- * after the refit:
- *   west: 41 src px (Hunter Guild — label center is ambiguous; the
- *                    guild sprawls 40+ src px)
- *   east:  8 src px (unchanged from existing fit; Yanille at +52 and
- *                    Prifddinas at +105 are label-vs-teleport artifacts,
- *                    not calibration error — see fit-calibration.py).
+ * The west Y fit was validated against the same method (Wintertodt,
+ * Aldarin, Hunter Guild, Arceuus, Hosidius) and found acceptable
+ * (±30-50 src-px worst) — west labels are drawn closer to features,
+ * so the label-vs-feature bias is smaller. Left untouched.
  *
- * The segment split uses the same STITCH_X as X (game x = 2000) — the
- * western raster block is a single rectangular composite, so a feature
- * west of STITCH_X needs BOTH the western X and Y fits; east of STITCH_X
- * uses neither.
+ * Segment split reuses STITCH_X = 2000 from the X calibration above.
  */
-const GAME_Y_BASE_EAST = MAP_IMAGE.gameYMin; // 1961 — unchanged
-const GAME_Y_SPAN_EAST = MAP_IMAGE.gameYMax - MAP_IMAGE.gameYMin; // 2309 — unchanged
-/**
- * Shifts the western Y origin north by 46 game tiles and compresses the
- * rendered Y span by 77 tiles. Net effect: southern Varlamore pins move
- * ~40 src-px south on the rendered image, northern Kourend pins move
- * ~50 src-px north — both toward their actual labels. See fit report
- * header above for landmark-level numbers.
- */
+const GAME_Y_BASE_EAST = 2019;
+const GAME_Y_SPAN_EAST = 2209;
 const GAME_Y_BASE_WEST = 2007;
 const GAME_Y_SPAN_WEST = 2232;
 
