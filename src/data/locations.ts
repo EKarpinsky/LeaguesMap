@@ -549,7 +549,7 @@ export const LOCATIONS: WorldLocation[] = [
     "Feldip Hills swamps (Chompy hats, Spotted/Spottier capes from Hunter)"),
   L("hespori", "Hespori", 1249, 3737, "Kourend", "boss",
     ["hespori", "nature's recurve"],
-    "Farming boss under Hosidius (anchor at Farming Guild)"),
+    "Farming boss"),
 
   // ───────────────────────────── Kourend ─────────────────────────────
   L("port-piscarilius", "Port Piscarilius", 1803, 3752, "Kourend", "city",
