@@ -375,9 +375,25 @@
 /* RuneLite sync dialog. Reuses .bug-dialog skeleton + a few extras for
    the multi-step body (instructions, paste/file inputs, live preview).
    Sized a touch wider than the bug-report dialog because the instructions
-   are 3 numbered steps and the preview is 3 lines. */
+   are 3 numbered steps and the preview is 3 lines. Also a touch taller
+   because the live preview block adds ~80px of content the bug dialog
+   never has, and clipping the action buttons would be a footgun. */
 .sync-dialog {
+  width: min(540px, 100%);
   max-width: 540px;
+  max-height: min(86dvh, 680px);
+}
+/* Scroll the body (blurb + steps + inputs + preview + error) so the
+   header AND footer always stay visible. min-height:0 is the canonical
+   "let me actually shrink inside a flex column" override — without it
+   flex children default to min-content, the wrapper refuses to shrink
+   below its full content size, and overflow:auto never triggers. */
+.sync-dialog-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 .sync-dialog-blurb {
   flex: 0 0 auto;

@@ -658,6 +658,17 @@ function App() {
                 ×
               </button>
             </header>
+            {/*
+              Header and footer stay pinned; everything in between
+              scrolls inside this wrapper. Without it, the preview
+              block + textarea + steps can push the action buttons
+              below the dialog max-height (the .bug-dialog itself has
+              overflow:hidden so a too-tall body just clips). Bug
+              dialog doesn't need this because its body is fixed-size,
+              but sync grows with both decoded preview AND error
+              messages so we have to handle short viewports.
+            */}
+            <div className="sync-dialog-scroll">
             <div className="sync-dialog-blurb">
               <p>
                 Import your league progress from the{" "}
@@ -677,7 +688,7 @@ function App() {
                   your varps populate.
                 </li>
                 <li>
-                  Open the plugin sidebar (the checkbox icon), click{" "}
+                  Open the plugin sidebar, click{" "}
                   <strong>Export</strong>, then <strong>Copy to clipboard</strong>{" "}
                   (or save the file).
                 </li>
@@ -751,6 +762,7 @@ function App() {
                 {syncError}
               </p>
             )}
+            </div>
             <footer className="bug-dialog-foot sync-dialog-foot">
               <span className="sync-dialog-foot-note">
                 {syncStatus === "applied"
