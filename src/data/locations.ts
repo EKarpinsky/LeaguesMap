@@ -35,7 +35,7 @@ export const LOCATIONS: WorldLocation[] = [
      "marcellus", "marcellus's patch",
      "at first light", "meat and greet", "death on the isle", "the final dawn"],
     "Capital of Varlamore (Valuables thieving, Marcellus's farm patch)"),
-  L("yamas-lair", "Yama's Lair", 1484, 3202, "Varlamore", "boss",
+  L("yamas-lair", "Yama's Lair", 1484, 3202, "General", "boss",
     ["yama's lair", "yamas lair", "yama", "yama's stepping stones", "stepping stones in his league domain"],
     "Demonic Pacts home region"),
   L("aldarin", "Aldarin", 1391, 2935, "Varlamore", "city",
@@ -228,7 +228,7 @@ export const LOCATIONS: WorldLocation[] = [
   L("rimmington", "Rimmington", 2956, 3232, "Asgarnia", "city",
     ["rimmington", "witch's potion", "witchs potion"],
     "Small town south of Falador (Hetty — Witch's Potion start)"),
-  L("draynor", "Draynor Village", 3103, 3259, "Asgarnia", "city",
+  L("draynor", "Draynor Village", 3103, 3259, "Misthalin", "city",
     ["draynor village", "draynor"],
     "Willow trees, wise old man"),
   L("port-sarim", "Port Sarim", 3029, 3221, "Asgarnia", "city",
@@ -242,7 +242,7 @@ export const LOCATIONS: WorldLocation[] = [
     ["taverley", "taverley dungeon", "heroes' guild",
      "a porcine of interest", "porcine of interest"],
     "Druidic town (Solly — A Porcine of Interest start)"),
-  L("wizards-tower", "Wizards' Tower", 3109, 3160, "Asgarnia", "landmark",
+  L("wizards-tower", "Wizards' Tower", 3109, 3160, "Misthalin", "landmark",
     ["wizards tower", "wizard's tower", "rune mysteries"],
     "Home of the Magic spells"),
   L("motherlode-mine", "Motherlode Mine", 3057, 3375, "Asgarnia", "minigame",
@@ -255,7 +255,7 @@ export const LOCATIONS: WorldLocation[] = [
      "void knight", "void set", "void helm", "void top", "void robe", "void gloves",
      "elite void"],
     "Void Knight minigame (Void Knight set)"),
-  L("barbarian-outpost", "Barbarian Outpost", 2549, 3558, "Asgarnia", "minigame",
+  L("barbarian-outpost", "Barbarian Outpost", 2549, 3558, "Kandarin", "minigame",
     ["barbarian assault", "barbarian outpost",
      "fighter torso", "fighter hat", "runner hat", "healer hat", "ranger hat",
      "penance"],
@@ -307,19 +307,6 @@ export const LOCATIONS: WorldLocation[] = [
   L("pyramid-plunder", "Pyramid Plunder", 3289, 2793, "Desert", "minigame",
     ["pyramid plunder", "mummy"],
     "Thieving minigame (Jaldraocht — mummies guard the chambers)"),
-  // DT2 quest-start aggregator. Used ONLY for drops that combine pieces from
-  // ALL FOUR DT2 bosses — Virtus armour and the Soulreaper Axe (assembled
-  // from each boss's hilt fragment). Boss-specific drops (the four vestige
-  // rings + Venator Bow) deliberately do NOT alias here — they live on the
-  // individual boss landmarks below so each ring task pins to the boss
-  // that actually drops it. Without that split, all four ring tasks
-  // collapsed to this single tile north of Al Kharid.
-  L("desert-treasure-ii", "Desert Treasure II", 2666, 3691, "Desert", "quest",
-    ["desert treasure ii", "the fallen empire",
-     "soulreaper axe", "soul reaper axe",
-     "virtus", "virtus top", "virtus mask", "virtus robe", "virtus robes"],
-    "Desert Treasure II quest start (shared DT2 boss drops: Virtus armour, Soulreaper Axe)"),
-
   // ─── DT2 boss arenas (one landmark per boss, with the ring/bow they drop) ───
   // These four landmarks replace the curated wiki-entities of the same
   // name (which all collapsed to placeholder coords — Vardorvis to a
@@ -331,40 +318,75 @@ export const LOCATIONS: WorldLocation[] = [
   // the resolver's description-text scan picks them up via the base
   // name in "Defeat Awakened Vardorvis." etc.
   //
+  // Each landmark also carries the SHARED DT2 drops (Virtus armour,
+  // Soulreaper Axe, Desert Treasure II quest itself). All four bosses
+  // drop hilt fragments / Virtus pieces, so a task like "Equip the
+  // Soulreaper Axe" intentionally fans out to all four pins — the
+  // player can hunt at whichever boss they prefer. The previous
+  // implementation collapsed all of these onto one fake landmark at
+  // (2666, 3691) in Fremennik Province, which is neither a boss nor
+  // even in the right region.
+  //
   // Rationale: each pin sits at the surface entrance the player actually
   // walks to, so the badge region matches that surface tile rather than
   // the league's task-region tag. Same pattern as Cerberus — tagged
   // Kourend by the league but pinned in Asgarnia where Taverley Dungeon
   // sits. All four canonical coords are pulled from the boss pages'
   // {{LocLine}} surface mapref on the OSRS Wiki.
+  //
+  // Wiki-confirmed Demonic Pacts league regions for each boss page:
+  //   Vardorvis     → Varlamore  (The Stranglewood Ritual Site)
+  //   Duke Sucellus → Fremennik  (Ghorrock Prison Asylum, via Weiss)
+  //   The Leviathan → Desert     (The Scar, via Temple of the Eye)
+  //   The Whisperer → Asgarnia   (Lassar Undercity Sunken Cathedral)
+  // Pin badges intentionally show the SURFACE-entry region (per the
+  // Cerberus convention) rather than the league-tag region, so e.g.
+  // The Leviathan's pin badge says Kourend (its Temple-of-the-Eye
+  // surface entrance) even though the league tags the boss as Desert.
   L("whisperer-lair", "The Whisperer", 3008, 3501, "Asgarnia", "boss",
     ["whisperer", "the whisperer",
-     "bellator ring", "bellator vestige"],
-    "The Whisperer (Lassar Undercity Sunken Cathedral, accessed via the sinkhole north-west of the Ruins of Camdozaal beneath Ice Mountain). Drops the Bellator vestige."),
+     "bellator ring", "bellator vestige",
+     "desert treasure ii", "the fallen empire",
+     "soulreaper axe", "soul reaper axe",
+     "virtus", "virtus top", "virtus mask", "virtus robe", "virtus robes"],
+    "The Whisperer (Lassar Undercity Sunken Cathedral, accessed via the sinkhole north-west of the Ruins of Camdozaal beneath Ice Mountain). Drops the Bellator vestige and a shared DT2 hilt fragment (Soulreaper Axe / Virtus armour)."),
   // Stranglewood Ritual Site, south of Mount Quidamortem — Varlamore.
   L("vardorvis-arena", "Vardorvis", 1128, 3417, "Varlamore", "boss",
     ["vardorvis",
-     "ultor ring", "ultor vestige"],
-    "Vardorvis (The Stranglewood Ritual Site, north-west of the forest south of Mount Quidamortem). Drops the Ultor vestige."),
+     "ultor ring", "ultor vestige",
+     "desert treasure ii", "the fallen empire",
+     "soulreaper axe", "soul reaper axe",
+     "virtus", "virtus top", "virtus mask", "virtus robe", "virtus robes"],
+    "Vardorvis (The Stranglewood Ritual Site, north-west of the forest south of Mount Quidamortem). Drops the Ultor vestige and a shared DT2 hilt fragment (Soulreaper Axe / Virtus armour)."),
   // Ghorrock Prison Asylum is reached via Ghorrock Dungeon under Weiss's
   // Salt Mine — surface entrance is in Fremennik, not deep Wilderness.
   L("duke-sucellus-lair", "Duke Sucellus", 2870, 3940, "Fremennik", "boss",
     ["duke sucellus",
-     "magus ring", "magus vestige"],
-    "Duke Sucellus (Ghorrock Prison Asylum, accessed through Ghorrock Dungeon beneath Weiss's Salt Mine). Drops the Magus vestige."),
+     "magus ring", "magus vestige",
+     "desert treasure ii", "the fallen empire",
+     "soulreaper axe", "soul reaper axe",
+     "virtus", "virtus top", "virtus mask", "virtus robe", "virtus robes"],
+    "Duke Sucellus (Ghorrock Prison Asylum, accessed through Ghorrock Dungeon beneath Weiss's Salt Mine). Drops the Magus vestige and a shared DT2 hilt fragment (Soulreaper Axe / Virtus armour)."),
   // The Scar in Abyssal Space, accessed by talking to the Catalytic
   // Guardian inside the Temple of the Eye (Mysterious Ruins, Arceuus).
-  L("leviathan-lair", "The Leviathan", 1581, 3851, "Kourend", "boss",
+  // Wiki tags The Leviathan as leagueRegion=Desert (the boss is part of the
+  // Desert region for the Demonic Pacts league, even though its surface
+  // entry is in Arceuus). Per the project rule, landmark.region MUST equal
+  // the wiki's leagueRegion — never the surface-geography region.
+  L("leviathan-lair", "The Leviathan", 1581, 3851, "Desert", "boss",
     ["leviathan", "the leviathan",
      "venator ring", "venator vestige",
-     "venator bow"],
-    "The Leviathan (The Scar in Abyssal Space, accessed via the Catalytic Guardian inside the Temple of the Eye in the Mysterious Ruins, Arceuus). Drops the Venator vestige and Venator Bow shards."),
-  L("gotr", "Guardians of the Rift", 1572, 3842, "General", "minigame",
+     "venator bow",
+     "desert treasure ii", "the fallen empire",
+     "soulreaper axe", "soul reaper axe",
+     "virtus", "virtus top", "virtus mask", "virtus robe", "virtus robes"],
+    "The Leviathan (The Scar in Abyssal Space, accessed via the Catalytic Guardian inside the Temple of the Eye in the Mysterious Ruins, Arceuus). Drops the Venator vestige, Venator Bow shards, and a shared DT2 hilt fragment (Soulreaper Axe / Virtus armour)."),
+  L("gotr", "Guardians of the Rift", 1572, 3842, "Desert", "minigame",
     ["guardians of the rift", "abyssal pearls", "wrath talisman",
      "divine rune pouch", "divine spirit shield",
      "abyssal needle", "abyssal lantern"],
     "Runecraft minigame (source of Divine Rune pouch and catalytic talisman)"),
-  L("nex-lair", "Nex (God Wars Dungeon)", 2915, 3745, "Fremennik", "boss",
+  L("nex-lair", "Nex (God Wars Dungeon)", 2915, 3745, "Asgarnia", "boss",
     ["nex", "zaryte", "nihil shards", "ancient godswords",
      "torva", "torva helm", "torva full helm", "torva platebody", "torva platelegs",
      "zaryte vambraces", "zaryte crossbow"],
@@ -417,11 +439,14 @@ export const LOCATIONS: WorldLocation[] = [
      "leaf-bladed battleaxe", "leaf-bladed spear", "leaf-bladed sword", "leaf bladed",
      "turoth", "kurask"],
     "Cave with brines/turoths/kurasks (Brine Sabre, Leaf-bladed weapons)"),
-  L("thermonuclear", "Thermonuclear Smoke Devil (Smoke Dungeon)", 3310, 2962, "Desert", "boss",
+  // Wiki: Smoke Devil Dungeon entrance is at game (2412, 3061) — south-east
+  // of Castle Wars in Kandarin (the previous Pollnivneach coord at 3310,2962
+  // was a Desert mirage; both region AND coords were wrong).
+  L("thermonuclear", "Thermonuclear Smoke Devil (Smoke Dungeon)", 2412, 3061, "Kandarin", "boss",
     ["thermonuclear smoke devil", "shadowflame", "devil's element",
      "occult necklace", "smoke devil"],
-    "Smoke dungeon boss (Occult Necklace from Smoke Devils)"),
-  L("god-wars", "God Wars Dungeon", 2918, 3745, "Fremennik", "dungeon",
+    "Smoke dungeon boss south-east of Castle Wars (Occult Necklace from Smoke Devils)"),
+  L("god-wars", "God Wars Dungeon", 2918, 3745, "Asgarnia", "dungeon",
     ["god wars", "kree'arra", "commander zilyana", "general graardor", "k'ril tsutsaroth",
      "godsword", "armadyl godsword", "bandos godsword", "saradomin godsword", "zamorak godsword",
      "armadyl crossbow", "armadyl chestplate", "armadyl chainskirt", "armadyl helmet",
@@ -469,7 +494,7 @@ export const LOCATIONS: WorldLocation[] = [
   L("sinclair-mansion", "Sinclair Mansion", 2743, 3555, "Kandarin", "landmark",
     ["sinclair"],
     "Murder Mystery house"),
-  L("zul-andra", "Zul-Andra", 2193, 3060, "Kandarin", "city",
+  L("zul-andra", "Zul-Andra", 2193, 3060, "Tirannwn", "city",
     ["zul-andra", "zulrah", "toxic trident", "magic fang", "tanzanite fang", "serpentine",
      "toxic blowpipe", "blowpipe",
      "enhance a trident", "uncharged toxic trident", "trident of the swamp",
@@ -492,7 +517,7 @@ export const LOCATIONS: WorldLocation[] = [
      "chompy hat", "marksman chompy", "dragon archer chompy",
      "spottier cape", "spotted cape"],
     "Feldip Hills swamps (Chompy hats, Spotted/Spottier capes from Hunter)"),
-  L("hespori", "Hespori", 1249, 3737, "Kandarin", "boss",
+  L("hespori", "Hespori", 1249, 3737, "Kourend", "boss",
     ["hespori", "nature's recurve"],
     "Farming boss under Hosidius (anchor at Farming Guild)"),
 
@@ -546,7 +571,7 @@ export const LOCATIONS: WorldLocation[] = [
      "dragon hunter lance", "ferocious gloves", "bonecrusher necklace", "hydra",
      "brimstone ring", "boots of brimstone"],
     "Slayer dungeon with Hydra (Brimstone Ring, Boots of Brimstone)"),
-  L("darkmeyer-hallowed", "Hallowed Sepulchre (anchor)", 3654, 3387, "Kourend", "minigame",
+  L("darkmeyer-hallowed", "Hallowed Sepulchre (anchor)", 3654, 3387, "Morytania", "minigame",
     ["hallowed sepulchre", "hallowed tool",
      "ring of endurance", "strange old lockpick"],
     "Sepulchre is accessed from Darkmeyer (Ring of Endurance)"),
@@ -653,7 +678,7 @@ export const LOCATIONS: WorldLocation[] = [
     "Prifddinas boss"),
 
   // ───────────────────────────── Wilderness ─────────────────────────────
-  L("edgeville", "Edgeville", 3080, 3492, "Wilderness", "city",
+  L("edgeville", "Edgeville", 3080, 3492, "Misthalin", "city",
     ["edgeville",
      "wilderness achievement diary", "wilderness diary"],
     "Wilderness gateway (Lesser Fanatic — Wilderness diary reward-giver)"),
@@ -719,24 +744,34 @@ export const LOCATIONS: WorldLocation[] = [
 
   // ───────────────────────────── Resource / multi-spot anchors ─────────────────────────────
   // These are used by the resolver for tasks like "Chop 100 willow logs".
-  L("willows-draynor", "Willow Trees — Draynor", 3088, 3239, "Asgarnia", "resource",
+  // Wiki says Draynor Village = Misthalin (locked in DP) — these willows
+  // are inaccessible this league; the resolver will fall back to
+  // willows-catherby (Kandarin) for any "willow log" tasks.
+  L("willows-draynor", "Willow Trees — Draynor", 3088, 3239, "Misthalin", "resource",
     ["willow log", "willow logs", "willow shortbow", "willow longbow"],
-    "Best willow spot (requires Asgarnia)"),
+    "Draynor willow spot (Misthalin — locked in DP league)"),
   L("willows-catherby", "Willow Trees — Catherby", 2774, 3445, "Kandarin", "resource",
     ["willow log"],
     "Alt willow spot (Kandarin)"),
   L("maples-seers", "Maple Trees — Seers' Village", 2728, 3502, "Kandarin", "resource",
     ["maple log", "maple longbow", "maple shortbow"],
     "Best maple spot (Kandarin)"),
-  L("yews-edgeville", "Yew Trees — Edgeville", 3087, 3475, "Wilderness", "resource",
+  // Wiki tags Edgeville as Misthalin (locked in DP league). The graveyard
+  // yews sit south of the wilderness border at y=3475, so the wiki
+  // classification holds. Yew tasks should fall back to yews-varlamore.
+  L("yews-edgeville", "Yew Trees — Edgeville", 3087, 3475, "Misthalin", "resource",
     ["yew log", "yew longbow", "yew shortbow"],
-    "Yews in Edgeville graveyard (on wildy border)"),
+    "Yews in Edgeville graveyard (Misthalin — locked in DP league)"),
   L("yews-varlamore", "Yew Trees — Quetzacalli Gorge", 1625, 2997, "Varlamore", "resource",
     ["yew log"],
     "Yews in Varlamore Avium Savannah"),
-  L("magics-sorceress", "Magic Trees — Sorcerer's Garden", 2710, 3488, "Kandarin", "resource",
+  // Coords (2710, 3488) anchor the Seers' Village magic-tree grove
+  // (Kandarin per wiki). Previously labeled "Sorcerer's Garden" by mistake
+  // — the actual Sorceress's Garden is at game (3322, 3137) in the Desert
+  // and contains Sq'irk trees, not magic trees.
+  L("magics-sorceress", "Magic Trees — Seers' Village", 2710, 3488, "Kandarin", "resource",
     ["magic log", "magic longbow", "magic shortbow", "magic shield"],
-    "Magic trees in the garden (Seers')"),
+    "Magic trees south of Seers' Village (the wiki-canonical Kandarin grove)"),
   // East Auburn Valley magic-tree grove — wiki LocLine has two trees at
   // (1449, 3323) and (1452, 3320); the medoid below is the on-grove pin.
   // Previous coord (1293, 3073) was nowhere near Auburn Valley — it sat
@@ -763,13 +798,16 @@ export const LOCATIONS: WorldLocation[] = [
   L("silver-mine-crafting-guild", "Silver Rocks — Crafting Guild", 2932, 3281, "Asgarnia", "resource",
     ["silver ore"],
     "Crafting guild silver"),
-  L("hill-giants-edge", "Hill Giants — Edgeville Dungeon", 3097, 3469, "Wilderness", "resource",
+  // Edgeville Dungeon (per wiki) is in Misthalin, not Wilderness — the
+  // dungeon entrance ladder is south of the wildy line. Hill giants tasks
+  // will resolve via wiki entity pins (multi-region) instead.
+  L("hill-giants-edge", "Hill Giants — Edgeville Dungeon", 3097, 3469, "Misthalin", "resource",
     ["hill giant"],
-    "Edgeville dungeon hill giants"),
+    "Edgeville dungeon hill giants (Misthalin — locked in DP league)"),
   L("seers-rooftop", "Seers' Rooftop Agility", 2729, 3486, "Kandarin", "minigame",
     ["seers' rooftop", "seers rooftop", "canifis rooftop", "werewolf agility", "marks of grace", "rooftop agility"],
     "Seers' village rooftop course"),
-  L("tempoross", "Tempoross", 3035, 2850, "Asgarnia", "boss",
+  L("tempoross", "Tempoross", 3035, 2850, "Desert", "boss",
     ["tempoross",
      "angler", "angler's outfit", "anglers outfit", "angler hat", "angler top", "angler waders", "angler boots",
      "spirit angler", "fish barrel"],
@@ -778,13 +816,13 @@ export const LOCATIONS: WorldLocation[] = [
     ["wintertodt",
      "frozen cache", "warm gloves", "pyromancer"],
     "Firemaking boss in Shayzien (Frozen Caches, Pyromancer outfit)"),
-  L("zanaris", "Zanaris (via Aldarin fairy ring)", 1651, 3010, "Varlamore", "landmark",
+  L("zanaris", "Zanaris (via Aldarin fairy ring)", 1651, 3010, "General", "landmark",
     ["zanaris", "cosmic altar", "cosmic rune", "aether rune"],
     "Zanaris + cosmic altar: reach via the Aldarin fairy ring (DJR). The canonical Lumbridge Swamp entrance is in Misthalin, which is locked this league."),
-  L("puro-puro", "Puro-Puro (Ardougne crop circle)", 2669, 3316, "Kandarin", "minigame",
+  L("puro-puro", "Puro-Puro (Ardougne crop circle)", 2669, 3316, "General", "minigame",
     ["puro-puro"],
     "Implings realm — enter via the Ardougne wheat-field crop circle (Lumbridge/Draynor wheat fields are in Misthalin and locked)."),
-  L("abyss", "The Abyss", 3104, 3560, "General", "landmark",
+  L("abyss", "The Abyss", 3104, 3560, "Wilderness", "landmark",
     ["abyss", "abyssal area"],
     "Runecraft Abyss (anchor: Edgeville ditch)"),
   L("fairy-ring-ckq", "Fairy Ring CKQ", 1404, 2930, "Varlamore", "landmark",
@@ -838,7 +876,7 @@ export const LOCATIONS: WorldLocation[] = [
      "imcando hammer", "imcando pickaxe",
      "ornate lockbox", "camdozaal vault"],
     "Camdozaal under Ice Mountain (Imcando Hammer, Ornate Lockboxes)"),
-  L("ape-atoll", "Ape Atoll", 2784, 2784, "Karamja", "landmark",
+  L("ape-atoll", "Ape Atoll", 2784, 2784, "Kandarin", "landmark",
     ["ape atoll", "monkey madness",
      "dragon scimitar",
      "monkey backpack", "karamja monkey backpack", "maniacal monkey backpack",
@@ -858,7 +896,7 @@ export const LOCATIONS: WorldLocation[] = [
      "god book", "damaged god book", "completed god book",
      "book of balance", "holy book", "book of darkness", "unholy book"],
     "Lighthouse north of Barbarian Outpost (God Books from Horror from the Deep)"),
-  L("ghorrock-dungeon", "Ghorrock Dungeon", 2977, 3896, "Wilderness", "dungeon",
+  L("ghorrock-dungeon", "Ghorrock Dungeon", 2977, 3896, "Fremennik", "dungeon",
     ["ghorrock", "ghorrock dungeon", "ancient essence", "phantom muspah",
      "ancient sceptre", "ice ancient sceptre", "shadow ancient sceptre",
      "ghorrock teleport"],

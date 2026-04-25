@@ -351,7 +351,12 @@ CURATED_ENTITIES: dict[str, dict] = {
     # Dungeon's surface entrance at (2884, 3398) instead.
     "cerberus":                  {"anchor": "Taverley Dungeon",       "category": "boss"},
     "alchemical hydra":          {"anchor": "Mount Karuulm",          "category": "boss"},
-    "thermonuclear smoke devil": {"anchor": "Smoke Dungeon",          "category": "boss"},
+    # Wiki distinguishes [[Smoke Dungeon]] (Desert, DT1-era dust devils at
+    # 3310,2962) from [[Smoke Devil Dungeon]] (Kandarin, the thermonuclear's
+    # actual home south-east of Castle Wars at 2412,3061). The Thermonuclear
+    # smoke devil's own infobox tags it `leagueRegion = Kandarin`, so the
+    # anchor MUST be the Kandarin "Smoke Devil Dungeon".
+    "thermonuclear smoke devil": {"anchor": "Smoke Devil Dungeon",    "category": "boss"},
     "corporeal beast":           {"anchor": "Corporeal Beast",        "category": "boss"},
     "grotesque guardians":       {"anchor": "Canifis",                "category": "boss"},
     "dusk":                      {"anchor": "Canifis",                "category": "boss"},
@@ -365,7 +370,13 @@ CURATED_ENTITIES: dict[str, dict] = {
     # which is what triggered the user's "Defeat the Mimic" task to fall
     # back to the Kourend region centroid).
     "the mimic":                 {"anchor": "Watson",                 "category": "boss"},
-    "phantom muspah":            {"anchor": "Ancient Cavern",         "category": "boss"},
+    # The [[Phantom Muspah]] wiki page tags `leagueRegion = fremennik`.
+    # Lair is accessed via Weiss → Salt Mine → Ghorrock Dungeon, so we
+    # anchor at Weiss (the surface entry) instead of Ancient Cavern
+    # (Baxtorian Falls in Kandarin) to keep the pin in the right region.
+    # Belt-and-suspenders LR override in case Weiss anchor coords drift.
+    "phantom muspah":            {"anchor": "Weiss",                  "category": "boss",
+                                  "leagueRegion": "Fremennik"},
 
     # ───── Dagannoth Kings (Waterbirth) ─────
     "dagannoth kings":          {"anchor": "Waterbirth Island",       "category": "boss"},
@@ -407,17 +418,23 @@ CURATED_ENTITIES: dict[str, dict] = {
     # ───── Activities tied to a location ─────
     "forestry":                  {"anchor": "Draynor Village",         "category": "activity"},
     "motherlode mine":           {"anchor": "Falador",                 "category": "activity"},
-    "blast furnace":             {"anchor": "White Wolf Mountain",     "category": "activity"},
+    # Blast Furnace is in Keldagrim (Fremennik). White Wolf Mountain
+    # resolved to the Asgarnia side and was mis-tagging the activity.
+    "blast furnace":             {"anchor": "Keldagrim",              "category": "activity",
+                                  "leagueRegion": "Fremennik"},
     "giants' foundry":           {"anchor": "Giants' Foundry",         "category": "activity"},
     "nightmare zone":            {"anchor": "Nightmare Zone",          "category": "activity"},
     "volcanic mine":             {"anchor": "Volcanic Mine",           "category": "activity"},
 
     # ───── Combat monsters with underground-only wiki coords (per-region) ─────
+    # Blue dragon's wiki page tags `leagueRegion = Kandarin` (its primary
+    # surface spawn is Ardougne Zoo / Heroes' Guild basement). The
+    # entity-level fallback was inheriting Asgarnia from the first spawn.
     "blue dragon":               {"spawns": [
         {"anchor": "Taverley Dungeon",     "region_hint": "Asgarnia"},
         {"anchor": "Ardougne Zoo",         "region_hint": "Kandarin"},
         {"anchor": "Heroes' Guild",        "region_hint": "Asgarnia"},
-    ], "category": "monster"},
+    ], "category": "monster", "leagueRegion": "Kandarin"},
     # Black dragon's wiki page lists 8 LocLine entries but every Demonic
     # Pacts-reachable spawn is underground (mapID > 0), so the auto-scrape
     # only catches the Mynydd surface dragon in Tirannwn — leaving a
@@ -433,13 +450,18 @@ CURATED_ENTITIES: dict[str, dict] = {
         {"anchor": "Myths' Guild",         "region_hint": "Kandarin"},
         {"anchor": "Mynydd",               "region_hint": "Tirannwn"},
         {"anchor": "Lava Maze",            "region_hint": "Wilderness"},
-    ], "category": "monster"},
+    ], "category": "monster", "leagueRegion": "Kandarin"},
+    # Black demon's wiki page tags `leagueRegion = Karamja` (its main
+    # surface presence is Brimhaven Dungeon). The Edgeville Dungeon
+    # spawn is tagged `Misthalin` on the wiki, not Wilderness — locked
+    # in Demonic Pacts and dropped at runtime, but the hint should
+    # still match the wiki for accuracy.
     "black demon":               {"spawns": [
         {"anchor": "Taverley Dungeon",     "region_hint": "Asgarnia"},
         {"anchor": "Brimhaven Dungeon",    "region_hint": "Karamja"},
-        {"anchor": "Edgeville Dungeon",    "region_hint": "Wilderness"},
+        {"anchor": "Edgeville Dungeon",    "region_hint": "Misthalin"},
         {"anchor": "Chaos Druid Tower",    "region_hint": "Kandarin"},
-    ], "category": "monster"},
+    ], "category": "monster", "leagueRegion": "Karamja"},
     "troll":                     {"spawns": [
         {"anchor": "Burthorpe",            "region_hint": "Asgarnia"},
         # Fremennik Mountain Trolls only spawn underground in the south-of-
@@ -451,14 +473,19 @@ CURATED_ENTITIES: dict[str, dict] = {
         # Keldagrim entrance area instead.
         {"anchor": "Keldagrim entrance",   "region_hint": "Fremennik"},
     ], "category": "monster"},
+    # Fire giant's wiki page tags `leagueRegion = Karamja` (Brimhaven
+    # Dungeon is the canonical fire-giant slayer site).
     "fire giant":                {"spawns": [
         {"anchor": "Waterfall Dungeon",    "region_hint": "Kandarin"},
         {"anchor": "Deep Wilderness Dungeon", "region_hint": "Wilderness"},
         {"anchor": "Mount Karuulm",  "region_hint": "Kourend"},
-    ], "category": "monster"},
+    ], "category": "monster", "leagueRegion": "Karamja"},
     "drake":                           {"anchor": "Mount Karuulm",              "category": "monster"},
     "hydra":                           {"anchor": "Mount Karuulm",              "category": "monster"},
-    "dark beast":                      {"anchor": "West Ardougne",              "category": "monster"},
+    # Dark beasts live in the Iorwerth Dungeon (Tirannwn). West Ardougne
+    # was inheriting Kandarin from the bbox.
+    "dark beast":                      {"anchor": "Lletya",                     "category": "monster",
+                                        "leagueRegion": "Tirannwn"},
     "moss giant (iorwerth dungeon)":   {"anchor": "Lletya",                     "category": "monster"},
     "elf":                             {"anchor": "Lletya",                     "category": "monster"},
     "elf (disambiguation)":            {"anchor": "Lletya",                     "category": "monster"},
@@ -470,7 +497,8 @@ CURATED_ENTITIES: dict[str, dict] = {
     # Jubster is a player-created Creature Creation monster, only spawnable
     # in the Tower of Life basement (Ardougne) — not a wild Feldip Hills
     # creature, despite some old wiki revisions tagging it that way.
-    "jubster":                         {"anchor": "Tower of Life",              "category": "monster"},
+    "jubster":                         {"anchor": "Tower of Life",              "category": "monster",
+                                        "leagueRegion": "Kandarin"},
     "steel dragon":                    {"anchor": "Brimhaven Dungeon",          "category": "monster"},
     "revenant dragon":                 {"anchor": "Bone Yard",                  "category": "monster"},
     "kalphite":                        {"anchor": "Shantay Pass",               "category": "monster"},
@@ -494,12 +522,21 @@ CURATED_ENTITIES: dict[str, dict] = {
     # is the actual surface route to the Fremennik Slayer Cave.
     "pyrefiend":                       {"anchor": "Fremennik Slayer Dungeon",   "category": "monster"},
     "penguin":                         {"anchor": "Iceberg",                    "category": "monster"},
-    "werewolf":                        {"anchor": "Canifis",                    "category": "monster"},
+    # Canifis werewolves' wiki LocLines lack `leagueRegion`, so the
+    # entity-level fallback wasn't being set. Force Morytania to match
+    # how the wiki itself classifies the Canifis werewolf tasks.
+    "werewolf":                        {"anchor": "Canifis",                    "category": "monster",
+                                        "leagueRegion": "Morytania"},
     "snail":                           {"anchor": "Mort Myre Swamp",            "category": "monster"},
-    "fiyr shade":                      {"anchor": "Shades of Mort'ton",         "category": "monster"},
-    "urium shade":                     {"anchor": "Shades of Mort'ton",         "category": "monster"},
+    "fiyr shade":                      {"anchor": "Shades of Mort'ton",         "category": "monster",
+                                        "leagueRegion": "Morytania"},
+    "urium shade":                     {"anchor": "Shades of Mort'ton",         "category": "monster",
+                                        "leagueRegion": "Morytania"},
     "sarachnis":                       {"anchor": "Forthos Dungeon",            "category": "boss"},
-    "yama":                            {"anchor": "Slepe",                      "category": "boss"},
+    # Yama's Domain is accessed from the Chasm of Fire (Kourend, surface
+    # entry at 1435, 3668). Slepe was a copy-paste from the Nightmare
+    # entries above and put the pin in Morytania.
+    "yama":                            {"anchor": "Chasm of Fire",              "category": "boss"},
     # See the long comment on `"the mimic"` above — Mimic challenge is at
     # the Strange Casket upstairs in Watson's house, Hosidius. Watson's
     # NPC infobox has {{Map|x=1646|y=3574}} which the anchor resolver
@@ -518,7 +555,10 @@ CURATED_ENTITIES: dict[str, dict] = {
 
     # ───── Other high-value overrides ─────
     "shooting stars":             {"anchor": "Falador",                "category": "activity"},
-    "shooting star":              {"anchor": "Falador",                "category": "activity"},
+    # Shooting Stars wiki page tags `leagueRegion = General` (cross-region
+    # event). Falador anchor was inheriting Asgarnia.
+    "shooting star":              {"anchor": "Falador",                "category": "activity",
+                                   "leagueRegion": "General"},
     "shades of mort'ton":         {"anchor": "Shades of Mort'ton",     "category": "minigame"},
     "pyramid plunder":             {"anchor": "Pyramid Plunder",       "category": "minigame"},
     "mahogany homes":              {"anchor": "Mahogany Homes",        "category": "activity"},
@@ -526,7 +566,12 @@ CURATED_ENTITIES: dict[str, dict] = {
     "aerial fishing":              {"anchor": "Lovakengj",             "category": "minigame"},
     "trouble brewing":             {"anchor": "Trouble Brewing",       "category": "minigame"},
     "hallowed sepulchre":          {"anchor": "Hallowed Sepulchre",    "category": "minigame"},
-    "guardians of the rift":       {"anchor": "Arceuus",               "category": "minigame"},
+    # Wiki [[Guardians of the Rift]] infobox tags the minigame `leagueRegion = Desert`
+    # despite the surface entrance being in Arceuus (Kourend). Per the rule
+    # "follow the wiki, period", we override the anchor's inherited LR so the
+    # pin's badge is Desert (matching the wiki's own classification of the activity).
+    "guardians of the rift":       {"anchor": "Arceuus",               "category": "minigame",
+                                    "leagueRegion": "Desert"},
     "barbarian assault":           {"anchor": "Barbarian Outpost",     "category": "minigame"},
     "mage training arena":         {"anchor": "Mage Training Arena",   "category": "minigame"},
     "barrows":                     {"anchor": "Barrows",               "category": "minigame"},
@@ -539,7 +584,10 @@ CURATED_ENTITIES: dict[str, dict] = {
     "waterbirth island dungeon":   {"anchor": "Waterbirth Island",     "category": "dungeon"},
     "kraken":                      {"anchor": "Kraken Cove",           "category": "boss"},
     "kraken cove":                 {"anchor": "Kraken Cove",           "category": "dungeon"},
-    "smoke devil dungeon":         {"anchor": "Smoke Dungeon",         "category": "dungeon"},
+    # See note on "thermonuclear smoke devil" — the Smoke Devil Dungeon entity
+    # is the Kandarin one (south-east of Castle Wars), not the Desert "Smoke
+    # Dungeon" from DT1.
+    "smoke devil dungeon":         {"anchor": "Smoke Devil Dungeon",   "category": "dungeon"},
     "lunar isle":                  {"anchor": "Lunar Isle",            "category": "city"},
     "ape atoll":                   {"anchor": "Ape Atoll",             "category": "city"},
     "piscatoris":                  {"anchor": "Piscatoris",            "category": "landmark"},
@@ -548,7 +596,12 @@ CURATED_ENTITIES: dict[str, dict] = {
     "inferno":                     {"anchor": "Mor Ul Rek",            "category": "minigame"},
 
     # ───── Off-map / instanced leftovers ─────
-    "baby impling":                {"anchor": "Draynor Village",       "category": "monster"},
+    # Baby impling wiki LocLines all tag `leagueRegion = General`
+    # (impetuous impulses spawns are cross-region). Draynor Village
+    # anchor inherits Misthalin which is locked in Demonic Pacts and
+    # would hide the entity entirely.
+    "baby impling":                {"anchor": "Draynor Village",       "category": "monster",
+                                    "leagueRegion": "General"},
     "bardur":                      {"anchor": "Waterbirth Island",     "category": "npc"},
     "rock lobster":                {"anchor": "Waterbirth Island",     "category": "monster"},
     "scarab mage":                 {"anchor": "Shantay Pass",          "category": "monster"},
@@ -571,6 +624,49 @@ _STYLE_KEYWORDS = (
 )
 _INFOBOX_RE = re.compile(r"\{\{Infobox\s+([A-Za-z][A-Za-z ]*)", re.IGNORECASE)
 _LEAGUE_REGION_RE = re.compile(r"leagueRegion\s*=\s*([A-Za-z' ]+)", re.IGNORECASE)
+
+# Canonical Demonic Pacts league regions. Used to validate every value the
+# wiki scraper extracts from `leagueRegion=` parameters, `{{LeagueRegion|X}}`
+# table flags, and curated overrides — so junk like "N" (truncated from
+# "N/A"), "No" (literal sentinel value some wiki pages use to mean "not in
+# any league area"), or stray free-text gets dropped instead of leaking
+# into spawnRegions / leagueRegion fields and rendering as gibberish badges.
+# "General" is included even though it isn't a player-locked region in the
+# league — the wiki uses `leagueRegion = General` to mean "reachable from
+# anywhere", which is a meaningful runtime signal we want to keep.
+_VALID_LEAGUE_REGIONS = {
+    "asgarnia", "desert", "fremennik", "karamja", "tirannwn",
+    "wilderness", "varlamore", "kandarin", "kebos", "kourend",
+    "morytania", "misthalin", "general",
+}
+# Sentinel values the wiki uses to mean "explicitly not in any league
+# region" (Sailing / post-launch / dream-world content). Treated as None
+# so we don't accidentally inherit them as a real region tag.
+_LEAGUE_REGION_SENTINELS = {"n/a", "na", "n", "no", "none", "null", ""}
+
+
+def _normalize_league_region(value: str | None) -> str | None:
+    """Return a Title-Cased league region or None.
+
+    Filters out empty / sentinel / unknown values so downstream code can
+    trust that every non-None league region matches one of the canonical
+    Demonic Pacts area names. Multi-region values (`Kandarin&Kourend` from
+    Brimstone-key tertiary tables) collapse to None — we never want to
+    invent a single-area pin from a compound conditional drop tag.
+    """
+    if value is None:
+        return None
+    cleaned = value.strip()
+    if not cleaned:
+        return None
+    lowered = cleaned.lower()
+    if lowered in _LEAGUE_REGION_SENTINELS:
+        return None
+    if any(sep in cleaned for sep in (",", "&", "/", "|")):
+        return None
+    if lowered not in _VALID_LEAGUE_REGIONS:
+        return None
+    return lowered.title()
 
 # Detects a {{Map}} template that lives inside an EMPTY `leagues-global-flag`
 # table cell. Wiki convention on multi-location pages (e.g. Furnace, Anvil
@@ -799,6 +895,11 @@ def parse_coords(wt: str) -> list[dict]:
                     location = loc.strip().lower()
                 elif k == "leagueregion":
                     league_region = v.strip()
+                    # Stash raw value so the downstream "explicitly outside
+                    # any league region" filter (`is_surface_pin` N/A check)
+                    # still sees sentinels like "N/A" / "No"; normalization
+                    # only happens when we actually need to *use* the value
+                    # as a region tag.
         if inline_x is not None and inline_y is not None:
             xs.append((inline_x, inline_y))
         for p in parts:
@@ -954,7 +1055,7 @@ def extract_league_region(wt: str) -> str | None:
     m = _LEAGUE_REGION_RE.search(wt)
     if not m:
         return None
-    return m.group(1).strip().title()
+    return _normalize_league_region(m.group(1))
 
 
 # ---------------------------------------------------------------------------
@@ -1085,7 +1186,12 @@ def main() -> int:
                 continue
             seen_xy.add((sx, sy))
             all_spawns.append([sx, sy])
-            spawn_regions.append(slr)
+            # Normalize so junk values that survived `is_surface_pin`'s
+            # N/A/MISTHALIN gate (e.g. "N" truncated by the legacy regex,
+            # "No" literal sentinel on Nightmare Zone, multi-region
+            # compound tags from Brimstone-key tertiary tables) drop to
+            # None instead of leaking into spawnRegions as gibberish.
+            spawn_regions.append(_normalize_league_region(slr))
             spawn_row_locations.append(srow)
         entry = {
             "title": title,
@@ -1208,7 +1314,7 @@ def main() -> int:
         pick = pick_surface_coord(filtered)
         if not pick:
             return None
-        return ((pick["x"], pick["y"]), pick.get("leagueRegion"))
+        return ((pick["x"], pick["y"]), _normalize_league_region(pick.get("leagueRegion")))
 
     if unresolved_anchors:
         print("\n⚠️  UNRESOLVED CURATED ANCHORS — these pages had no surface {{Map}}:")
@@ -1240,10 +1346,21 @@ def main() -> int:
                     # row → Fremennik), else fall back to the anchor's
                     # infobox-level region (which usually agrees but
                     # disagrees on multi-location pages).
+                    # `region_hint` on a multi-anchor curated spawn is the
+                    # hand-authored wiki-sourced region for THAT specific
+                    # anchor (e.g. Black Dragon's Mynydd spawn → Tirannwn).
+                    # It wins over the anchor page's own leagueRegion so a
+                    # multi-spawn entity gets correct per-region pins even
+                    # when the anchor page (Taverley Dungeon) has its own
+                    # generic region tag.
                     resolved_spawns.append({
                         "x": xy[0], "y": xy[1],
                         "note": s["anchor"],
-                        "leagueRegion": locline_lr or anchor_league_region.get(s["anchor"]),
+                        "leagueRegion": (
+                            s.get("region_hint")
+                            or locline_lr
+                            or anchor_league_region.get(s["anchor"])
+                        ),
                     })
         else:
             hit = resolve_anchor_coord(override["anchor"], override.get("location_match"))
@@ -1293,9 +1410,17 @@ def main() -> int:
         # the entity-level region AND every per-spawn region, since
         # the wiki's own LocLine for that entity uses that tag.
         forced_lr = override.get("leagueRegion")
+        is_multi_spawn = "spawns" in override
         if forced_lr:
             entity_lr = forced_lr
-            spawn_regions = [forced_lr] * len(spawn_regions)
+            # For SINGLE-anchor curated entries we force the spawn region
+            # too (e.g. Abyssal Sire → "General" on its lone Abyss
+            # spawn). For MULTI-anchor entries we MUST NOT clobber per-
+            # spawn regions — each spawn carries its own correct region
+            # via `region_hint` and the entity-level forced_lr is just
+            # the page-wide fallback badge.
+            if not is_multi_spawn:
+                spawn_regions = [forced_lr] * len(spawn_regions)
         else:
             entity_lr = existing["leagueRegion"] if existing else None
             if not entity_lr:
