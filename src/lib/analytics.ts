@@ -36,12 +36,29 @@ import { track as vercelTrack } from "@vercel/analytics";
 
 const PROD_HOST = "leagues-map.karpinsky.io";
 
+/**
+ * Master kill-switch for `track()` calls.
+ *
+ * Vercel Web Analytics gates `track()` (custom events) behind the Pro
+ * plan — Hobby projects only get automatic page-view + Web Vitals
+ * tracking via the `<Analytics />` component, which we keep enabled in
+ * App.tsx. Calling `track()` from a Hobby project either no-ops
+ * server-side or counts toward a tiny quota before being rejected, so
+ * we short-circuit the wrapper here.
+ *
+ * To re-enable after a plan upgrade: flip this to `true`. Every
+ * call site already goes through the typed `analytics.*` helpers
+ * below, so one edit lights up the whole event catalogue.
+ */
+const CUSTOM_EVENTS_ENABLED = false;
+
 const isAnalyticsHost = (): boolean =>
   typeof window !== "undefined" && window.location.hostname === PROD_HOST;
 
 type Props = Record<string, string | number | boolean | null>;
 
 function send(name: string, props?: Props): void {
+  if (!CUSTOM_EVENTS_ENABLED) return;
   if (!isAnalyticsHost()) return;
   try {
     if (props) vercelTrack(name, props);
