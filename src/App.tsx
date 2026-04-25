@@ -66,7 +66,6 @@ function App() {
     toggleTask,
     replaceAll,
     resetAll,
-    stats: progressStats,
   } = useCompletedTasks();
 
   // Track every completion toggle. Wrapping the raw mutator (rather
@@ -550,7 +549,6 @@ function App() {
           open={filtersOpen}
           onToggle={toggleFilters}
           completed={completed}
-          progress={progressStats}
           onResetProgress={handleResetProgress}
           onOpenSync={openSyncDialog}
           visibleCount={mappableTasks.length + unmappableTasks.length}

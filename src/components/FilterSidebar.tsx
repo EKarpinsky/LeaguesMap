@@ -4,7 +4,7 @@ import type { Difficulty, Region } from "../types";
 import { matchesFilter } from "../lib/filters";
 import type { FilterState } from "../lib/filters";
 import { ALL_PLACEMENTS, ALL_TASKS } from "../lib/taskIndex";
-import type { ProgressStats } from "../lib/useCompletedTasks";
+import { computeProgress } from "../lib/useCompletedTasks";
 import { analytics } from "../lib/analytics";
 import "./FilterSidebar.css";
 
@@ -33,8 +33,6 @@ export interface FilterSidebarProps {
   onToggle: () => void;
   /** Read-only completion set (drives the progress bar + facet recounts). */
   completed: ReadonlySet<string>;
-  /** Aggregate progress stats — pre-computed in the parent hook. */
-  progress: ProgressStats;
   /** Reset the entire completion set. Confirmed locally before firing. */
   onResetProgress: () => void;
   /** Open the RuneLite Tasks Tracker import modal (lives in App). */
@@ -105,13 +103,41 @@ export default function FilterSidebar({
   open,
   onToggle,
   completed,
-  progress,
   onResetProgress,
   onOpenSync,
   visibleCount,
 }: FilterSidebarProps) {
   const { regionCounts, difficultyCounts } = useFacetCounts(filters, completed);
   const [confirmReset, setConfirmReset] = useState(false);
+
+  // Region-scoped progress. The user's "I'm playing this league" choice
+  // lives in `filters.regions` (persisted to localStorage), so the
+  // progress denominator should match what's actually selected — counting
+  // Wilderness tasks against a Karamja-only player misrepresents how
+  // close they are to "done" for the regions they're actually attempting.
+  // Search / difficulty / hideCompleted are intentionally NOT scoped:
+  // those are transient browse filters, not structural league setup, and
+  // scoping by them would make the bar jitter with every keystroke.
+  // Fast-path when all regions are selected (the default state) so we
+  // don't allocate a filtered array on every keystroke through other
+  // filters that don't affect this calculation.
+  const progress = useMemo(() => {
+    const allRegionsSelected =
+      filters.regions.size >= REGION_DISPLAY_ORDER.length;
+    const scoped = allRegionsSelected
+      ? ALL_TASKS
+      : ALL_TASKS.filter((t) => filters.regions.has(t.region));
+    return computeProgress(scoped, completed);
+  }, [filters.regions, completed]);
+
+  // Surface "this isn't your full league" in the heading so the
+  // numerator/denominator can't be misread as global progress when only
+  // a couple regions are toggled on. We only show the count when it's
+  // actually a subset; the default all-on state stays clean.
+  const selectedRegionCount = filters.regions.size;
+  const isSubsetOfRegions =
+    selectedRegionCount > 0 &&
+    selectedRegionCount < REGION_DISPLAY_ORDER.length;
 
   // Debounced search analytics. Wait until the user has stopped
   // typing for 800 ms so we don't ship one event per keystroke
@@ -271,6 +297,16 @@ export default function FilterSidebar({
         <div className="sect-head">
           <h2>
             Progress
+            {isSubsetOfRegions && (
+              <span
+                className="sect-scope"
+                data-tooltip={`Counting only the ${selectedRegionCount} region${selectedRegionCount === 1 ? "" : "s"} you have selected. Completions in unselected regions are still saved but not in this total`}
+                aria-label={`Progress is scoped to the ${selectedRegionCount} region${selectedRegionCount === 1 ? "" : "s"} currently selected`}
+                tabIndex={0}
+              >
+                {selectedRegionCount} of {REGION_DISPLAY_ORDER.length} regions
+              </span>
+            )}
             <span className="sect-meta tabular">
               {progress.completedCount} / {progress.totalCount} ({pct}%)
             </span>

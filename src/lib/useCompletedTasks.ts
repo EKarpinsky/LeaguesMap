@@ -135,7 +135,46 @@ export interface UseCompletedTasks {
    */
   replaceAll: (taskIds: Iterable<string>) => void;
   resetAll: () => void;
-  stats: ProgressStats;
+}
+
+/**
+ * Pure helper: count completion + points + per-difficulty totals for an
+ * arbitrary task subset. Pulled out of the hook so callers can scope the
+ * denominator to "tasks the player actually cares about right now" — most
+ * importantly the currently-selected regions in FilterSidebar, where
+ * counting Wilderness tasks against a Karamja-only player would
+ * misrepresent their actual league progress. Empty `tasks` is fine and
+ * yields zero-everywhere; callers should treat 0/0 as "no progress to
+ * report" (the UI already does, via the totalCount > 0 guards).
+ */
+export function computeProgress(
+  tasks: readonly Task[],
+  completed: ReadonlySet<string>,
+): ProgressStats {
+  const completedByDifficulty: Record<string, number> = {};
+  const totalByDifficulty: Record<string, number> = {};
+  let completedCount = 0;
+  let completedPoints = 0;
+  let totalPoints = 0;
+  for (const t of tasks) {
+    totalPoints += t.points;
+    totalByDifficulty[t.difficulty] =
+      (totalByDifficulty[t.difficulty] ?? 0) + 1;
+    if (completed.has(t.id)) {
+      completedCount += 1;
+      completedPoints += t.points;
+      completedByDifficulty[t.difficulty] =
+        (completedByDifficulty[t.difficulty] ?? 0) + 1;
+    }
+  }
+  return {
+    completedCount,
+    totalCount: tasks.length,
+    completedPoints,
+    totalPoints,
+    completedByDifficulty,
+    totalByDifficulty,
+  };
 }
 
 export function useCompletedTasks(): UseCompletedTasks {
@@ -275,31 +314,6 @@ export function useCompletedTasks(): UseCompletedTasks {
     setCompletedSet(new Set());
   }, []);
 
-  const stats = useMemo<ProgressStats>(() => {
-    const completedByDifficulty: Record<string, number> = {};
-    const totalByDifficulty: Record<string, number> = {};
-    let completedPoints = 0;
-    let totalPoints = 0;
-    for (const t of ALL_TASKS) {
-      totalPoints += t.points;
-      totalByDifficulty[t.difficulty] =
-        (totalByDifficulty[t.difficulty] ?? 0) + 1;
-      if (completed.has(t.id)) {
-        completedPoints += t.points;
-        completedByDifficulty[t.difficulty] =
-          (completedByDifficulty[t.difficulty] ?? 0) + 1;
-      }
-    }
-    return {
-      completedCount: completed.size,
-      totalCount: ALL_TASKS.length,
-      completedPoints,
-      totalPoints,
-      completedByDifficulty,
-      totalByDifficulty,
-    };
-  }, [completed]);
-
   return {
     completed,
     isCompleted,
@@ -309,7 +323,6 @@ export function useCompletedTasks(): UseCompletedTasks {
     clearMany,
     replaceAll,
     resetAll,
-    stats,
   };
 }
 
