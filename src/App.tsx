@@ -16,6 +16,7 @@ import { ALL_PLACEMENTS, ALL_TASKS, getPlacement, getTask } from "./lib/taskInde
 import { useCompletedTasks } from "./lib/useCompletedTasks";
 import { analytics } from "./lib/analytics";
 import type { TaskSelectSource } from "./lib/analytics";
+import { parseTasksTrackerExport } from "./lib/runeliteImport";
 import type { Task } from "./types";
 import "./App.css";
 
@@ -68,6 +69,7 @@ function App() {
   const {
     completed,
     toggleTask,
+    replaceAll,
     resetAll,
     stats: progressStats,
   } = useCompletedTasks();
@@ -237,6 +239,142 @@ function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [aboutOpen, closeAboutDialog]);
 
+  // ─────────────────── RuneLite sync dialog state ────────────────────
+  // Workflow: user pastes (or file-picks) the JSON exported from the
+  // RuneLite "Tasks Tracker" plugin. We decode the league task varps
+  // with the same algorithm WikiSync uses (see runeliteImport.ts) and
+  // REPLACE the local completion set — sync semantics are
+  // "RuneLite is the source of truth", so re-importing the same file
+  // is always idempotent. We never POST anywhere; the file is read
+  // entirely client-side and never leaves the browser.
+  type SyncStatus = "idle" | "previewing" | "applied" | "error";
+  type SyncSource = "paste" | "file";
+  interface SyncPreview {
+    completedIds: Set<string>;
+    displayName: string | null;
+    matchedTasks: number;
+    unknownIds: number;
+    varpsCovered: number;
+    varpsTotal: number;
+    addedCount: number;
+    removedCount: number;
+    source: SyncSource;
+  }
+  const [syncOpen, setSyncOpen] = useState(false);
+  const [syncInput, setSyncInput] = useState("");
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [syncPreview, setSyncPreview] = useState<SyncPreview | null>(null);
+  const [syncInputSource, setSyncInputSource] = useState<SyncSource>("paste");
+  const syncTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const syncFileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const openSyncDialog = useCallback(() => {
+    analytics.syncDialogOpened();
+    setSyncStatus("idle");
+    setSyncError(null);
+    setSyncPreview(null);
+    setSyncOpen(true);
+  }, []);
+  const closeSyncDialog = useCallback(() => {
+    setSyncOpen(false);
+    setTimeout(() => {
+      setSyncInput("");
+      setSyncStatus("idle");
+      setSyncError(null);
+      setSyncPreview(null);
+      setSyncInputSource("paste");
+    }, 200);
+  }, []);
+
+  // Re-derive the diff (what would change vs. current state) whenever
+  // the input changes. We deliberately re-run on every keystroke rather
+  // than waiting for an explicit "Preview" button: parsing is fast
+  // (single JSON.parse + 62 varp loops = ~1 ms even at 1.6k tasks)
+  // and live feedback prevents the "I pasted the wrong thing and
+  // hit Apply" footgun.
+  useEffect(() => {
+    if (!syncOpen) return;
+    const trimmed = syncInput.trim();
+    if (!trimmed) {
+      setSyncStatus("idle");
+      setSyncPreview(null);
+      setSyncError(null);
+      return;
+    }
+    const result = parseTasksTrackerExport(trimmed);
+    if (!result.ok) {
+      setSyncStatus("error");
+      setSyncPreview(null);
+      setSyncError(result.error);
+      return;
+    }
+    let added = 0;
+    let removed = 0;
+    for (const id of result.completedIds) if (!completed.has(id)) added += 1;
+    for (const id of completed) if (!result.completedIds.has(id)) removed += 1;
+    setSyncStatus("previewing");
+    setSyncError(null);
+    setSyncPreview({
+      completedIds: result.completedIds,
+      displayName: result.displayName,
+      matchedTasks: result.stats.matchedTasks,
+      unknownIds: result.stats.unknownIds,
+      varpsCovered: result.stats.varpsCovered,
+      varpsTotal: result.stats.varpsTotal,
+      addedCount: added,
+      removedCount: removed,
+      source: syncInputSource,
+    });
+  }, [syncInput, syncOpen, completed, syncInputSource]);
+
+  const onSyncFilePicked = useCallback(
+    async (file: File | null) => {
+      if (!file) return;
+      try {
+        const text = await file.text();
+        setSyncInputSource("file");
+        setSyncInput(text);
+      } catch {
+        setSyncStatus("error");
+        setSyncError("Couldn't read that file. Try copy-paste instead.");
+      }
+    },
+    [],
+  );
+
+  const applySync = useCallback(() => {
+    if (!syncPreview) return;
+    const before = completed.size;
+    replaceAll(syncPreview.completedIds);
+    analytics.syncImportApplied({
+      status: "success",
+      completedCountBefore: before,
+      completedCountAfter: syncPreview.completedIds.size,
+      matchedTasks: syncPreview.matchedTasks,
+      unknownIds: syncPreview.unknownIds,
+      varpsCovered: syncPreview.varpsCovered,
+      inputSource: syncPreview.source,
+    });
+    setSyncStatus("applied");
+    setTimeout(() => closeSyncDialog(), 1200);
+  }, [syncPreview, completed.size, replaceAll, closeSyncDialog]);
+
+  // Modal a11y: autofocus the textarea on open + ESC closes. Mirrors
+  // the bug-dialog contract.
+  useEffect(() => {
+    if (!syncOpen) return;
+    const t = setTimeout(() => syncTextareaRef.current?.focus(), 30);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeSyncDialog();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [syncOpen, closeSyncDialog]);
+
   const [bugOpen, setBugOpen] = useState(false);
   const [bugMessage, setBugMessage] = useState("");
   const [bugStatus, setBugStatus] = useState<BugStatus>("idle");
@@ -382,6 +520,7 @@ function App() {
           completed={completed}
           progress={progressStats}
           onResetProgress={handleResetProgress}
+          onOpenSync={openSyncDialog}
           visibleCount={mappableTasks.length + unmappableTasks.length}
         />
         <TaskList
@@ -486,6 +625,163 @@ function App() {
                 </em>
               </p>
             </div>
+          </div>
+        </div>
+      )}
+      {/*
+        RuneLite sync dialog. Reuses the bug-dialog backdrop / shell
+        styles + a few sync-specific extras (drop-zone, diff summary).
+        Everything is processed in-browser — the file is read with
+        FileReader and never POSTed anywhere.
+      */}
+      {syncOpen && (
+        <div
+          className="bug-dialog-backdrop"
+          onMouseDown={closeSyncDialog}
+          role="presentation"
+        >
+          <div
+            className="bug-dialog sync-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sync-dialog-title"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <header className="bug-dialog-head">
+              <h2 id="sync-dialog-title">Sync from RuneLite</h2>
+              <button
+                type="button"
+                className="bug-dialog-close"
+                onClick={closeSyncDialog}
+                aria-label="Close sync dialog"
+              >
+                ×
+              </button>
+            </header>
+            <div className="sync-dialog-blurb">
+              <p>
+                Import your league progress from the{" "}
+                <a
+                  href="https://runelite.net/plugin-hub/show/tasks-tracker"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Tasks Tracker
+                </a>{" "}
+                RuneLite plugin. Everything runs in your browser — no
+                accounts, no servers, no data ever leaves this tab.
+              </p>
+              <ol className="sync-steps">
+                <li>
+                  Install <strong>Tasks Tracker</strong> from RuneLite's
+                  plugin hub and log into a Demonic Pacts world once so
+                  your varps populate.
+                </li>
+                <li>
+                  Open the plugin sidebar (the checkbox icon), click{" "}
+                  <strong>Export</strong>, then <strong>Copy to clipboard</strong>{" "}
+                  (or save the file).
+                </li>
+                <li>Paste below or pick the saved file.</li>
+              </ol>
+            </div>
+            <div className="sync-dialog-input">
+              <textarea
+                ref={syncTextareaRef}
+                className="bug-dialog-textarea sync-dialog-textarea"
+                value={syncInput}
+                onChange={(e) => {
+                  setSyncInputSource("paste");
+                  setSyncInput(e.target.value);
+                }}
+                placeholder='Paste the JSON export here — looks like {"quests":{...},"varps":{...},"tasks":{...}}'
+                rows={5}
+                spellCheck={false}
+                disabled={syncStatus === "applied"}
+              />
+              <div className="sync-dialog-or">or</div>
+              <input
+                ref={syncFileInputRef}
+                type="file"
+                accept=".json,application/json,text/plain"
+                onChange={(e) => onSyncFilePicked(e.target.files?.[0] ?? null)}
+                className="sync-dialog-file"
+                disabled={syncStatus === "applied"}
+              />
+            </div>
+            {syncStatus === "previewing" && syncPreview && (
+              <div className="sync-dialog-preview" role="status">
+                <div className="sync-dialog-preview-head">
+                  Looks good
+                  {syncPreview.displayName ? (
+                    <>
+                      {" — "}
+                      <strong>{syncPreview.displayName}</strong>
+                    </>
+                  ) : null}
+                </div>
+                <ul className="sync-dialog-preview-list">
+                  <li>
+                    <span className="sync-dialog-num">
+                      {syncPreview.matchedTasks.toLocaleString()}
+                    </span>{" "}
+                    tasks complete in your export
+                  </li>
+                  <li>
+                    <span className="sync-dialog-num diff-add">
+                      +{syncPreview.addedCount.toLocaleString()}
+                    </span>{" "}
+                    new on this map,{" "}
+                    <span className="sync-dialog-num diff-rem">
+                      −{syncPreview.removedCount.toLocaleString()}
+                    </span>{" "}
+                    will be unticked
+                  </li>
+                  <li className="sync-dialog-preview-meta">
+                    Decoded {syncPreview.varpsCovered}/{syncPreview.varpsTotal}{" "}
+                    league varps
+                    {syncPreview.unknownIds > 0
+                      ? ` · ${syncPreview.unknownIds} bits map to tasks not yet in this map (likely a recent Jagex update)`
+                      : ""}
+                  </li>
+                </ul>
+              </div>
+            )}
+            {syncStatus === "error" && syncError && (
+              <p className="bug-dialog-error sync-dialog-error" role="alert">
+                {syncError}
+              </p>
+            )}
+            <footer className="bug-dialog-foot sync-dialog-foot">
+              <span className="sync-dialog-foot-note">
+                {syncStatus === "applied"
+                  ? "Applied!"
+                  : "Importing replaces all current ticks."}
+              </span>
+              <div className="bug-dialog-actions">
+                <button
+                  type="button"
+                  className="bug-dialog-btn ghost"
+                  onClick={closeSyncDialog}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="bug-dialog-btn primary"
+                  onClick={applySync}
+                  disabled={
+                    syncStatus !== "previewing" || syncPreview === null
+                  }
+                >
+                  {syncStatus === "applied"
+                    ? "Imported ✓"
+                    : syncPreview
+                      ? `Import ${syncPreview.matchedTasks.toLocaleString()} tasks`
+                      : "Import"}
+                </button>
+              </div>
+            </footer>
           </div>
         </div>
       )}

@@ -37,6 +37,8 @@ export interface FilterSidebarProps {
   progress: ProgressStats;
   /** Reset the entire completion set. Confirmed locally before firing. */
   onResetProgress: () => void;
+  /** Open the RuneLite Tasks Tracker import modal (lives in App). */
+  onOpenSync: () => void;
   /**
    * Total tasks currently visible after filters apply (mappable +
    * unmappable). Threaded down only so the debounced search-tracking
@@ -105,6 +107,7 @@ export default function FilterSidebar({
   completed,
   progress,
   onResetProgress,
+  onOpenSync,
   visibleCount,
 }: FilterSidebarProps) {
   const { regionCounts, difficultyCounts } = useFacetCounts(filters, completed);
@@ -132,11 +135,13 @@ export default function FilterSidebar({
     }, 800);
     return () => window.clearTimeout(handle);
   }, [filters.search, visibleCount]);
-  // Manual JSON export/import was deliberately removed: nobody
-  // hand-rolls JSON for their league progress. A future "Sync from
-  // RuneLite" flow will hit the LeaguesSync community plugin's
-  // public backend (api.osrsleaguetracker.com/player/{rsn}) and
-  // diff the returned task IDs against the in-memory set.
+  // Sync from RuneLite uses the Tasks Tracker plugin's JSON export.
+  // We decode the player's league task varps with the same algorithm
+  // WikiSync uses (LEAGUE_TASK_VARPS in src/lib/runeliteImport.ts) so
+  // the user gets a one-shot import of their full progress without us
+  // needing a backend or hitting WikiSync's third-party-blocked API.
+  // The dialog itself lives in App.tsx (where useCompletedTasks
+  // lives); we just render the entry-point button here.
 
   const searchRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -337,6 +342,14 @@ export default function FilterSidebar({
           <div className="prog-buttons">
             <button
               type="button"
+              className="prog-btn"
+              onClick={onOpenSync}
+              title="Import your completed tasks from RuneLite's Tasks Tracker plugin"
+            >
+              Sync from RuneLite
+            </button>
+            <button
+              type="button"
               className={`prog-btn danger${confirmReset ? " confirming" : ""}`}
               onClick={handleReset}
               disabled={progress.completedCount === 0 && !confirmReset}
@@ -347,7 +360,7 @@ export default function FilterSidebar({
               }
               aria-label="Reset all progress"
             >
-              {confirmReset ? "Confirm reset?" : "Reset progress"}
+              {confirmReset ? "Confirm reset?" : "Reset"}
             </button>
           </div>
         </div>

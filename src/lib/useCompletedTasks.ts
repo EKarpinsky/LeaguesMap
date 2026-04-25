@@ -107,6 +107,15 @@ export interface UseCompletedTasks {
   setCompleted: (taskId: string, value: boolean) => void;
   markMany: (taskIds: Iterable<string>) => void;
   clearMany: (taskIds: Iterable<string>) => void;
+  /**
+   * Replace the entire completion set in one shot. Used by the RuneLite
+   * sync flow where the imported export is the authoritative source of
+   * truth and any stale local ticks should be wiped — semantically
+   * different from `markMany` (union) so the sync result is predictable
+   * and idempotent: re-syncing the same export always yields the same
+   * state, regardless of what was in localStorage before.
+   */
+  replaceAll: (taskIds: Iterable<string>) => void;
   resetAll: () => void;
   stats: ProgressStats;
 }
@@ -216,6 +225,17 @@ export function useCompletedTasks(): UseCompletedTasks {
     });
   }, []);
 
+  const replaceAll = useCallback(
+    (taskIds: Iterable<string>) => {
+      const next = new Set<string>();
+      for (const id of taskIds) {
+        if (validIds.has(id)) next.add(id);
+      }
+      setCompletedSet(next);
+    },
+    [validIds],
+  );
+
   const resetAll = useCallback(() => {
     setCompletedSet(new Set());
   }, []);
@@ -252,6 +272,7 @@ export function useCompletedTasks(): UseCompletedTasks {
     setCompleted,
     markMany,
     clearMany,
+    replaceAll,
     resetAll,
     stats,
   };

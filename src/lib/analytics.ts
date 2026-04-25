@@ -191,4 +191,30 @@ export const analytics = {
   aboutDialogOpened(): void {
     send("about_dialog_opened");
   },
+
+  /** "Sync from RuneLite" button clicked (opens the import dialog). */
+  syncDialogOpened(): void {
+    send("sync_dialog_opened");
+  },
+
+  /**
+   * RuneLite Tasks Tracker import resolved. We capture both the parser
+   * outcome and (on success) the bit-decoded task count so the dashboard
+   * can surface "average completion at sync time" without us ever
+   * sending the actual RSN or task IDs. `unknownIds` flags exports that
+   * reference task bits we don't have in our manifest — a real-world
+   * canary for "Jagex shipped a weekly content drop and we haven't
+   * re-scraped yet."
+   */
+  syncImportApplied(p: {
+    status: "success" | "parse_error" | "decode_error";
+    completedCountBefore: number;
+    completedCountAfter: number;
+    matchedTasks: number;
+    unknownIds: number;
+    varpsCovered: number;
+    inputSource: "paste" | "file";
+  }): void {
+    send("sync_import_applied", p);
+  },
 };

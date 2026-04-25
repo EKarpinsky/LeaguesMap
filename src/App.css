@@ -372,6 +372,166 @@
   color: #f5b8a2;
 }
 
+/* RuneLite sync dialog. Reuses .bug-dialog skeleton + a few extras for
+   the multi-step body (instructions, paste/file inputs, live preview).
+   Sized a touch wider than the bug-report dialog because the instructions
+   are 3 numbered steps and the preview is 3 lines. */
+.sync-dialog {
+  max-width: 540px;
+}
+.sync-dialog-blurb {
+  flex: 0 0 auto;
+  padding: 6px 18px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #c0c0c8;
+}
+.sync-dialog-blurb p {
+  margin: 0 0 10px;
+}
+.sync-dialog-blurb a {
+  color: #d8d8e0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.sync-dialog-blurb a:hover,
+.sync-dialog-blurb a:focus-visible {
+  color: #ffffff;
+  outline: none;
+}
+.sync-steps {
+  margin: 0 0 4px;
+  padding-left: 22px;
+  font-size: 12.5px;
+  color: #b3b3bc;
+}
+.sync-steps li {
+  margin: 0 0 4px;
+  line-height: 1.45;
+}
+.sync-steps li strong {
+  color: #e8e8ea;
+  font-weight: 600;
+}
+
+.sync-dialog-input {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 0 0;
+}
+.sync-dialog-textarea {
+  margin-bottom: 0;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 12px;
+  min-height: 90px;
+}
+.sync-dialog-or {
+  margin: 0 16px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #56566a;
+  text-align: center;
+}
+.sync-dialog-or::before,
+.sync-dialog-or::after {
+  content: "";
+  display: inline-block;
+  width: 22%;
+  height: 1px;
+  background: #25252f;
+  vertical-align: middle;
+  margin: 0 10px;
+}
+.sync-dialog-file {
+  margin: 0 16px 4px;
+  padding: 8px 10px;
+  background: #0d0d13;
+  border: 1px dashed #2c2c38;
+  border-radius: 8px;
+  color: #b0b0bc;
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+.sync-dialog-file:hover:not(:disabled) {
+  border-color: #4a4a5a;
+  background: #11111a;
+}
+.sync-dialog-file:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.sync-dialog-file::file-selector-button {
+  margin-right: 10px;
+  padding: 4px 10px;
+  background: #1f1f29;
+  color: #d8d8e0;
+  border: 1px solid #2c2c38;
+  border-radius: 5px;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sync-dialog-file::file-selector-button:hover {
+  background: #2a2a36;
+  border-color: #3a3a48;
+}
+
+.sync-dialog-preview {
+  margin: 12px 16px 4px;
+  padding: 10px 12px;
+  background: rgba(196, 114, 74, 0.06);
+  border: 1px solid rgba(196, 114, 74, 0.25);
+  border-radius: 8px;
+  color: #d8d8e0;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.sync-dialog-preview-head {
+  font-weight: 600;
+  color: #e8e8ea;
+  margin-bottom: 6px;
+}
+.sync-dialog-preview-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.sync-dialog-preview-meta {
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: #8a8a98;
+}
+.sync-dialog-num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #e8e8ea;
+}
+.sync-dialog-num.diff-add {
+  color: #8fc878;
+}
+.sync-dialog-num.diff-rem {
+  color: #e07a5f;
+}
+.sync-dialog-error {
+  margin-top: 8px;
+}
+.sync-dialog-foot {
+  margin-top: 12px;
+}
+.sync-dialog-foot-note {
+  font-size: 11.5px;
+  color: #6e6e7c;
+}
+
 /* Phones — make the modal full-width with comfy touch targets. */
 @media (max-width: 480px) {
   .bug-dialog {
@@ -383,6 +543,13 @@
   }
   .bug-dialog-btn {
     padding: 9px 14px;
+  }
+  .sync-steps {
+    font-size: 12px;
+  }
+  .sync-dialog-or::before,
+  .sync-dialog-or::after {
+    width: 16%;
   }
 }
 
