@@ -214,6 +214,27 @@ function TaskRow({
       ? getLocation(placement.locations[0])
       : undefined;
 
+  // Some scraped tasks repeat the same (skill, level) pair — e.g. the
+  // wiki lists "Attack 70" twice for "Equip a Piece of any Barrows
+  // Armour Set" because each set in the OR list copies the same Attack
+  // requirement. Render-time dedupe keeps the chip row clean AND
+  // resolves the React duplicate-key warning. Same-skill-different-level
+  // entries (e.g. Hunter 29/47/59/67/79 for the salamander OR list)
+  // ARE preserved — those represent meaningfully distinct alternative
+  // paths and the player wants to see all of them.
+  const skillRequirements = task.skillRequirements;
+  const dedupedRequirements = useMemo(() => {
+    const seen = new Set<string>();
+    const out: typeof skillRequirements = [];
+    for (const r of skillRequirements) {
+      const k = `${r.skill}-${r.level}`;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.push(r);
+    }
+    return out;
+  }, [skillRequirements]);
+
   // Non-spatial tasks have no pin to jump to. Clicking them would only
   // highlight the already-visible row and do nothing on the map, so we
   // render them as plain, non-interactive cards. `onSelectTask` /
@@ -311,9 +332,9 @@ function TaskRow({
             )}
           </span>
         )}
-        {task.skillRequirements.map((r) => (
+        {dedupedRequirements.map((r) => (
           <span
-            key={r.skill}
+            key={`${r.skill}-${r.level}`}
             className="req-chip"
             title={`${r.skill} ${r.level}`}
           >

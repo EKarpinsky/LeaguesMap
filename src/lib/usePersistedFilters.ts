@@ -164,10 +164,37 @@ export interface UsePersistedFilters {
   setFilters: (updater: (prev: FilterState) => FilterState) => void;
 }
 
+/**
+ * Stable string key for a FilterState. Two states with the same key are
+ * equivalent for storage purposes — used by the persist effect to skip
+ * idempotent re-writes and by the cross-tab listener to detect "no real
+ * change". `search` is intentionally excluded because we never persist
+ * it (see header), so flipping it shouldn't cause a write or a sync.
+ */
+function filtersIdentity(f: FilterState): string {
+  return [
+    [...f.regions].sort().join("|"),
+    [...f.difficulties].sort().join("|"),
+    f.pactOnly ? 1 : 0,
+    f.includeUnmappable ? 1 : 0,
+    f.includeCentroidFallbacks ? 1 : 0,
+    f.hideCompleted ? 1 : 0,
+    Object.keys(f.skillMin)
+      .sort()
+      .map((k) => `${k}:${f.skillMin[k] ?? 0}`)
+      .join(","),
+  ].join("§");
+}
+
 export function usePersistedFilters(): UsePersistedFilters {
   const [filters, setFiltersState] = useState<FilterState>(() => readInitial());
 
-  const lastWrittenRef = useRef<string | null>(null);
+  // Identity of the filter state we last wrote. Same role as
+  // `lastPersistedIdsRef` in useCompletedTasks — guards against the
+  // updatedAt-driven cross-tab ping-pong loop. See useCompletedTasks
+  // header comment for the full story; the failure mode is identical
+  // (a recent local toggle gets reverted by an echo from another tab).
+  const lastPersistedIdentityRef = useRef<string | null>(null);
   const debounceRef = useRef<number | null>(null);
 
   // Debounced persist + beforeunload flush. Same shape as
@@ -175,10 +202,14 @@ export function usePersistedFilters(): UsePersistedFilters {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const flush = () => {
-      const json = JSON.stringify(serializeFilters(filters));
-      lastWrittenRef.current = json;
+      const identity = filtersIdentity(filters);
+      if (identity === lastPersistedIdentityRef.current) return;
       try {
-        window.localStorage.setItem(STORAGE_KEY, json);
+        window.localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(serializeFilters(filters)),
+        );
+        lastPersistedIdentityRef.current = identity;
       } catch {
         // Quota / private mode — silent failure beats crashing.
       }
@@ -202,11 +233,12 @@ export function usePersistedFilters(): UsePersistedFilters {
 
   // Cross-tab sync. If a sibling tab toggles a filter, mirror it here so
   // both windows agree about "what am I looking at" without polling.
+  // Identity-equality guard breaks the ping-pong loop and prevents a
+  // stale-echo from clobbering a fresh local edit.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const onStorage = (e: StorageEvent) => {
       if (e.key !== STORAGE_KEY) return;
-      if (e.newValue === lastWrittenRef.current) return;
       let parsed: unknown;
       try {
         parsed = e.newValue ? JSON.parse(e.newValue) : null;
@@ -215,9 +247,13 @@ export function usePersistedFilters(): UsePersistedFilters {
       }
       const hydrated = hydrateFilters(parsed);
       if (!hydrated) return;
-      // Preserve the local search box across cross-tab sync — typing
-      // in tab A shouldn't blow away your half-finished query in tab B.
-      setFiltersState((prev) => ({ ...hydrated, search: prev.search }));
+      setFiltersState((prev) => {
+        // Preserve the local search box across cross-tab sync — typing
+        // in tab A shouldn't blow away your half-finished query in tab B.
+        const merged = { ...hydrated, search: prev.search };
+        if (filtersIdentity(prev) === filtersIdentity(merged)) return prev;
+        return merged;
+      });
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);

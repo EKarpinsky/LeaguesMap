@@ -24,9 +24,27 @@ import type { Task } from "../types";
  *
  * Cross-tab sync:
  *   - The `storage` event fires in OTHER tabs when localStorage is written.
- *     Two browser windows of the map stay in sync without polling. The
- *     listener guards against re-emitting our own writes by snapshotting
- *     the JSON we just wrote and ignoring matching incoming events.
+ *     Two browser windows of the map stay in sync without polling.
+ *   - Idempotency is critical here. The naive guard "ignore events whose
+ *     newValue matches what we just wrote" sounds sufficient — but the
+ *     payload carries `updatedAt`, which makes every write produce a
+ *     different JSON string. Without semantic equality, two tabs ping-pong
+ *     forever: Tab A writes → Tab B's listener fires → setCompletedSet
+ *     with the parsed state → Tab B's persist effect writes (new
+ *     timestamp) → Tab A's listener fires → setCompletedSet → ...
+ *
+ *     This loop is more than a perf paper-cut. If a tab's React state is
+ *     even slightly stale relative to a click the user just made in the
+ *     OTHER tab, the loop's next storage event will REVERT that click —
+ *     the user sees their checkbox quickly tick then untick (real bug
+ *     report: "clicking complete on a task quickly unclicks itself").
+ *
+ *     We break the loop on both ends:
+ *       1. Persist skips writes whose ID set matches what we last wrote
+ *          (no more echo from `updatedAt` drift).
+ *       2. Cross-tab listener skips updates whose ID set already matches
+ *          our current state (covers concurrent races where the persist
+ *          guard didn't fire yet in the other tab).
  *
  * Debounced writes:
  *   - Toggling 50 tasks in a burst should result in 1 localStorage write,
@@ -129,26 +147,33 @@ export function useCompletedTasks(): UseCompletedTasks {
     readInitialFromStorage(validIds),
   );
 
-  // Last JSON we wrote; used to ignore the storage event we trigger on
-  // ourselves. (The standard `storage` event only fires in OTHER tabs in
-  // most browsers, but Safari/Firefox quirks have shipped that fired in
-  // the writing tab too — this guard makes us robust to either.)
-  const lastWrittenRef = useRef<string | null>(null);
+  // The set of IDs (sorted, joined) we last wrote to localStorage. Used
+  // to make persist idempotent — if `completed` changed reference but the
+  // ID set is identical to our last write (e.g. cross-tab listener gave
+  // us a fresh Set with the same contents), we skip the storage write.
+  // Without this, two tabs ping-pong forever via `updatedAt` drift; see
+  // header comment.
+  const lastPersistedIdsRef = useRef<string | null>(null);
   const debounceRef = useRef<number | null>(null);
 
   // Persist on change (debounced + flushed on unmount/unload).
   useEffect(() => {
     if (typeof window === "undefined") return;
     const flush = () => {
+      const sortedIds = [...completed].sort();
+      const idsKey = sortedIds.join(",");
+      // Idempotency: if the ID set hasn't changed since our last write,
+      // do not emit a fresh storage event (which would just bump
+      // `updatedAt` and trigger another tab's listener for no reason).
+      if (idsKey === lastPersistedIdsRef.current) return;
       const payload: StoredProgress = {
         version: SCHEMA_VERSION,
-        completed: [...completed].sort(),
+        completed: sortedIds,
         updatedAt: new Date().toISOString(),
       };
-      const json = JSON.stringify(payload);
-      lastWrittenRef.current = json;
       try {
-        window.localStorage.setItem(STORAGE_KEY, json);
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        lastPersistedIdsRef.current = idsKey;
       } catch {
         // Quota exceeded / private mode — silent failure beats crashing.
       }
@@ -171,14 +196,24 @@ export function useCompletedTasks(): UseCompletedTasks {
     };
   }, [completed]);
 
-  // Cross-tab sync via the storage event.
+  // Cross-tab sync via the storage event. Only apply when the incoming
+  // ID set differs from what we already have — see header comment for
+  // why structural equality matters (timestamp drift would otherwise
+  // cause a revert of the user's most recent local click).
   useEffect(() => {
     if (typeof window === "undefined") return;
     const onStorage = (e: StorageEvent) => {
       if (e.key !== STORAGE_KEY) return;
-      if (e.newValue === lastWrittenRef.current) return;
       const next = parseStored(e.newValue, validIds);
-      setCompletedSet(next);
+      setCompletedSet((prev) => {
+        if (prev.size !== next.size) return next;
+        for (const id of prev) {
+          if (!next.has(id)) return next;
+        }
+        // Structurally equal — keep the existing reference so React
+        // skips the re-render and the persist effect doesn't re-fire.
+        return prev;
+      });
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
