@@ -850,6 +850,18 @@ export const LOCATIONS: WorldLocation[] = [
   L("runite-mining-guild", "Runite Rocks — Mining Guild", 3019, 3339, "Asgarnia", "resource",
     ["runite"],
     "Runite in expanded Mining Guild"),
+  // Wilderness + Tirannwn runite rock anchors. The "Mine some Runite ore
+  // in the Wilderness / Tirannwn" tasks were resolving to the Asgarnia
+  // Mining Guild because no same-region runite landmark existed and the
+  // landmark resolver fell through to the all-region scan, picking up
+  // the Mining Guild's "runite" alias. Coords are the wiki LocLines on
+  // [[Runite rocks]] for the iconic surface mines in each region.
+  L("runite-lava-maze", "Runite Rocks — Lava Maze", 3059, 3885, "Wilderness", "resource",
+    ["runite", "runite ore", "runite rocks"],
+    "Lava Maze runite mine, level ~45 wildy (the canonical free-to-mine wildy rune rocks)"),
+  L("runite-isafdar", "Runite Rocks — Isafdar", 2280, 3160, "Tirannwn", "resource",
+    ["runite", "runite ore", "runite rocks"],
+    "Isafdar surface runite rocks, west of the Lletya path"),
   L("silver-mine-crafting-guild", "Silver Rocks — Crafting Guild", 2932, 3281, "Asgarnia", "resource",
     ["silver ore"],
     "Crafting guild silver"),

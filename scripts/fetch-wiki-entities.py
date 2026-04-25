@@ -91,6 +91,16 @@ SKIP_TITLES: set[str] = {
     "bounty hunter", "last man standing",
     "tzhaar-ket-rak's challenges",
     "god wars dungeon",  # we have gwd landmark
+    # `[[Evil twin|Postie Pete random event]]` — the Demonic Pacts wiki
+    # task list pipes "Postie Pete random event" through the `Evil twin`
+    # page, which has 32 spawn LocLines scattered across every region.
+    # The resulting entity gets pinned in Karamja, Kandarin, and Asgarnia
+    # (Rimmington) for the SINGLE Postie Pete task, which is total noise
+    # — Postie Pete is a wandering random event that can fire anywhere
+    # the player is, with no fixed task location. Skipping makes the
+    # task fall through to "no pin, still in task list" (correct for
+    # General-region random-event tasks with no actionable map position).
+    "evil twin",
 }
 
 
