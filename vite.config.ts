@@ -79,7 +79,12 @@ function devApiBridge(): Plugin {
 export default defineConfig({
   plugins: [react(), devApiBridge()],
   build: {
-    sourcemap: true,
+    // "hidden" emits .map files for our own debugging but does NOT add
+    // the `//# sourceMappingURL=` comment to the bundled JS, so browsers
+    // (and curious visitors) won't auto-fetch them. Avoids shipping the
+    // full TypeScript source — including dev comments — to anyone who
+    // pops open devtools.
+    sourcemap: "hidden",
     // The `data` chunk ships tasks.json + the build-time-resolved
     // placements/locations JSON (~1 MB raw, ~120 KB gzip). Gated to its
     // own chunk below so app-code changes don't bust the data cache.

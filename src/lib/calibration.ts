@@ -257,8 +257,15 @@ export const INITIAL_VIEW = {
    * downscale a 1-tile image further; not useful.
    */
   minZoom: 0,
-  /** Native pixel density. See `maxNativeZoom`. */
-  maxZoom: MAP_IMAGE.maxNativeZoom,
+  /**
+   * One step beyond `maxNativeZoom` (5 → 6). Leaflet will upscale the
+   * deepest pre-rendered tile by 2× client-side at this level — slightly
+   * blurry, but the user wanted a bit more zoom-in headroom for
+   * inspecting tightly-packed pins. The base layer's `maxNativeZoom`
+   * (set in MapView) tells Leaflet to keep serving the z=5 tiles
+   * upscaled rather than 404'ing on z=6 tile requests.
+   */
+  maxZoom: MAP_IMAGE.maxNativeZoom + 1,
   /**
    * Drop the user into Civitas illa Fortis (Varlamore's capital) on
    * page load. This is the league's home region — the Demonic Pacts

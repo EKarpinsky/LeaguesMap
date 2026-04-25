@@ -115,7 +115,7 @@ function buildPopupContent(
   el.innerHTML = `
     <div class="pin-popup-header">
       <div class="pin-popup-name">${escapeHtml(loc.name)}</div>
-      <div class="pin-popup-meta">${regionBadge}<span>${loc.region} · ${countLabel}</span></div>
+      <div class="pin-popup-meta">${regionBadge}<span>${escapeHtml(loc.region)} · ${countLabel}</span></div>
       ${loc.blurb ? `<div class="pin-popup-blurb">${escapeHtml(loc.blurb)}</div>` : ""}
     </div>
     <ul class="pin-popup-list"></ul>
@@ -255,7 +255,7 @@ export default function MapView({
       noWrap: true,
       bounds,
       attribution:
-        'Map © <a href="https://oldschool.runescape.wiki/w/World_map" target="_blank" rel="noreferrer">OSRS Wiki</a>',
+        'Map © <a href="https://oldschool.runescape.wiki/w/World_map" target="_blank" rel="noopener noreferrer">OSRS Wiki</a>',
       // Keep tiles around briefly while panning so scroll-back doesn't
       // re-fetch the same images. Two extra rings is enough to cover
       // most momentum scrolls without bloating memory on low-RAM phones.
