@@ -370,13 +370,14 @@ CURATED_ENTITIES: dict[str, dict] = {
     # which is what triggered the user's "Defeat the Mimic" task to fall
     # back to the Kourend region centroid).
     "the mimic":                 {"anchor": "Watson",                 "category": "boss"},
-    # The [[Phantom Muspah]] wiki page tags `leagueRegion = fremennik`.
-    # Lair is accessed via Weiss → Salt Mine → Ghorrock Dungeon, so we
-    # anchor at Weiss (the surface entry) instead of Ancient Cavern
-    # (Baxtorian Falls in Kandarin) to keep the pin in the right region.
-    # Belt-and-suspenders LR override in case Weiss anchor coords drift.
-    "phantom muspah":            {"anchor": "Weiss",                  "category": "boss",
-                                  "leagueRegion": "Fremennik"},
+    # Phantom Muspah is intentionally NOT a curated entity — the
+    # `ghorrock-dungeon` landmark in src/data/locations.ts already
+    # carries the Muspah aliases AND every drop the player goes there
+    # for (Ancient Sceptre, Ice Ancient Sceptre, Ancient Essence). A
+    # second curated entity would split those tasks across two pins
+    # ~75 game tiles apart in the same region. The landmark is at the
+    # actual dungeon entrance (2977, 3896) and tagged Fremennik, which
+    # matches the wiki's `leagueRegion = fremennik` for the Muspah.
 
     # ───── Dagannoth Kings (Waterbirth) ─────
     "dagannoth kings":          {"anchor": "Waterbirth Island",       "category": "boss"},

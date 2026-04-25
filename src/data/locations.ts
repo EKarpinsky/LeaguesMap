@@ -896,11 +896,21 @@ export const LOCATIONS: WorldLocation[] = [
      "god book", "damaged god book", "completed god book",
      "book of balance", "holy book", "book of darkness", "unholy book"],
     "Lighthouse north of Barbarian Outpost (God Books from Horror from the Deep)"),
-  L("ghorrock-dungeon", "Ghorrock Dungeon", 2977, 3896, "Fremennik", "dungeon",
-    ["ghorrock", "ghorrock dungeon", "ancient essence", "phantom muspah",
-     "ancient sceptre", "ice ancient sceptre", "shadow ancient sceptre",
-     "ghorrock teleport"],
-    "Ghorrock fortress in deep Wilderness (Phantom Muspah, Ancient Essence)"),
+  // Anchored at Weiss / Salt Mine entry (the actual surface entry the
+  // player uses to reach the Muspah's chamber via Ghorrock Dungeon),
+  // NOT the deep-Wilderness Ghorrock fortress proper. The fortress
+  // coord (~2977, 3896) sits well outside the Fremennik area on the
+  // map and visually splits the Muspah pin from where the player
+  // actually walks in. Bare "ghorrock" and "ghorrock teleport" are
+  // intentionally NOT in the alias list — they whole-word-matched
+  // "Craft a Ghorrock Teleport Tablet" (wiki-tagged Desert) and put
+  // a Desert-badged pin on a Fremennik landmark. The remaining
+  // aliases catch every Muspah-related task (boss kills, CA, Ancient
+  // Sceptre line, Mine Ancient Essence) on a single pin.
+  L("ghorrock-dungeon", "Phantom Muspah", 2870, 3940, "Fremennik", "boss",
+    ["ghorrock dungeon", "ancient essence", "phantom muspah",
+     "ancient sceptre", "ice ancient sceptre", "shadow ancient sceptre"],
+    "Phantom Muspah's lair, accessed via Weiss → Salt Mine → Ghorrock Dungeon (Ancient Sceptre, Ancient Essence)"),
 
   // ─────────────── Additional quest/activity anchors ───────────────
   L("sorceress-garden", "Sorceress's Garden", 3320, 3141, "Desert", "minigame",

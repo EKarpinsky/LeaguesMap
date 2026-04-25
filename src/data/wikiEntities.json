@@ -23269,28 +23269,6 @@
     "x": 2658,
     "y": 2625
   },
-  "phantom muspah": {
-    "allSpawns": [
-      [
-        2870,
-        3940
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Fremennik",
-    "note": "Weiss",
-    "resolvedTitle": "Phantom Muspah",
-    "source": "curated",
-    "spawnNotes": [
-      "Weiss"
-    ],
-    "spawnRegions": [
-      "Fremennik"
-    ],
-    "title": "Phantom Muspah",
-    "x": 2870,
-    "y": 3940
-  },
   "phosani's nightmare": {
     "allSpawns": [
       [
