@@ -668,8 +668,7 @@ function App() {
                 >
                   Tasks Tracker
                 </a>{" "}
-                RuneLite plugin. Everything runs in your browser — no
-                accounts, no servers, no data ever leaves this tab.
+                RuneLite plugin.
               </p>
               <ol className="sync-steps">
                 <li>
