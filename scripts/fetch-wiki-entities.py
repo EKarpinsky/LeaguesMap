@@ -591,6 +591,37 @@ _EMPTY_LEAGUE_FLAG_THEN_MAP_RE = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 
+# Wikitable row delimiters and the leading wikilink in a row's first
+# cell. Together these let us trace any Map template back to the
+# location it represents (e.g. "Falador") on older-format Locations
+# tables that pre-date the leagues-global-flag column. The runtime
+# then resolves that location string against the entities dict to
+# inherit a wiki-grounded leagueRegion — same data path as a
+# `{{LeagueRegion|X}}` tag, just sourced from the row's location
+# wikilink instead of a sibling cell.
+_TABLE_ROW_DELIM_RE = re.compile(r"\n\|-")
+_TABLE_ROW_LOCATION_LINK_RE = re.compile(
+    r"\|\s*\[\[([^\]\|\n]+?)(?:\|[^\]\n]+)?\]\]"
+)
+
+# Detects a {{Map}} template whose preceding `leagues-global-flag` table
+# cell carries a `{{LeagueRegion|X}}` tag. Wikitable-style "Locations"
+# sections (Furnace, Anvil, Fairy rings, Port master, …) follow this
+# layout for every row:
+#   |class="leagues-global-flag"|{{LeagueRegion|Kandarin}}
+#   |{{Map|type=maplink|mtype=pin|x=2342|y=3678|zoom=3}}
+# Without pairing the two, the per-row leagueRegion is invisible to
+# `parse_coords` (which only reads `leagueRegion=` parameters that live
+# *inside* the Map/LocLine template body), and every Map coord ends up
+# falling through to bbox classification — which mis-tags Piscatoris's
+# furnace as "Fremennik", Edgeville's anvil as "Wilderness", etc.
+# Pair-up is keyed on the {{Map}} template's start offset so we can
+# attach the region downstream without re-walking the wikitext.
+_LEAGUE_FLAG_THEN_MAP_RE = re.compile(
+    r'class="leagues-global-flag"\|\s*\{\{LeagueRegion\|([A-Za-z][A-Za-z\' ]*)\}\}\s*\n[ \t]*\|\s*(\{\{Map\b[^{}]*?(?:\{\{[^{}]*\}\}[^{}]*?)*\}\})',
+    re.IGNORECASE | re.DOTALL,
+)
+
 # Coords known to be Sailing / post-launch content that the wiki doesn't
 # tag with `leagueRegion = N/A` and that fall outside the empty-flag
 # pattern above. Empirical fallback for cases the structural detection
@@ -701,6 +732,36 @@ def parse_coords(wt: str) -> list[dict]:
     for tm in _EMPTY_LEAGUE_FLAG_THEN_MAP_RE.finditer(wt):
         tainted_template_starts.add(tm.start(1))
 
+    # Pre-scan: build a `{{Map}} start offset → leagueRegion` map for
+    # every wikitable row that pairs a `{{LeagueRegion|X}}` cell with a
+    # following `{{Map|...}}` cell. The downstream attachment keeps the
+    # per-row tag flowing through to spawnRegions even though the Map
+    # template itself has no `leagueRegion=` parameter.
+    flagged_template_regions: dict[int, str] = {}
+    for tm in _LEAGUE_FLAG_THEN_MAP_RE.finditer(wt):
+        flagged_template_regions[tm.start(2)] = tm.group(1).strip()
+
+    # Pre-scan: build a `{{Map}} start offset → row location title` map
+    # for older-format Locations tables that lack the leagues-global-
+    # flag column. The location title is the FIRST wikilink in the
+    # current table row (counted backward from the template to the
+    # nearest `|-` delimiter). Resolved to a leagueRegion in a second
+    # pass once all entities have been parsed — see
+    # `apply_row_location_regions` below.
+    row_delim_offsets = [m.end() for m in _TABLE_ROW_DELIM_RE.finditer(wt)]
+    row_delim_offsets.insert(0, 0)
+
+    def _row_location_for(template_start: int) -> str | None:
+        last_delim = 0
+        for off in row_delim_offsets:
+            if off <= template_start:
+                last_delim = off
+            else:
+                break
+        row_segment = wt[last_delim:template_start]
+        m = _TABLE_ROW_LOCATION_LINK_RE.search(row_segment)
+        return m.group(1).strip() if m else None
+
     out: list[dict] = []
     for m in _TEMPLATE_RE.finditer(wt):
         kind = m.group(1).lower()
@@ -711,6 +772,10 @@ def parse_coords(wt: str) -> list[dict]:
         location: str = ""
         league_region: str | None = None
         is_empty_flag_tainted = m.start() in tainted_template_starts
+        flagged_region: str | None = flagged_template_regions.get(m.start())
+        row_location: str | None = (
+            _row_location_for(m.start()) if kind == "map" else None
+        )
         xs: list[tuple[int, int]] = []
         inline_x: int | None = None
         inline_y: int | None = None
@@ -754,7 +819,21 @@ def parse_coords(wt: str) -> list[dict]:
         # `is_surface_pin` drops every coord this template emits — same
         # outcome as if the wiki author had explicitly written
         # `leagueRegion = N/A`, just inferred from the table structure.
-        effective_league_region = "N/A" if is_empty_flag_tainted else league_region
+        # Resolution priority for this template's effective region:
+        #   1. Empty `leagues-global-flag` row    → forced "N/A"
+        #      (drops Sailing / post-launch coords).
+        #   2. Inline `leagueRegion=` parameter   → highest signal,
+        #      author wrote it directly on the template.
+        #   3. Adjacent `{{LeagueRegion|X}}` cell → wikitable row tag,
+        #      paired by `_LEAGUE_FLAG_THEN_MAP_RE`. This is what
+        #      rescues every multi-location wikitable (Furnace, Anvil,
+        #      Fairy rings, Port master, …) from bbox-guessing.
+        if is_empty_flag_tainted:
+            effective_league_region = "N/A"
+        elif league_region:
+            effective_league_region = league_region
+        else:
+            effective_league_region = flagged_region
         seen: set[tuple[int, int]] = set()
         for (x, y) in xs:
             if (x, y) in seen:
@@ -765,6 +844,9 @@ def parse_coords(wt: str) -> list[dict]:
                 "plane": plane, "mapID": mapID,
                 "kind": kind, "location": location,
                 "leagueRegion": effective_league_region,
+                # Carry the row's location wikilink so the post-pass
+                # can resolve a leagueRegion for old-format tables.
+                "rowLocation": row_location,
             })
     return out
 
@@ -989,7 +1071,7 @@ def main() -> int:
         # the runtime trust the wiki instead of bbox-misclassifying the
         # spawn into Fremennik.
         all_surface_with_lr = [
-            (c["x"], c["y"], c.get("leagueRegion"))
+            (c["x"], c["y"], c.get("leagueRegion"), c.get("rowLocation"))
             for c in coords if is_surface_pin(c)
         ]
         # de-dupe preserving order; on duplicate (x, y) the first
@@ -997,12 +1079,14 @@ def main() -> int:
         seen_xy: set[tuple[int, int]] = set()
         all_spawns: list[list[int]] = []
         spawn_regions: list[str | None] = []
-        for (sx, sy, slr) in all_surface_with_lr:
+        spawn_row_locations: list[str | None] = []
+        for (sx, sy, slr, srow) in all_surface_with_lr:
             if (sx, sy) in seen_xy:
                 continue
             seen_xy.add((sx, sy))
             all_spawns.append([sx, sy])
             spawn_regions.append(slr)
+            spawn_row_locations.append(srow)
         entry = {
             "title": title,
             "resolvedTitle": resolved,
@@ -1018,6 +1102,10 @@ def main() -> int:
         # whose LocLines never use the leagueRegion parameter.
         if any(r is not None for r in spawn_regions):
             entry["spawnRegions"] = spawn_regions
+        # Stash row-location strings transiently for the post-pass.
+        # Stripped from the final JSON before emission.
+        if any(loc is not None for loc in spawn_row_locations):
+            entry["__spawnRowLocations"] = spawn_row_locations
         entities[title.lower()] = entry
         hits += 1
 
@@ -1257,6 +1345,112 @@ def main() -> int:
         e["allSpawns"] = [[nx, ny]]
         coord_overrides_applied += 1
     print(f"Entity coord overrides applied: {coord_overrides_applied}")
+
+    # -------------------------------------------------------------------
+    # Post-pass: derive `spawnRegions[i]` for spawns that lacked a wiki
+    # tag by looking up the row's location wikilink against the entities
+    # we just built. Powers older-format Locations tables (Anvil, Fairy
+    # rings, Port master, etc.) which list each row as `|[[Falador]]`
+    # without the modern `{{LeagueRegion|X}}` cell. The lookup chain is
+    # ENTIRELY wiki-sourced — we never fabricate a region — so a missing
+    # location entry simply leaves the spawn untagged and falls through
+    # to bbox in the runtime, same as before.
+    # -------------------------------------------------------------------
+    region_lookup: dict[str, str] = {}
+    # Seed with self-named region pages: a wikilink named "Wilderness"
+    # in a Locations row obviously IS the Wilderness region. Without
+    # this seed the Wilderness wiki page itself contributes no
+    # leagueRegion (no infobox) and the lookup falls through.
+    for canonical_region in (
+        "Misthalin", "Asgarnia", "Karamja", "Kandarin", "Fremennik",
+        "Tirannwn", "Wilderness", "Morytania", "Kourend", "Varlamore",
+        "Desert", "General",
+    ):
+        region_lookup[canonical_region.lower()] = canonical_region
+    for key, ent in entities.items():
+        lr = ent.get("leagueRegion")
+        if lr:
+            region_lookup[key] = lr
+            resolved = (ent.get("resolvedTitle") or "").lower()
+            if resolved and resolved not in region_lookup:
+                region_lookup[resolved] = lr
+
+    # First-resolve pass: fill from existing entities.
+    def _resolve_row_locations() -> tuple[int, dict[str, int]]:
+        filled = 0
+        unresolved: dict[str, int] = {}
+        for ent in entities.values():
+            row_locs = ent.get("__spawnRowLocations")
+            if not row_locs:
+                continue
+            spawn_regions = ent.get("spawnRegions") or [None] * len(row_locs)
+            if len(spawn_regions) != len(row_locs):
+                continue
+            changed = False
+            for i, loc in enumerate(row_locs):
+                if spawn_regions[i] is not None or not loc:
+                    continue
+                lr = region_lookup.get(loc.lower())
+                if lr:
+                    spawn_regions[i] = lr
+                    changed = True
+                    filled += 1
+                else:
+                    unresolved[loc] = unresolved.get(loc, 0) + 1
+            if changed and any(r is not None for r in spawn_regions):
+                ent["spawnRegions"] = spawn_regions
+        return filled, unresolved
+
+    rowloc_filled, rowloc_unresolved = _resolve_row_locations()
+    print(f"Row-location pass 1: filled {rowloc_filled} per-spawn regions from existing entities")
+
+    # Second-resolve pass: fetch the wiki pages for any row-location
+    # names we couldn't resolve from the entities dict (these are canon
+    # location pages that aren't task-referenced themselves — Lovakengj,
+    # Hemenster, Outer Fortis, …). Extract their infobox leagueRegion
+    # and re-run the resolver. This closes the long tail without
+    # introducing any guesswork.
+    if rowloc_unresolved:
+        unresolved_titles = sorted(
+            t for t in rowloc_unresolved
+            if t.lower() not in region_lookup and not should_skip(t)
+        )
+        print(f"  Fetching {len(unresolved_titles)} additional location pages...")
+        loc_wt: dict[str, str] = {}
+        loc_resolved_map: dict[str, str] = {}
+        for i in range(0, len(unresolved_titles), BATCH_SIZE):
+            batch = unresolved_titles[i:i + BATCH_SIZE]
+            try:
+                wt_by_resolved, orig_to_res, _missing = fetch_batch(batch)
+            except Exception as e:
+                print(f"    batch failed: {e}")
+                continue
+            loc_wt.update(wt_by_resolved)
+            loc_resolved_map.update(orig_to_res)
+            time.sleep(0.3)
+        added = 0
+        for orig in unresolved_titles:
+            resolved = loc_resolved_map.get(orig, orig)
+            wt = loc_wt.get(resolved)
+            if not wt:
+                continue
+            lr = extract_league_region(wt)
+            if lr:
+                region_lookup[orig.lower()] = lr
+                region_lookup[resolved.lower()] = lr
+                added += 1
+        print(f"  Recovered {added} additional location → region mappings")
+        rowloc_filled2, rowloc_unresolved = _resolve_row_locations()
+        print(f"Row-location pass 2: filled {rowloc_filled2} more per-spawn regions")
+
+    if rowloc_unresolved:
+        top = sorted(rowloc_unresolved.items(), key=lambda kv: -kv[1])[:15]
+        print("  Final unresolved row locations:")
+        for name, n in top:
+            print(f"    {name}  × {n}")
+
+    for ent in entities.values():
+        ent.pop("__spawnRowLocations", None)
 
     print(f"Final entity count: {len(entities)}")
 
