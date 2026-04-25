@@ -10,10 +10,10 @@ import {
 import { Analytics } from "@vercel/analytics/react";
 import FilterSidebar from "./components/FilterSidebar";
 import TaskList from "./components/TaskList";
-import { defaultFilters, matchesFilter } from "./lib/filters";
-import type { FilterState } from "./lib/filters";
+import { matchesFilter } from "./lib/filters";
 import { ALL_PLACEMENTS, ALL_TASKS, getPlacement, getTask } from "./lib/taskIndex";
 import { useCompletedTasks } from "./lib/useCompletedTasks";
+import { usePersistedFilters } from "./lib/usePersistedFilters";
 import { analytics } from "./lib/analytics";
 import type { TaskSelectSource } from "./lib/analytics";
 import { parseTasksTrackerExport } from "./lib/runeliteImport";
@@ -34,18 +34,13 @@ const BUG_MAX_LEN = 5000;
 const MapView = lazy(() => import("./components/MapView"));
 
 function App() {
-  // Initial filter state honors `?q=…` from the URL so the schema.org
-  // SearchAction (declared in index.html) actually does something — Google
-  // can route sitelink-searchbox queries here, and any user with a search
-  // URL (bookmark, Discord share, etc.) lands on a pre-filtered view.
-  const [filters, setFilters] = useState<FilterState>(() => {
-    const base = defaultFilters();
-    if (typeof window === "undefined") return base;
-    const params = new URLSearchParams(window.location.search);
-    const q = params.get("q");
-    if (q && q.trim()) base.search = q.trim().slice(0, 200);
-    return base;
-  });
+  // Filter state is persisted in localStorage (lm.filters.v1) so a
+  // page reload, accidental Cmd+R, or tab discard doesn't wipe the
+  // user's curated view (region selection, tier mix, "Hide completed",
+  // skill mins). The `?q=` URL param still wins over any persisted
+  // search on initial load so the schema.org SearchAction declared in
+  // index.html (and any shared search URL) keeps working.
+  const { filters, setFilters } = usePersistedFilters();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
     null,
@@ -260,62 +255,71 @@ function App() {
     removedCount: number;
     source: SyncSource;
   }
+  // Two-layer state for the sync dialog:
+  //
+  //   1. `syncInput` / `syncInputSource` / `syncOpen` — the raw inputs.
+  //   2. `syncOverride`                                — phases that
+  //      aren't pure derivations of the input: a "the file picker
+  //      itself failed before we ever got bytes" error, and the
+  //      post-import "applied" state that lingers while the dialog
+  //      animates closed.
+  //
+  // Everything else (the parsed preview, the parse-error message, the
+  // headline status the UI keys off of) is *derived* from those inputs
+  // via useMemo below — see syncDerived / syncStatus / syncError /
+  // syncPreview. This is a pure function of state, so we don't need an
+  // effect, which lets us avoid the cascading-render anti-pattern
+  // ("Calling setState synchronously within an effect") and gives us
+  // free re-derivation when the completion set changes underneath us
+  // (e.g. user toggles a task in the sidebar with the dialog open —
+  // the +/- diff numbers update instantly).
+  type SyncOverride =
+    | { kind: "none" }
+    | { kind: "applied" }
+    | { kind: "fileError"; error: string };
   const [syncOpen, setSyncOpen] = useState(false);
   const [syncInput, setSyncInput] = useState("");
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
-  const [syncError, setSyncError] = useState<string | null>(null);
-  const [syncPreview, setSyncPreview] = useState<SyncPreview | null>(null);
   const [syncInputSource, setSyncInputSource] = useState<SyncSource>("paste");
+  const [syncOverride, setSyncOverride] = useState<SyncOverride>({
+    kind: "none",
+  });
   const syncTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const syncFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const openSyncDialog = useCallback(() => {
     analytics.syncDialogOpened();
-    setSyncStatus("idle");
-    setSyncError(null);
-    setSyncPreview(null);
+    setSyncOverride({ kind: "none" });
     setSyncOpen(true);
   }, []);
   const closeSyncDialog = useCallback(() => {
     setSyncOpen(false);
+    // Wait for the modal close animation before resetting the form so
+    // the user doesn't see fields blank out mid-transition.
     setTimeout(() => {
       setSyncInput("");
-      setSyncStatus("idle");
-      setSyncError(null);
-      setSyncPreview(null);
       setSyncInputSource("paste");
+      setSyncOverride({ kind: "none" });
     }, 200);
   }, []);
 
-  // Re-derive the diff (what would change vs. current state) whenever
-  // the input changes. We deliberately re-run on every keystroke rather
-  // than waiting for an explicit "Preview" button: parsing is fast
-  // (single JSON.parse + 62 varp loops = ~1 ms even at 1.6k tasks)
-  // and live feedback prevents the "I pasted the wrong thing and
-  // hit Apply" footgun.
-  useEffect(() => {
-    if (!syncOpen) return;
+  // Pure derivation of "what the parser would say about the current
+  // input". Live re-runs on every keystroke; parse is ~1 ms even at
+  // 1.6k tasks (single JSON.parse + 62 varp loops), so an explicit
+  // "Preview" button would be busywork that also enables the "I
+  // pasted the wrong thing and hit Apply" footgun.
+  const syncDerived = useMemo(() => {
+    if (!syncOpen) return null;
     const trimmed = syncInput.trim();
-    if (!trimmed) {
-      setSyncStatus("idle");
-      setSyncPreview(null);
-      setSyncError(null);
-      return;
-    }
+    if (!trimmed) return null;
     const result = parseTasksTrackerExport(trimmed);
-    if (!result.ok) {
-      setSyncStatus("error");
-      setSyncPreview(null);
-      setSyncError(result.error);
-      return;
+    if (result.ok === false) {
+      return { kind: "error" as const, error: result.error };
     }
     let added = 0;
     let removed = 0;
     for (const id of result.completedIds) if (!completed.has(id)) added += 1;
     for (const id of completed) if (!result.completedIds.has(id)) removed += 1;
-    setSyncStatus("previewing");
-    setSyncError(null);
-    setSyncPreview({
+    const preview: SyncPreview = {
       completedIds: result.completedIds,
       displayName: result.displayName,
       matchedTasks: result.stats.matchedTasks,
@@ -325,19 +329,47 @@ function App() {
       addedCount: added,
       removedCount: removed,
       source: syncInputSource,
-    });
+    };
+    return { kind: "preview" as const, preview };
   }, [syncInput, syncOpen, completed, syncInputSource]);
+
+  // Override beats derivation: "applied" is sticky during the auto-close
+  // window, and a file-read failure (where we never got bytes to feed
+  // the parser) needs to surface even though `syncInput` is still
+  // empty. Otherwise the headline status reflects whatever the parser
+  // thinks of the current text.
+  const syncStatus: SyncStatus =
+    syncOverride.kind === "applied"
+      ? "applied"
+      : syncOverride.kind === "fileError"
+        ? "error"
+        : syncDerived?.kind === "error"
+          ? "error"
+          : syncDerived?.kind === "preview"
+            ? "previewing"
+            : "idle";
+  const syncPreview: SyncPreview | null =
+    syncDerived?.kind === "preview" ? syncDerived.preview : null;
+  const syncError: string | null =
+    syncOverride.kind === "fileError"
+      ? syncOverride.error
+      : syncDerived?.kind === "error"
+        ? syncDerived.error
+        : null;
 
   const onSyncFilePicked = useCallback(
     async (file: File | null) => {
       if (!file) return;
       try {
         const text = await file.text();
+        setSyncOverride({ kind: "none" });
         setSyncInputSource("file");
         setSyncInput(text);
       } catch {
-        setSyncStatus("error");
-        setSyncError("Couldn't read that file. Try copy-paste instead.");
+        setSyncOverride({
+          kind: "fileError",
+          error: "Couldn't read that file. Try copy-paste instead.",
+        });
       }
     },
     [],
@@ -356,7 +388,7 @@ function App() {
       varpsCovered: syncPreview.varpsCovered,
       inputSource: syncPreview.source,
     });
-    setSyncStatus("applied");
+    setSyncOverride({ kind: "applied" });
     setTimeout(() => closeSyncDialog(), 1200);
   }, [syncPreview, completed.size, replaceAll, closeSyncDialog]);
 
@@ -701,6 +733,11 @@ function App() {
                 className="bug-dialog-textarea sync-dialog-textarea"
                 value={syncInput}
                 onChange={(e) => {
+                  // A previous file-read failure shouldn't keep showing
+                  // its error after the user starts pasting fresh JSON.
+                  if (syncOverride.kind === "fileError") {
+                    setSyncOverride({ kind: "none" });
+                  }
                   setSyncInputSource("paste");
                   setSyncInput(e.target.value);
                 }}
