@@ -120,50 +120,6 @@
     "x": 3408,
     "y": 3573
   },
-  "abyssal nexus": {
-    "allSpawns": [
-      [
-        3104,
-        3560
-      ]
-    ],
-    "category": "dungeon",
-    "leagueRegion": "General",
-    "note": "Abyss",
-    "resolvedTitle": "Abyssal Nexus",
-    "source": "curated",
-    "spawnNotes": [
-      "Abyss"
-    ],
-    "spawnRegions": [
-      "General"
-    ],
-    "title": "Abyssal Nexus",
-    "x": 3104,
-    "y": 3560
-  },
-  "abyssal sire": {
-    "allSpawns": [
-      [
-        3104,
-        3560
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "General",
-    "note": "Abyss",
-    "resolvedTitle": "Abyssal Sire",
-    "source": "curated",
-    "spawnNotes": [
-      "Abyss"
-    ],
-    "spawnRegions": [
-      "General"
-    ],
-    "title": "Abyssal Sire",
-    "x": 3104,
-    "y": 3560
-  },
   "achilka": {
     "allSpawns": [
       [
@@ -1556,28 +1512,6 @@
     "title": "Arnold Lydspor",
     "x": 2330,
     "y": 3691
-  },
-  "artio": {
-    "allSpawns": [
-      [
-        3289,
-        3885
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Wilderness",
-    "note": "Demonic Ruins",
-    "resolvedTitle": "Artio",
-    "source": "curated",
-    "spawnNotes": [
-      "Demonic Ruins"
-    ],
-    "spawnRegions": [
-      "Wilderness"
-    ],
-    "title": "Artio",
-    "x": 3289,
-    "y": 3885
   },
   "asgarnian ice dungeon": {
     "allSpawns": [
@@ -6755,50 +6689,6 @@
     "x": 1358,
     "y": 3048
   },
-  "callisto": {
-    "allSpawns": [
-      [
-        3289,
-        3885
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Wilderness",
-    "note": "Demonic Ruins",
-    "resolvedTitle": "Callisto",
-    "source": "curated",
-    "spawnNotes": [
-      "Demonic Ruins"
-    ],
-    "spawnRegions": [
-      "Wilderness"
-    ],
-    "title": "Callisto",
-    "x": 3289,
-    "y": 3885
-  },
-  "calvar'ion": {
-    "allSpawns": [
-      [
-        3164,
-        3672
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Wilderness",
-    "note": "Graveyard of Shadows",
-    "resolvedTitle": "Calvar'Ion",
-    "source": "curated",
-    "spawnNotes": [
-      "Graveyard of Shadows"
-    ],
-    "spawnRegions": [
-      "Wilderness"
-    ],
-    "title": "Calvar'Ion",
-    "x": 3164,
-    "y": 3672
-  },
   "campfire": {
     "allSpawns": [
       [
@@ -7125,28 +7015,6 @@
     "title": "chaos dwarf",
     "x": 3019,
     "y": 3760
-  },
-  "chaos elemental": {
-    "allSpawns": [
-      [
-        3286,
-        3933
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Wilderness",
-    "note": "Rogues' Castle",
-    "resolvedTitle": "Chaos Elemental",
-    "source": "curated",
-    "spawnNotes": [
-      "Rogues' Castle"
-    ],
-    "spawnRegions": [
-      "Wilderness"
-    ],
-    "title": "Chaos Elemental",
-    "x": 3286,
-    "y": 3933
   },
   "chaos fanatic": {
     "allSpawns": [
@@ -14253,28 +14121,6 @@
     "title": "Gnome Stronghold Agility Course",
     "x": 2480,
     "y": 3428
-  },
-  "god wars dungeon": {
-    "allSpawns": [
-      [
-        2918,
-        3745
-      ]
-    ],
-    "category": "dungeon",
-    "leagueRegion": "Asgarnia",
-    "note": "God Wars Dungeon",
-    "resolvedTitle": "God Wars Dungeon",
-    "source": "curated",
-    "spawnNotes": [
-      "God Wars Dungeon"
-    ],
-    "spawnRegions": [
-      "Asgarnia"
-    ],
-    "title": "God Wars Dungeon",
-    "x": 2918,
-    "y": 3745
   },
   "gold rocks": {
     "allSpawns": [
@@ -22441,28 +22287,6 @@
     "x": 1376,
     "y": 3310
   },
-  "nex": {
-    "allSpawns": [
-      [
-        2918,
-        3745
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Asgarnia",
-    "note": "God Wars Dungeon",
-    "resolvedTitle": "Nex",
-    "source": "curated",
-    "spawnNotes": [
-      "God Wars Dungeon"
-    ],
-    "spawnRegions": [
-      "Asgarnia"
-    ],
-    "title": "Nex",
-    "x": 2918,
-    "y": 3745
-  },
   "nightmare zone": {
     "allSpawns": [
       [
@@ -28357,28 +28181,6 @@
     "x": 3304,
     "y": 3123
   },
-  "scorpia": {
-    "allSpawns": [
-      [
-        3236,
-        3746
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Wilderness",
-    "note": "Bone Yard",
-    "resolvedTitle": "Scorpia",
-    "source": "curated",
-    "spawnNotes": [
-      "Bone Yard"
-    ],
-    "spawnRegions": [
-      "Wilderness"
-    ],
-    "title": "Scorpia",
-    "x": 3236,
-    "y": 3746
-  },
   "scorpion": {
     "allSpawns": [
       [
@@ -30161,28 +29963,6 @@
     "title": "Spice Stall",
     "x": 2658,
     "y": 3297
-  },
-  "spindel": {
-    "allSpawns": [
-      [
-        3236,
-        3746
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Wilderness",
-    "note": "Bone Yard",
-    "resolvedTitle": "Spindel",
-    "source": "curated",
-    "spawnNotes": [
-      "Bone Yard"
-    ],
-    "spawnRegions": [
-      "Wilderness"
-    ],
-    "title": "Spindel",
-    "x": 3236,
-    "y": 3746
   },
   "spined larupia": {
     "allSpawns": [
@@ -36177,28 +35957,6 @@
     "x": 1128,
     "y": 3417
   },
-  "venenatis": {
-    "allSpawns": [
-      [
-        3236,
-        3746
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Wilderness",
-    "note": "Bone Yard",
-    "resolvedTitle": "Venenatis",
-    "source": "curated",
-    "spawnNotes": [
-      "Bone Yard"
-    ],
-    "spawnRegions": [
-      "Wilderness"
-    ],
-    "title": "Venenatis",
-    "x": 3236,
-    "y": 3746
-  },
   "verac the defiled": {
     "allSpawns": [
       [
@@ -36242,28 +36000,6 @@
     "title": "Verac The Defiled'S Equipment",
     "x": 3567,
     "y": 3291
-  },
-  "vet'ion": {
-    "allSpawns": [
-      [
-        3164,
-        3672
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Wilderness",
-    "note": "Graveyard of Shadows",
-    "resolvedTitle": "Vet'ion",
-    "source": "curated",
-    "spawnNotes": [
-      "Graveyard of Shadows"
-    ],
-    "spawnRegions": [
-      "Wilderness"
-    ],
-    "title": "Vet'ion",
-    "x": 3164,
-    "y": 3672
   },
   "vineyard foreman": {
     "allSpawns": [

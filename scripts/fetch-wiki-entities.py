@@ -284,7 +284,16 @@ CURATED_ENTITIES: dict[str, dict] = {
     "the gauntlet":             {"anchor": "Prifddinas",              "category": "boss"},
 
     # ───── God Wars & DT2 bosses (surface entrances) ─────
-    "nex":                      {"anchor": "God Wars Dungeon",        "category": "boss"},
+    # Nex is intentionally NOT a curated entity — the `nex-lair`
+    # landmark in src/data/locations.ts already carries the Nex aliases
+    # AND every Nex drop the player goes there for (Torva pieces,
+    # Zaryte crossbow / vambraces, ancient godswords, nihil shards). A
+    # second curated entity at "God Wars Dungeon" was producing a pin
+    # ~3 game tiles away from the landmark, splitting the 5 Nex-kill
+    # tasks (which matched the entity via wikiLink) from the 5
+    # equip / CA tasks (which matched the landmark via alias) onto
+    # two visually-overlapping pins. Same pattern as Phantom Muspah /
+    # Ghorrock and the DT2 bosses below — landmark wins.
     "kree'arra":                {"anchor": "God Wars Dungeon",        "category": "boss"},
     "commander zilyana":        {"anchor": "God Wars Dungeon",        "category": "boss"},
     "general graardor":         {"anchor": "God Wars Dungeon",        "category": "boss"},
@@ -325,26 +334,37 @@ CURATED_ENTITIES: dict[str, dict] = {
     # ───── Wilderness & classic bosses ─────
     "king black dragon":         {"anchor": "Lava Maze",              "category": "boss"},
     "kalphite queen":            {"anchor": "Shantay Pass",           "category": "boss"},
-    "chaos elemental":           {"anchor": "Rogues' Castle",         "category": "boss"},
-    "callisto":                  {"anchor": "Demonic Ruins",          "category": "boss"},
-    "artio":                     {"anchor": "Demonic Ruins",          "category": "boss"},
-    "venenatis":                 {"anchor": "Bone Yard",              "category": "boss"},
-    "spindel":                   {"anchor": "Bone Yard",              "category": "boss"},
-    "vet'ion":                   {"anchor": "Graveyard of Shadows",   "category": "boss"},
-    "calvar'ion":                {"anchor": "Graveyard of Shadows",   "category": "boss"},
-    "scorpia":                   {"anchor": "Bone Yard",              "category": "boss"},
-    # Abyssal Sire / Nexus: the wiki tags the Sire's own LocLine
-    # `leagueRegion = General` (no specific region — reachable from
-    # anywhere via fairy ring DIP / Mage of Zamorak in Wilderness).
-    # The Sire's actual chamber coords are mapID=10006 instanced and
-    # get rejected by `is_surface_pin`, so we anchor the *pin
-    # location* to the Abyss surface entry tile (3104, 3560) — but
-    # force the league region to "General" to match the wiki's own
-    # LocLine tag. Without the override we'd inherit "Wilderness"
-    # from the Abyss anchor, which is wrong: General-region tasks
-    # should appear under General, not Wilderness.
-    "abyssal sire":              {"anchor": "Abyss", "category": "boss",    "leagueRegion": "General"},
-    "abyssal nexus":             {"anchor": "Abyss", "category": "dungeon", "leagueRegion": "General"},
+    # Wilderness multi-boss lairs (Callisto/Artio, Venenatis/Spindel,
+    # Vet'ion/Calvar'ion, Chaos Elemental) are intentionally NOT
+    # curated entities — each has a corresponding "X / Y" landmark in
+    # src/data/locations.ts that already carries both boss aliases AND
+    # every drop the player goes there for (Voidwaker hilts / Tyrannical
+    # & Treasonous & Ring of the Gods / Fangs of Venenatis / Skull of
+    # Vet'ion / Claws of Callisto / Ursine Chainmace / Webweaver Bow /
+    # Accursed Sceptre, etc.). Without dropping the entities, each lair
+    # produced 2-3 visually overlapping pins (entity for the upper-tier
+    # boss, entity for the Calvar'ion-tier "Singles+" alt, landmark for
+    # the equip tasks) — same Phantom-Muspah / Nex / Sire pattern.
+    # Scorpia was extra-broken: anchored to "Bone Yard" so its entity
+    # pin landed at the Venenatis lair (3236, 3746) instead of the
+    # actual Scorpion Pit at (3232, 3938). The landmark sits at the
+    # right Scorpion Pit coord. Landmark wins.
+    # Chaos Fanatic stays curated — it lives at the Chaos Temple Hut
+    # northwest of Edgeville (~2979, 3846), nowhere near the Chaos
+    # Elemental's Rogues' Castle, so it genuinely deserves its own pin.
+    # Abyssal Sire / Nexus are intentionally NOT curated entities —
+    # the `abyssal-nexus` landmark in src/data/locations.ts already
+    # carries both aliases AND every Sire drop the player goes there
+    # for (Abyssal Whip / Bludgeon / Dagger, Unsired, Font of
+    # Consumption). Two pins were splitting the 5 Sire-kill tasks
+    # (matched via wikiLink → entity) from the 3 equip tasks (matched
+    # via landmark alias). Same pattern as Phantom Muspah / Nex —
+    # landmark wins. The landmark itself is region-tagged "General"
+    # to honor the wiki's own LocLine `leagueRegion = General` for the
+    # Sire (the Abyss is reachable via Mage of Zamorak teleport
+    # without any region unlock); without that, kill tasks were
+    # showing up with a Wilderness badge in the popup despite being
+    # General-region in the task list.
     # Cerberus' Lair is accessed via the hellhound room in Taverley
     # Dungeon (Asgarnia). The Cerberus' Lair wiki page's own Map template
     # points at instance coords (mapID=10030), so we anchor to Taverley
@@ -581,7 +601,19 @@ CURATED_ENTITIES: dict[str, dict] = {
     "mastering mixology":          {"anchor": "Aldarin",               "category": "minigame"},
     "hespori":                     {"anchor": "Farming Guild",         "category": "boss"},
     "slayer tower":                {"anchor": "Canifis",               "category": "dungeon"},
-    "god wars dungeon":            {"anchor": "God Wars Dungeon",      "category": "dungeon"},
+    # "god wars dungeon" is intentionally NOT a curated entity — it's
+    # explicitly listed in SKIP_TITLES above ("we have gwd landmark").
+    # Having it both as a SKIP and as a curated entity was the bug:
+    # the curated copy produced an `entity:god wars dungeon` pin at
+    # (2918, 3745) that visually competed with the `nex-lair` landmark
+    # at (2915, 3745) — same physical entrance, two pins. Worse, all
+    # the "Defeat Nex" tasks (wikiLinks: ["Nex","God Wars Dungeon"])
+    # resolved to the GWD entity instead of the Nex landmark, and the
+    # two "Wilderness God Wars Dungeon" tasks (168 / 652) text-scanned
+    # into the *Asgarnia* GWD entity even though they belong in the
+    # `wilderness-god-wars-dungeon` landmark. Generic GWD tasks
+    # ("Defeat Any God Wars Dungeon Boss N Times") now match the
+    # "god wars dungeon" alias on `nex-lair`.
     "waterbirth island dungeon":   {"anchor": "Waterbirth Island",     "category": "dungeon"},
     "kraken":                      {"anchor": "Kraken Cove",           "category": "boss"},
     "kraken cove":                 {"anchor": "Kraken Cove",           "category": "dungeon"},

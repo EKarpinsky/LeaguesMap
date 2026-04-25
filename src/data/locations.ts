@@ -385,11 +385,23 @@ export const LOCATIONS: WorldLocation[] = [
      "divine rune pouch", "divine spirit shield",
      "abyssal needle", "abyssal lantern"],
     "Runecraft minigame (source of Divine Rune pouch and catalytic talisman)"),
+  // Doubles as the *generic* GWD entrance pin: the curated
+  // `entity:god wars dungeon` was removed (see fetch-wiki-entities.py
+  // — it produced a redundant pin ~3 tiles away that split Nex tasks
+  // off from the landmark, and falsely attracted Wilderness GWD
+  // tasks). The "god wars dungeon" / "godwars dungeon" / "gwd"
+  // aliases below let generic tasks ("Defeat Any God Wars Dungeon
+  // Boss N Times") and the bare-"Nex" tasks land here. Boss-specific
+  // tasks (Defeat Kree'arra / Zilyana / Graardor / K'ril) still match
+  // their own curated entities first via wiki-link, so they keep
+  // their own boss pins at this same entrance — just like every
+  // other GWD boss.
   L("nex-lair", "Nex (God Wars Dungeon)", 2915, 3745, "Asgarnia", "boss",
     ["nex", "zaryte", "nihil shards", "ancient godswords",
      "torva", "torva helm", "torva full helm", "torva platebody", "torva platelegs",
-     "zaryte vambraces", "zaryte crossbow"],
-    "God Wars Nex chamber (Torva, Zaryte drops)"),
+     "zaryte vambraces", "zaryte crossbow",
+     "god wars dungeon", "godwars dungeon", "gwd"],
+    "God Wars Dungeon entrance & Nex chamber (Torva, Zaryte drops)"),
 
   // ───────────────────────────── Fremennik ─────────────────────────────
   L("rellekka", "Rellekka", 2658, 3677, "Fremennik", "city",
@@ -618,9 +630,14 @@ export const LOCATIONS: WorldLocation[] = [
   L("haunted-mine", "Haunted Mine", 3440, 3232, "Morytania", "dungeon",
     ["haunted mine", "lair of tarn", "tarn razorlor", "salve amulet (e)"],
     "Haunted quarry"),
-  L("abyssal-nexus", "Abyssal Nexus / Sire", 3040, 3571, "Wilderness", "boss",
+  // Region is "General" (not "Wilderness") to match the wiki's own
+  // `leagueRegion = General` LocLine for the Sire — the Abyss is
+  // reachable via Mage of Zamorak teleport (Edgeville) or fairy ring
+  // DIP without unlocking any region. Pinning the surface anchor in
+  // low Wilderness is fine; the region tag is what drives badges.
+  L("abyssal-nexus", "Abyssal Nexus / Sire", 3040, 3571, "General", "boss",
     ["abyssal sire", "abyssal nexus", "font of consumption", "unsired", "abyssal whip", "abyssal bludgeon", "abyssal dagger"],
-    "Abyssal realm (anchor near Edgeville)"),
+    "Abyssal realm (Mage of Zamorak / fairy ring DIP — General access)"),
   L("slayer-tower", "Slayer Tower", 3428, 3538, "Morytania", "dungeon",
     ["slayer tower", "grotesque guardians", "dusk and dawn", "lithic sceptre",
      "guardian boots", "black tourmaline",
@@ -692,28 +709,40 @@ export const LOCATIONS: WorldLocation[] = [
   L("king-black-dragon", "King Black Dragon (Lava Maze)", 3017, 3849, "Wilderness", "boss",
     ["king black dragon", "kbd", "king's barrage"],
     "KBD Lair (deep wildy lair)"),
-  L("chaos-ele", "Chaos Elemental / Chaos Fanatic", 3261, 3927, "Wilderness", "boss",
-    ["chaos elemental", "chaos fanatic",
+  // Coords below come from each lair's own wiki {{Map}} template
+  // (Demonic Ruins, Bone Yard, Graveyard of Shadows, Rogues' Castle).
+  // Previously these landmarks sat at hand-picked coords drifted up
+  // to ~130 tiles from the actual lair (Vet'ion in particular sat in
+  // the middle of nowhere east of the Bone Yard). Each landmark also
+  // doubles as the canonical pin for its high-tier boss AND its
+  // Singles+ alt — the matching curated entities (callisto/artio/
+  // venenatis/spindel/vet'ion/calvar'ion/scorpia/chaos elemental)
+  // were dropped from fetch-wiki-entities.py to stop them generating
+  // 2-3 visually overlapping pins per lair (same Phantom-Muspah /
+  // Nex / Sire / GWD pattern). Chaos Fanatic kept as its own pin
+  // (separate location at Mage Arena hut, not a duplicate).
+  L("chaos-ele", "Chaos Elemental", 3286, 3933, "Wilderness", "boss",
+    ["chaos elemental",
      "dagon'hai", "dagon hai", "dagon'hai robe", "dagon hai robe",
      "elder chaos", "elder chaos hood", "elder chaos robe", "elder chaos top"],
-    "Rogues' Castle deep wildy (Chaos Ele, Chaos Fanatic — Dagon'hai, Elder Chaos robes)"),
-  L("callisto", "Callisto / Artio", 3291, 3849, "Wilderness", "boss",
+    "Rogues' Castle deep wildy (Dagon'hai, Elder Chaos robes)"),
+  L("callisto", "Callisto / Artio", 3289, 3885, "Wilderness", "boss",
     ["callisto", "artio", "tyrannical ring",
      "ursine chainmace", "ursine", "claws of callisto",
      "voidwaker hilt"],
-    "Wildy bear boss (Tyrannical Ring, Ursine Chainmace, Voidwaker hilt)"),
-  L("venenatis", "Venenatis / Spindel", 3319, 3798, "Wilderness", "boss",
+    "Demonic Ruins (Tyrannical Ring, Ursine Chainmace, Voidwaker hilt)"),
+  L("venenatis", "Venenatis / Spindel", 3236, 3746, "Wilderness", "boss",
     ["venenatis", "spindel",
      "treasonous ring",
      "webweaver", "webweaver bow", "fangs of venenatis",
      "voidwaker", "voidwaker blade"],
-    "Wildy spider boss (Treasonous Ring, Webweaver, Voidwaker — hilt/blade/gem across all 3 wildy bosses)"),
-  L("vetion", "Vet'ion / Calvar'ion", 3219, 3788, "Wilderness", "boss",
+    "Bone Yard (Treasonous Ring, Webweaver, Voidwaker — hilt/blade/gem across all 3 wildy bosses)"),
+  L("vetion", "Vet'ion / Calvar'ion", 3164, 3672, "Wilderness", "boss",
     ["vet'ion", "calvar'ion",
      "ring of the gods",
      "accursed sceptre", "skull of vet'ion",
      "voidwaker gem"],
-    "Wildy skeleton boss (Ring of the Gods, Accursed Sceptre, Voidwaker gem)"),
+    "Graveyard of Shadows (Ring of the Gods, Accursed Sceptre, Voidwaker gem)"),
   L("scorpia", "Scorpia", 3232, 3938, "Wilderness", "boss",
     ["scorpia"],
     "Scorpion boss near ruins"),
@@ -727,6 +756,17 @@ export const LOCATIONS: WorldLocation[] = [
      "malediction ward", "odium ward",
      "enchanted slayer staff", "slayer staff"],
     "Lava Maze slayer cave (Black Chins, Dark Crabs at Resource Area, Warded shards)"),
+  // Coords from the Wilderness God Wars Dungeon wiki page's own
+  // {{Map}} (3016.5, 3739.5 — cave east of The Forgotten Cemetery,
+  // level 28 Wilderness). Region is `Wilderness` per the page's
+  // `leagueRegion` LocLine. Without this landmark the two
+  // wildy-GWD tasks ("Enter the Wilderness God Wars Dungeon" /
+  // "Obtain an Ecumenical Key") were text-scanning into the regular
+  // (Asgarnia) GWD entity pin.
+  L("wilderness-god-wars-dungeon", "Wilderness God Wars Dungeon", 3017, 3740, "Wilderness", "dungeon",
+    ["wilderness god wars dungeon", "wildy gwd", "wildy god wars",
+     "ecumenical key"],
+    "Wildy GWD (Ecumenical Keys, alternate Bandos / Armadyl camp access)"),
   L("mage-bank", "Mage Bank", 3095, 3955, "Wilderness", "landmark",
     ["mage bank"],
     "Deep wildy bank"),
