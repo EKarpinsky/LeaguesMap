@@ -391,7 +391,7 @@ export default function FilterSidebar({
               disabled={progress.completedCount === 0 && !confirmReset}
               title={
                 confirmReset
-                  ? "Click again to confirm — this can't be undone"
+                  ? "Click again to confirm. This can't be undone."
                   : "Mark every task as not done"
               }
               aria-label="Reset all progress"

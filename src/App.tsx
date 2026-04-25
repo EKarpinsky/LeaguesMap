@@ -490,7 +490,7 @@ function App() {
       setBugError(
         err instanceof Error
           ? err.message
-          : "Couldn't send the report — please try again.",
+          : "Couldn't send the report. Please try again.",
       );
       analytics.bugSubmitted({ status: "error", messageLength: trimmed.length });
     }
@@ -739,7 +739,7 @@ function App() {
                   setSyncInputSource("paste");
                   setSyncInput(e.target.value);
                 }}
-                placeholder='Paste the JSON export here — looks like {"quests":{...},"varps":{...},"tasks":{...}}'
+                placeholder='Paste the JSON export here. Looks like {"quests":{...},"varps":{...},"tasks":{...}}'
                 rows={5}
                 spellCheck={false}
                 disabled={syncStatus === "applied"}
@@ -760,7 +760,7 @@ function App() {
                   Looks good
                   {syncPreview.displayName ? (
                     <>
-                      {" — "}
+                      {": "}
                       <strong>{syncPreview.displayName}</strong>
                     </>
                   ) : null}
@@ -862,7 +862,7 @@ function App() {
               </button>
             </header>
             <p className="bug-dialog-blurb">
-              What went wrong? A sentence or two is plenty — your URL,
+              What went wrong? A sentence or two is plenty. Your URL,
               viewport, and browser get attached automatically.
             </p>
             <textarea
@@ -870,7 +870,7 @@ function App() {
               className="bug-dialog-textarea"
               value={bugMessage}
               onChange={(e) => setBugMessage(e.target.value)}
-              placeholder="e.g. ‘King Sand Crab pin is in the wrong place — should be on the Hosidius beach not the town centre.'"
+              placeholder="e.g. ‘King Sand Crab pin is in the wrong place. It should be on the Hosidius beach, not the town centre.'"
               maxLength={BUG_MAX_LEN}
               rows={5}
               disabled={bugStatus === "sending" || bugStatus === "sent"}

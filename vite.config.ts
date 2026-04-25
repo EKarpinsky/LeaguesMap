@@ -65,7 +65,7 @@ function devApiBridge(): Plugin {
             res.setHeader("Content-Type", "application/json");
             res.end(
               JSON.stringify({
-                error: "Dev API bridge crashed — check terminal logs.",
+                error: "Dev API bridge crashed. Check terminal logs.",
               }),
             );
           }

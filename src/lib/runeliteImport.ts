@@ -103,7 +103,7 @@ interface RawExport {
 export function parseTasksTrackerExport(raw: string): ParseResult {
   const trimmed = raw.trim();
   if (!trimmed) {
-    return { ok: false, error: "Empty input — paste the export JSON or pick the file." };
+    return { ok: false, error: "Empty input. Paste the export JSON or pick the file." };
   }
 
   let parsed: unknown;
@@ -145,7 +145,7 @@ export function parseTasksTrackerExport(raw: string): ParseResult {
     return {
       ok: false,
       error:
-        "Found `varps` but it's empty — your character may not have any league tasks recorded yet, or the export was generated before logging into a Demonic Pacts world.",
+        "Found `varps` but it's empty. Your character may not have any league tasks recorded yet, or the export was generated before logging into a Demonic Pacts world.",
     };
   }
 

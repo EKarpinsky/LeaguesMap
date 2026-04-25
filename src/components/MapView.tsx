@@ -171,7 +171,7 @@ function buildPopupContent(
   if (sorted.length > 30) {
     const more = document.createElement("li");
     more.className = "task-line more";
-    more.textContent = `+ ${sorted.length - 30} more — use the task list`;
+    more.textContent = `+ ${sorted.length - 30} more (use the task list)`;
     list.appendChild(more);
   }
   return el;

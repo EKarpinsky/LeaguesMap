@@ -74,7 +74,7 @@ for (const region of usedFallbackRegions) {
     y: c.y,
     region,
     category: "landmark",
-    blurb: "Exact spot unknown — region-level fallback pin.",
+    blurb: "Exact spot unknown. Region-level fallback pin.",
   });
 }
 

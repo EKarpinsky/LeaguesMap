@@ -104,7 +104,7 @@ export default async function handler(req: Request): Promise<Response> {
     "unknown";
   if (rateLimited(ip)) {
     return jsonResponse(
-      { error: "Too many reports — try again in a few minutes." },
+      { error: "Too many reports. Try again in a few minutes." },
       { status: 429 },
     );
   }
@@ -160,7 +160,7 @@ export default async function handler(req: Request): Promise<Response> {
     "",
     message,
     "",
-    "— Context —",
+    "--- Context ---",
     context,
     "",
     `Reporter IP: ${ip}`,
@@ -185,7 +185,7 @@ export default async function handler(req: Request): Promise<Response> {
     const errBody = await res.text().catch(() => "");
     console.error("[report-bug] Resend rejected:", res.status, errBody);
     return jsonResponse(
-      { error: "Couldn't send report — please try again." },
+      { error: "Couldn't send report. Please try again." },
       { status: 502 },
     );
   }
