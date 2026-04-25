@@ -709,43 +709,58 @@ export const LOCATIONS: WorldLocation[] = [
   L("king-black-dragon", "King Black Dragon (Lava Maze)", 3017, 3849, "Wilderness", "boss",
     ["king black dragon", "kbd", "king's barrage"],
     "KBD Lair (deep wildy lair)"),
-  // Coords below come from each lair's own wiki {{Map}} template
-  // (Demonic Ruins, Bone Yard, Graveyard of Shadows, Rogues' Castle).
-  // Previously these landmarks sat at hand-picked coords drifted up
-  // to ~130 tiles from the actual lair (Vet'ion in particular sat in
-  // the middle of nowhere east of the Bone Yard). Each landmark also
-  // doubles as the canonical pin for its high-tier boss AND its
-  // Singles+ alt — the matching curated entities (callisto/artio/
-  // venenatis/spindel/vet'ion/calvar'ion/scorpia/chaos elemental)
-  // were dropped from fetch-wiki-entities.py to stop them generating
-  // 2-3 visually overlapping pins per lair (same Phantom-Muspah /
-  // Nex / Sire / GWD pattern). Chaos Fanatic kept as its own pin
-  // (separate location at Mage Arena hut, not a duplicate).
-  L("chaos-ele", "Chaos Elemental", 3286, 3933, "Wilderness", "boss",
+  // Wilderness boss pins. Coords are the wiki LocLine `x:`/`y:` for each
+  // boss (the surface-pin coord the wiki itself uses on each boss page),
+  // NOT the area-page {{Map}} centroid — Bone Yard / Demonic Ruins /
+  // Graveyard of Shadows are surface AREAS, not the boss spawn. Each
+  // upper-tier boss gets its own canonical lair pin, and the three
+  // singles-plus alts (Artio, Spindel, Calvar'ion) share a separate
+  // dungeon — Hunter's End, ~150 tiles south-west — that needs its
+  // own pin (it is NOT inside Callisto's Den despite the alt-Callisto
+  // name). The matching curated entities (callisto/artio/venenatis/
+  // spindel/vet'ion/calvar'ion/scorpia/chaos elemental) are dropped
+  // from fetch-wiki-entities.py to stop them generating 2-3 visually
+  // overlapping pins per lair (same Phantom-Muspah / Nex / Sire / GWD
+  // pattern). Chaos Fanatic kept as its own pin (separate location at
+  // Mage Arena hut, not a duplicate).
+  L("chaos-ele", "Chaos Elemental", 3261, 3927, "Wilderness", "boss",
     ["chaos elemental",
      "dagon'hai", "dagon hai", "dagon'hai robe", "dagon hai robe",
      "elder chaos", "elder chaos hood", "elder chaos robe", "elder chaos top"],
-    "Rogues' Castle deep wildy (Dagon'hai, Elder Chaos robes)"),
-  L("callisto", "Callisto / Artio", 3289, 3885, "Wilderness", "boss",
-    ["callisto", "artio", "tyrannical ring",
+    "West of Rogues' Castle (Dagon'hai, Elder Chaos robes)"),
+  L("callisto", "Callisto's Den", 3291, 3849, "Wilderness", "boss",
+    ["callisto", "callisto's den", "callistos den",
+     "tyrannical ring",
      "ursine chainmace", "ursine", "claws of callisto",
      "voidwaker hilt"],
-    "Demonic Ruins (Tyrannical Ring, Ursine Chainmace, Voidwaker hilt)"),
-  L("venenatis", "Venenatis / Spindel", 3236, 3746, "Wilderness", "boss",
-    ["venenatis", "spindel",
+    "Callisto's Den, south of Demonic Ruins (Tyrannical Ring, Ursine Chainmace, Voidwaker hilt)"),
+  L("venenatis", "Silk Chasm", 3319, 3798, "Wilderness", "boss",
+    ["venenatis", "silk chasm",
      "treasonous ring",
      "webweaver", "webweaver bow", "fangs of venenatis",
      "voidwaker", "voidwaker blade"],
-    "Bone Yard (Treasonous Ring, Webweaver, Voidwaker — hilt/blade/gem across all 3 wildy bosses)"),
-  L("vetion", "Vet'ion / Calvar'ion", 3164, 3672, "Wilderness", "boss",
-    ["vet'ion", "calvar'ion",
+    "Silk Chasm, lair of Venenatis south-east of Bone Yard (Treasonous Ring, Webweaver, Voidwaker — hilt/blade/gem across all 3 wildy bosses)"),
+  L("vetion", "Vet'ion's Rest", 3219, 3788, "Wilderness", "boss",
+    ["vet'ion", "vetion", "vet'ion's rest", "vetions rest",
      "ring of the gods",
      "accursed sceptre", "skull of vet'ion",
      "voidwaker gem"],
-    "Graveyard of Shadows (Ring of the Gods, Accursed Sceptre, Voidwaker gem)"),
-  L("scorpia", "Scorpia", 3232, 3938, "Wilderness", "boss",
-    ["scorpia"],
-    "Scorpion boss near ruins"),
+    "Vet'ion's Rest, north of Bone Yard (Ring of the Gods, Accursed Sceptre, Voidwaker gem)"),
+  // Hunter's End is the singles-plus dungeon NW of Ferox Enclave that
+  // houses all three lower-tier alts (Artio, Spindel, Calvar'ion) —
+  // it is a completely separate lair from each upper-tier boss's own
+  // multi-combat den, despite sharing the same drop tables. Coord is
+  // Artio's wiki LocLine (x:3116, y:3677); Spindel and Calvar'ion
+  // have no LocLine of their own but the wiki Lesser Wilderness Bosses
+  // map shows the three sharing this single entrance.
+  L("hunters-end", "Hunter's End (lesser wildy bosses)", 3116, 3677, "Wilderness", "dungeon",
+    ["hunter's end", "hunters end",
+     "artio", "spindel", "calvar'ion", "calvarion",
+     "lesser wilderness bosses", "singles plus boss", "singles+ boss"],
+    "Singles-plus dungeon NW of Ferox Enclave housing Artio / Spindel / Calvar'ion (same drops as their multi-combat counterparts)"),
+  L("scorpia", "Scorpia (Scorpion Pit)", 3232, 3938, "Wilderness", "boss",
+    ["scorpia", "scorpion pit"],
+    "Scorpion Pit cave entrance, north-east Wilderness"),
   L("chaos-altar", "Chaos Altar (Wilderness)", 3059, 3590, "Wilderness", "landmark",
     ["chaos altar"],
     "Prayer altar in wildy"),
