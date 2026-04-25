@@ -333,8 +333,18 @@ CURATED_ENTITIES: dict[str, dict] = {
     "vet'ion":                   {"anchor": "Graveyard of Shadows",   "category": "boss"},
     "calvar'ion":                {"anchor": "Graveyard of Shadows",   "category": "boss"},
     "scorpia":                   {"anchor": "Bone Yard",              "category": "boss"},
-    "abyssal sire":              {"anchor": "Edgeville",              "category": "boss"},
-    "abyssal nexus":             {"anchor": "Edgeville",              "category": "boss"},
+    # Abyssal Sire / Nexus: the wiki tags the Sire's own LocLine
+    # `leagueRegion = General` (no specific region — reachable from
+    # anywhere via fairy ring DIP / Mage of Zamorak in Wilderness).
+    # The Sire's actual chamber coords are mapID=10006 instanced and
+    # get rejected by `is_surface_pin`, so we anchor the *pin
+    # location* to the Abyss surface entry tile (3104, 3560) — but
+    # force the league region to "General" to match the wiki's own
+    # LocLine tag. Without the override we'd inherit "Wilderness"
+    # from the Abyss anchor, which is wrong: General-region tasks
+    # should appear under General, not Wilderness.
+    "abyssal sire":              {"anchor": "Abyss", "category": "boss",    "leagueRegion": "General"},
+    "abyssal nexus":             {"anchor": "Abyss", "category": "dungeon", "leagueRegion": "General"},
     # Cerberus' Lair is accessed via the hellhound room in Taverley
     # Dungeon (Asgarnia). The Cerberus' Lair wiki page's own Map template
     # points at instance coords (mapID=10030), so we anchor to Taverley
@@ -971,16 +981,29 @@ def main() -> int:
         pick = pick_surface_coord(coords)
         if not pick:
             continue
-        all_surface = [(c["x"], c["y"]) for c in coords if is_surface_pin(c)]
-        # de-dupe preserving order
+        # Keep per-spawn `leagueRegion` parallel to allSpawns so the runtime
+        # can prefer the wiki's own per-LocLine region tag over the bbox
+        # geometry guess. e.g. Kraken Cove's wiki LocLine sits at y=3611 —
+        # outside the runtime Kandarin bbox (ymax=3580) — but the wiki tags
+        # the page `leagueRegion = Kandarin`. Storing that tag here lets
+        # the runtime trust the wiki instead of bbox-misclassifying the
+        # spawn into Fremennik.
+        all_surface_with_lr = [
+            (c["x"], c["y"], c.get("leagueRegion"))
+            for c in coords if is_surface_pin(c)
+        ]
+        # de-dupe preserving order; on duplicate (x, y) the first
+        # leagueRegion wins (LocLines list more specific entries first).
         seen_xy: set[tuple[int, int]] = set()
         all_spawns: list[list[int]] = []
-        for xy in all_surface:
-            if xy in seen_xy:
+        spawn_regions: list[str | None] = []
+        for (sx, sy, slr) in all_surface_with_lr:
+            if (sx, sy) in seen_xy:
                 continue
-            seen_xy.add(xy)
-            all_spawns.append(list(xy))
-        entities[title.lower()] = {
+            seen_xy.add((sx, sy))
+            all_spawns.append([sx, sy])
+            spawn_regions.append(slr)
+        entry = {
             "title": title,
             "resolvedTitle": resolved,
             "x": pick["x"],
@@ -990,6 +1013,12 @@ def main() -> int:
             "category": infer_category(wt),
             "leagueRegion": extract_league_region(wt),
         }
+        # Only emit `spawnRegions` when at least one spawn was tagged on
+        # the wiki — keeps the JSON small for the long tail of entities
+        # whose LocLines never use the leagueRegion parameter.
+        if any(r is not None for r in spawn_regions):
+            entry["spawnRegions"] = spawn_regions
+        entities[title.lower()] = entry
         hits += 1
 
     print(f"Geolocated {hits} / {len(to_fetch)} pages from wiki ({100 * hits / max(1, len(to_fetch)):.1f}%).")
@@ -1031,6 +1060,12 @@ def main() -> int:
     # only the `Brine Rat Cavern` coord via location_match).
     anchor_coord: dict[str, tuple[int, int]] = {}
     anchor_all_coords: dict[str, list[dict]] = {}
+    # Per-anchor `leagueRegion` from the anchor page's infobox. Used so
+    # multi-anchor curated entities (e.g. Mountain Troll → Burthorpe +
+    # Keldagrim entrance) get the right wiki-sourced region per spawn
+    # instead of inheriting the entity-level leagueRegion or guessing
+    # via bbox.
+    anchor_league_region: dict[str, str | None] = {}
     unresolved_anchors: list[str] = []
     for anchor in anchor_list:
         resolved = resolved_map.get(anchor, anchor)
@@ -1040,32 +1075,52 @@ def main() -> int:
             continue
         coords = parse_coords(wt)
         anchor_all_coords[anchor] = coords
+        anchor_league_region[anchor] = extract_league_region(wt)
         pick = pick_surface_coord(coords)
         if not pick:
             unresolved_anchors.append(anchor)
             continue
         anchor_coord[anchor] = (pick["x"], pick["y"])
 
-    def resolve_anchor_coord(anchor: str, location_match: str | None) -> tuple[int, int] | None:
-        """Return (x, y) for an anchor, optionally filtered by sub-location.
+    def resolve_anchor_coord(
+        anchor: str, location_match: str | None,
+    ) -> tuple[tuple[int, int], str | None] | None:
+        """Return ((x, y), per-spawn leagueRegion) for an anchor.
+
+        The second tuple element is the wiki's own per-LocLine
+        `leagueRegion=` value — when the curated entry uses
+        `location_match`, this comes from the matching LocLine and
+        OVERRIDES the anchor page's infobox-level `leagueRegion`. For
+        Brine Rat → Windswept tree, the Windswept tree page is tagged
+        Misthalin overall, but its Brine Rat Cavern LocLine is tagged
+        Fremennik — and Fremennik is what we want for the brine rat pin.
+        Returns None for the leagueRegion slot when neither the LocLine
+        nor an override carries one; downstream falls back to the
+        anchor-page level via `anchor_league_region`.
 
         Order of resolution:
-          1. ANCHOR_COORD_OVERRIDES (hand-curated surface coord — used when
-             the wiki page only has an instanced/underground {{Map}}).
-          2. Wiki-scraped coords filtered by `location_match` (sub-region).
-          3. Wiki-scraped default coord for the anchor.
+          1. ANCHOR_COORD_OVERRIDES (hand-curated surface coord — used
+             when the wiki page only has an instanced/underground
+             {{Map}}). Carries no per-LocLine region.
+          2. Wiki-scraped coords filtered by `location_match`
+             (sub-region) — uses that LocLine's leagueRegion.
+          3. Wiki-scraped default coord for the anchor — no per-LocLine
+             region.
         """
         if anchor in ANCHOR_COORD_OVERRIDES and not location_match:
-            return ANCHOR_COORD_OVERRIDES[anchor]
+            return (ANCHOR_COORD_OVERRIDES[anchor], None)
         if not location_match:
-            return anchor_coord.get(anchor)
+            xy = anchor_coord.get(anchor)
+            return (xy, None) if xy else None
         coords = anchor_all_coords.get(anchor)
         if not coords:
             return None
         needle = location_match.lower()
         filtered = [c for c in coords if needle in c.get("location", "")]
         pick = pick_surface_coord(filtered)
-        return (pick["x"], pick["y"]) if pick else None
+        if not pick:
+            return None
+        return ((pick["x"], pick["y"]), pick.get("leagueRegion"))
 
     if unresolved_anchors:
         print("\n⚠️  UNRESOLVED CURATED ANCHORS — these pages had no surface {{Map}}:")
@@ -1082,8 +1137,9 @@ def main() -> int:
         if "spawns" in override:
             resolved_spawns = []
             for s in override["spawns"]:
-                xy = resolve_anchor_coord(s["anchor"], s.get("location_match"))
-                if xy:
+                hit = resolve_anchor_coord(s["anchor"], s.get("location_match"))
+                if hit:
+                    (xy, locline_lr) = hit
                     # Per-spawn note is JUST the anchor name (e.g. "Burthorpe",
                     # "Trollheim"). The "(region)" suffix is redundant — the
                     # popup already renders a region badge above the blurb,
@@ -1091,11 +1147,27 @@ def main() -> int:
                     # locations it would render "Burthorpe (Asgarnia)" on the
                     # Fremennik Trollheim pin if the suffix was retained AND
                     # the entity-level note leaked.
-                    resolved_spawns.append({"x": xy[0], "y": xy[1],
-                                            "note": s["anchor"]})
+                    # Per-spawn leagueRegion priority: matched LocLine wins
+                    # (Brine Rat in Windswept tree's "Brine Rat Cavern"
+                    # row → Fremennik), else fall back to the anchor's
+                    # infobox-level region (which usually agrees but
+                    # disagrees on multi-location pages).
+                    resolved_spawns.append({
+                        "x": xy[0], "y": xy[1],
+                        "note": s["anchor"],
+                        "leagueRegion": locline_lr or anchor_league_region.get(s["anchor"]),
+                    })
         else:
-            xy = resolve_anchor_coord(override["anchor"], override.get("location_match"))
-            resolved_spawns = [{"x": xy[0], "y": xy[1], "note": override["anchor"]}] if xy else []
+            hit = resolve_anchor_coord(override["anchor"], override.get("location_match"))
+            if hit:
+                (xy, locline_lr) = hit
+                resolved_spawns = [{
+                    "x": xy[0], "y": xy[1],
+                    "note": override["anchor"],
+                    "leagueRegion": locline_lr or anchor_league_region.get(override["anchor"]),
+                }]
+            else:
+                resolved_spawns = []
         if not resolved_spawns:
             curated_skipped += 1
             continue
@@ -1108,6 +1180,7 @@ def main() -> int:
         seen_xy: set[tuple[int, int]] = set()
         all_spawns: list[list[int]] = []
         spawn_notes: list[str | None] = []
+        spawn_regions: list[str | None] = []
         for s in resolved_spawns:
             xy = (s["x"], s["y"])
             if xy in seen_xy:
@@ -1115,6 +1188,33 @@ def main() -> int:
             seen_xy.add(xy)
             all_spawns.append([xy[0], xy[1]])
             spawn_notes.append(s.get("note") or None)
+            spawn_regions.append(s.get("leagueRegion"))
+        # For single-anchor curated entries the entity-level leagueRegion
+        # already covers the lone spawn; for multi-anchor curated entries
+        # (Mountain Troll → Burthorpe + Keldagrim entrance) each anchor
+        # has its own leagueRegion, so we want the per-spawn array to
+        # carry that distinction. Inherit from the existing wiki entry
+        # if present (e.g. Kraken Cove → "Kandarin"), otherwise fall back
+        # to the FIRST anchor's leagueRegion. The latter rescues cases
+        # like the curated "kraken" boss entity, whose wiki page
+        # (Kraken) has no `leagueRegion` field but whose Kraken Cove
+        # anchor does — without this, the runtime would fall through to
+        # bbox-guess and put the Kraken in Fremennik.
+        # An explicit `leagueRegion` on the curated entry takes top
+        # priority (e.g. Abyssal Sire → "General"): it overrides both
+        # the entity-level region AND every per-spawn region, since
+        # the wiki's own LocLine for that entity uses that tag.
+        forced_lr = override.get("leagueRegion")
+        if forced_lr:
+            entity_lr = forced_lr
+            spawn_regions = [forced_lr] * len(spawn_regions)
+        else:
+            entity_lr = existing["leagueRegion"] if existing else None
+            if not entity_lr:
+                for s in resolved_spawns:
+                    if s.get("leagueRegion"):
+                        entity_lr = s["leagueRegion"]
+                        break
         entities[key] = {
             "title": existing["title"] if existing else key.title(),
             "resolvedTitle": existing["resolvedTitle"] if existing else key.title(),
@@ -1126,8 +1226,9 @@ def main() -> int:
             # note — keeps the JSON small for single-anchor entities where
             # the entity-level `note` already does the job.
             **({"spawnNotes": spawn_notes} if any(spawn_notes) else {}),
+            **({"spawnRegions": spawn_regions} if any(spawn_regions) else {}),
             "category": override.get("category") or (existing and existing.get("category")) or "landmark",
-            "leagueRegion": existing["leagueRegion"] if existing else None,
+            "leagueRegion": entity_lr,
             "note": first.get("note", ""),
         }
         if existing:

@@ -52,6 +52,23 @@ interface RawEntity {
    * note and the Fremennik pin would render "Burthorpe" as its blurb.
    */
   spawnNotes?: (string | null)[];
+  /**
+   * Optional parallel array to `allSpawns`: `spawnRegions[i]` is the
+   * wiki-authoritative `leagueRegion` for spawn `i`. Sourced from the
+   * `leagueRegion=` parameter on each {{LocLine}} template (or the
+   * anchor page's infobox for curated entries). When present, this is
+   * the SOURCE OF TRUTH for the spawn's region — `inferRegion` trusts
+   * it absolutely and skips the bbox classification. The bbox path
+   * only runs as a last-resort fallback for spawns the wiki didn't tag.
+   *
+   * This is the fix for "Kraken Cove and Piscatoris listed as
+   * Fremennik" — the wiki tags both pages `leagueRegion = Kandarin`,
+   * but their spawn coords (y > 3580) sit just outside the runtime
+   * Kandarin bbox, so the bbox guess used to win and mislabel them
+   * as Fremennik. With wiki-sourced per-spawn regions in hand, we
+   * stop guessing.
+   */
+  spawnRegions?: (string | null)[];
   category: string | null;
   leagueRegion: string | null;
   note?: string;
@@ -198,33 +215,87 @@ function lookupLeagueRegion(lr: string | null): Region | null {
   return LEAGUE_REGION_LOOKUP[lr.trim().toLowerCase()] ?? null;
 }
 
-function inferRegion(x: number, y: number, leagueRegion: string | null): Region | null {
-  // Per-spawn bounding box takes priority over the entity's page-level
-  // leagueRegion, since a Black Knight spawn at (3029, 3517) is in
-  // Asgarnia even though the wiki tags the whole page as Wilderness.
-  // Pick the TIGHTEST (smallest-area) matching bbox so Tirannwn wins over
-  // Kandarin for points in Zul-Andra, etc.
-  let best: Region | null = null;
+/**
+ * Resolve the league region for a single spawn coord.
+ *
+ * Priority (highest first — the user's NO GUESSING rule):
+ *
+ *   1. Per-spawn `spawnRegion` from the wiki's {{LocLine|leagueRegion=…}}
+ *      parameter (or anchor-page infobox for curated entries). This is
+ *      the wiki author's own classification of THIS specific spawn —
+ *      authoritative.
+ *
+ *   2. Entity-level `leagueRegion` from the wiki page's infobox, BUT
+ *      only when the spawn coord is consistent with that region's bbox.
+ *      If the page says "Kandarin" and the bbox-of-Kandarin contains
+ *      this spawn, trust the page. If they disagree (e.g. Black Knight
+ *      page tagged Wilderness but a spawn sits in the White Knights'
+ *      Castle basement at Asgarnia coords), fall through — the wiki's
+ *      page-level tag describes the entity's "primary" region, not
+ *      every individual spawn.
+ *
+ *   3. Single-spawn shortcut: if the entity has only ONE spawn and a
+ *      page-level `leagueRegion`, trust the page even when the bbox
+ *      disagrees. Single-spawn entities with a wiki tag are landmarks /
+ *      bosses / dungeons whose region cannot be ambiguous; the bbox is
+ *      just our coordinate geometry, not a wiki source.
+ *
+ *   4. Bounding-box classification (last resort, used to be primary).
+ *      Pick the TIGHTEST (smallest-area) matching bbox so Tirannwn
+ *      wins over Kandarin for points in Zul-Andra, etc.
+ *
+ *   5. Page-level `leagueRegion` as final coord-free fallback (e.g.
+ *      Pest Control at (2658, 2625) has no bbox match but the page
+ *      tags it Asgarnia).
+ *
+ * Returns null only when every signal is missing AND the spawn sits
+ * below the southern Demonic Pacts boundary (Sailing-era ocean).
+ */
+function inferRegion(
+  x: number,
+  y: number,
+  spawnRegion: string | null,
+  entityRegion: string | null,
+  isSingleSpawn: boolean,
+): Region | null {
+  // 1. Per-spawn wiki tag — absolute source of truth.
+  const fromSpawn = lookupLeagueRegion(spawnRegion);
+  if (fromSpawn) return fromSpawn;
+
+  // Compute bbox classification once — used in priorities 2, 3 and 4.
+  let bboxRegion: Region | null = null;
   let bestArea = Infinity;
   for (const bb of REGION_BBOXES) {
     if (x >= bb.xmin && x <= bb.xmax && y >= bb.ymin && y <= bb.ymax) {
       const area = (bb.xmax - bb.xmin) * (bb.ymax - bb.ymin);
       if (area < bestArea) {
         bestArea = area;
-        best = bb.region;
+        bboxRegion = bb.region;
       }
     }
   }
-  if (best) return best;
-  const fallback = lookupLeagueRegion(leagueRegion);
-  // No bbox match. Below the southern Demonic Pacts boundary we refuse to
-  // fall back to "General" or to a missing/N-A leagueRegion — those are
-  // post-league Sailing coords (Port master at y=2370 etc.) and would
-  // render in the open sea. We DO honour a known league region (Pest
-  // Control's only spawn is (2658, 2625) with page-level "Asgarnia"),
-  // since the wiki author has explicitly tagged it as reachable content.
-  if (y < POST_LEAGUE_SOUTH_Y) return fallback;
-  return fallback ?? "General";
+
+  const fromEntity = lookupLeagueRegion(entityRegion);
+
+  // 2. Entity-level tag wins when bbox agrees — high confidence.
+  if (fromEntity && bboxRegion === fromEntity) return fromEntity;
+
+  // 3. Single-spawn shortcut — entity tag is unambiguous for this spawn.
+  // Even if bbox disagrees (Kraken Cove at y=3611 falls outside our
+  // Kandarin bbox), the wiki said Kandarin and we trust the wiki.
+  if (isSingleSpawn && fromEntity) return fromEntity;
+
+  // 4. Bbox classification (multi-spawn entities w/o per-spawn tag).
+  if (bboxRegion) return bboxRegion;
+
+  // 5. No bbox match — fall back to the page-level tag, then "General".
+  // Below the southern Demonic Pacts boundary we refuse to fall back
+  // to "General" or to a missing leagueRegion — those are post-league
+  // Sailing coords (Port master at y=2370 etc.) that would render in
+  // the open sea. A known league region is still honoured (the wiki
+  // author has explicitly tagged the content as reachable).
+  if (y < POST_LEAGUE_SOUTH_Y) return fromEntity;
+  return fromEntity ?? "General";
 }
 
 function mapCategory(c: string | null): WorldLocation["category"] {
@@ -278,18 +349,31 @@ export const ENTITY_LOCATIONS: EntityLocation[] = (() => {
     const rawSpawns: [number, number][] = ent.allSpawns.length > 0
       ? ent.allSpawns
       : [[ent.x, ent.y]];
-    // Keep `spawnNotes` parallel to the filtered spawns so we can attach
-    // the right per-spawn blurb to each region's medoid pin later.
+    // Keep `spawnNotes` and `spawnRegions` parallel to the filtered
+    // spawns so we can attach the right per-spawn blurb AND the wiki's
+    // per-spawn `leagueRegion` to each region's medoid pin later.
     const noteByCoord = new Map<string, string | null>();
+    const regionByCoord = new Map<string, string | null>();
     if (ent.spawnNotes) {
       ent.allSpawns.forEach((s, i) => {
         noteByCoord.set(`${s[0]},${s[1]}`, ent.spawnNotes?.[i] ?? null);
       });
     }
+    if (ent.spawnRegions) {
+      ent.allSpawns.forEach((s, i) => {
+        regionByCoord.set(`${s[0]},${s[1]}`, ent.spawnRegions?.[i] ?? null);
+      });
+    }
     const spawns = rawSpawns.filter(([sx, sy]) => isOnMap(sx, sy));
     if (spawns.length === 0) continue;
+    // `isSingleSpawn` triggers the "trust the wiki, ignore the bbox"
+    // shortcut in `inferRegion` — but only when the entity genuinely has
+    // ONE on-map spawn. Multi-spawn entities (Black Knight et al.) keep
+    // bbox-per-spawn so regional tasks find the right pin.
+    const isSingleSpawn = spawns.length === 1;
     for (const [sx, sy] of spawns) {
-      const r = inferRegion(sx, sy, ent.leagueRegion);
+      const spawnLR = regionByCoord.get(`${sx},${sy}`) ?? null;
+      const r = inferRegion(sx, sy, spawnLR, ent.leagueRegion, isSingleSpawn);
       if (r === null) continue;
       if (INACCESSIBLE_REGIONS.has(r)) continue;
       const arr = spawnsByRegion.get(r) ?? [];
