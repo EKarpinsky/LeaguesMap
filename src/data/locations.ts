@@ -32,17 +32,15 @@ export const LOCATIONS: WorldLocation[] = [
      "house key", "xolo",
      "stealing valuables", "steal valuables", "steal house key", "steal a blessed bone",
      "valuables", "a valuable",
-     "marcellus", "marcellus's patch",
      "at first light", "meat and greet", "death on the isle", "the final dawn"],
-    "Capital of Varlamore (Valuables thieving, Marcellus's farm patch)"),
+    "Capital of Varlamore (Valuables thieving, At First Light quest hub)"),
   L("yamas-lair", "Yama's Lair", 1484, 3202, "General", "boss",
     ["yama's lair", "yamas lair", "yama", "yama's stepping stones", "stepping stones in his league domain"],
     "Demonic Pacts home region"),
   L("aldarin", "Aldarin", 1391, 2935, "Varlamore", "city",
     ["aldarin", "grape barrel", "foreman in aldarin", "fairy ring (ckq)",
-     "statue of ates in aldarin", "andras",
-     "ribbiting tale", "lily pad labour dispute"],
-    "Fishing / farming town on the southern coast (Ribbiting Tales quest)"),
+     "statue of ates in aldarin", "andras"],
+    "Fishing / farming town on the southern coast"),
   L("sunset-coast", "Sunset Coast", 1530, 2983, "Varlamore", "landmark",
     ["sunset coast", "bucket with sand", "hunter's crossbow"],
     "Beach south of Civitas"),
@@ -78,6 +76,15 @@ export const LOCATIONS: WorldLocation[] = [
      "sunlight antelope", "moonlight antelope",
      "tecu salamander", "embertailed jerboa"],
     "Southern plains, hunter rumours, antelopes"),
+  L("locus-oasis", "Locus Oasis", 1685, 2986, "Varlamore", "landmark",
+    ["locus oasis",
+     "marcellus", "marcellus's patch", "marcellus patch",
+     "hardwood tree patch", "hardwood patch",
+     "ribbiting tale", "lily pad labour dispute",
+     "the ribbiting tale of a lily pad labour dispute",
+     "cuthbert", "cuthbert lord of dread",
+     "fairy ring (ajp)", "fairy ring ajp"],
+    "Oasis in the centre of Avium Savannah (fairy ring AJP). Quest start for The Ribbiting Tale of a Lily Pad Labour Dispute."),
   L("mastering-mixology", "Mastering Mixology", 1389, 2918, "Varlamore", "minigame",
     ["mastering mixology", "mixology shop", "alchemists outfit", "alchemist labcoat", "reagents pouch", "chugging barrel"],
     "Herblore minigame in Aldarin"),
@@ -366,25 +373,36 @@ export const LOCATIONS: WorldLocation[] = [
      "soulreaper axe", "soul reaper axe",
      "virtus", "virtus top", "virtus mask", "virtus robe", "virtus robes"],
     "Duke Sucellus (Ghorrock Prison Asylum, accessed through Ghorrock Dungeon beneath Weiss's Salt Mine). Drops the Magus vestige and a shared DT2 hilt fragment (Soulreaper Axe / Virtus armour)."),
-  // The Scar in Abyssal Space, accessed by talking to the Catalytic
-  // Guardian inside the Temple of the Eye (Mysterious Ruins, Arceuus).
-  // Wiki tags The Leviathan as leagueRegion=Desert (the boss is part of the
-  // Desert region for the Demonic Pacts league, even though its surface
-  // entry is in Arceuus). Per the project rule, landmark.region MUST equal
-  // the wiki's leagueRegion — never the surface-geography region.
-  L("leviathan-lair", "The Leviathan", 1581, 3851, "Desert", "boss",
+  // Both Leviathan and GotR pin to the *Demonic Pacts-specific* portal
+  // Jagex placed next to the Mage Training Arena in the Kharidian Desert
+  // (see https://oldschool.runescape.wiki/w/Demonic_Pacts_League/Areas/Desert
+  // — "A portal to Guardians of the Rift will be located near the Mage
+  // Training Arena."). In live-game OSRS the only surface entry to GotR /
+  // The Scar is the basement of the Wizards' Tower (Misthalin), but
+  // Misthalin is a permanently-locked region in DP, so a Desert-only
+  // player would have no walking route to either pin. The DP-only MTA
+  // portal is the one route a Desert unlock actually opens up, which is
+  // also why the wiki tags Temple of the Eye / The Leviathan / Amulet of
+  // the Eye / Tarnished Locket all as `leagueRegion = Desert`.
+  //
+  // Both pins sit on the same Desert tile (3367, 3318) just outside the
+  // MTA entrance — they cluster with the existing `mage-training-arena`
+  // pin, which is the correct on-map relationship (the portal is "near"
+  // the arena per the wiki). Region badge = Desert matches the task tag
+  // and the player's actual access path.
+  L("leviathan-lair", "The Leviathan", 3367, 3318, "Desert", "boss",
     ["leviathan", "the leviathan",
      "venator ring", "venator vestige",
      "venator bow",
      "desert treasure ii", "the fallen empire",
      "soulreaper axe", "soul reaper axe",
      "virtus", "virtus top", "virtus mask", "virtus robe", "virtus robes"],
-    "The Leviathan (The Scar in Abyssal Space, accessed via the Catalytic Guardian inside the Temple of the Eye in the Mysterious Ruins, Arceuus). Drops the Venator vestige, Venator Bow shards, and a shared DT2 hilt fragment (Soulreaper Axe / Virtus armour)."),
-  L("gotr", "Guardians of the Rift", 1572, 3842, "Desert", "minigame",
+    "The Leviathan (DT2 boss in The Scar). In Demonic Pacts the only Desert-accessible route is the GotR portal Jagex placed next to the Mage Training Arena: take the portal, then talk to the Catalytic Guardian inside the Temple of the Eye to travel into The Scar. Drops the Venator vestige, Venator Bow shards, and a shared DT2 hilt fragment (Soulreaper Axe / Virtus armour)."),
+  L("gotr", "Guardians of the Rift", 3367, 3318, "Desert", "minigame",
     ["guardians of the rift", "abyssal pearls", "wrath talisman",
      "divine rune pouch", "divine spirit shield",
      "abyssal needle", "abyssal lantern"],
-    "Runecraft minigame (source of Divine Rune pouch and catalytic talisman)"),
+    "Runecraft minigame in the Temple of the Eye. Demonic Pacts adds a dedicated portal next to the Mage Training Arena so Desert unlocks can reach it without going through the Wizards' Tower (Misthalin is locked). Source of the Colossal/Divine Rune pouch, Raiment of the Eye, and catalytic talismans."),
   // Doubles as the *generic* GWD entrance pin: the curated
   // `entity:god wars dungeon` was removed (see fetch-wiki-entities.py
   // — it produced a redundant pin ~3 tiles away that split Nex tasks
