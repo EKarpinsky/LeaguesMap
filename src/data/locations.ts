@@ -238,7 +238,7 @@ export const LOCATIONS: WorldLocation[] = [
      "rogue gear", "rogue top", "rogue trousers", "rogue mask", "rogue boots", "rogue gloves"],
     "Death Plateau town (Rogues' Den — Rogue outfit)"),
   L("taverley", "Taverley", 2910, 3451, "Asgarnia", "city",
-    ["taverley", "taverley dungeon", "heroes' guild",
+    ["taverley", "heroes' guild",
      "a porcine of interest", "porcine of interest"],
     "Druidic town (Solly — A Porcine of Interest start)"),
   L("wizards-tower", "Wizards' Tower", 3109, 3160, "Misthalin", "landmark",
@@ -664,6 +664,12 @@ export const LOCATIONS: WorldLocation[] = [
     "Canifis stuffed-head vendor"),
 
   // ───────────────────────────── Tirannwn ─────────────────────────────
+  // Prifddinas carries the "Soft Clay in Tirannwn" alias because the wiki
+  // (Soft_clay page) says "The only place to mine soft clay directly is
+  // in the Trahaearn mine" — and Trahaearn is the south-east district of
+  // Prifddinas. Lletya has no clay rocks at all, so falling through to
+  // it (the previous behaviour) parked the pin ~190 tiles south-east of
+  // the actual mining spot.
   L("prifddinas", "Prifddinas", 2210, 3390, "Tirannwn", "city",
     ["prifddinas", "crystal shards", "song of the elves", "iorwerth",
      "crystal armour", "crystal bow", "crystal halberd", "crystal shield", "crystal helmet",
@@ -674,13 +680,30 @@ export const LOCATIONS: WorldLocation[] = [
      "singing bowl", "eternal teleport crystal", "teleport crystal",
      "crystal tree",
      "dragonstone armour", "dragonstone amulet", "crystal impling",
-     "dark bow", "dark beast", "mourner tunnels"],
-    "Elf capital (all crystal gear, Song of the Elves, Dark Beasts in Mourner Tunnels)"),
+     "dark bow", "dark beast", "mourner tunnels",
+     "soft clay in tirannwn", "soft clay (tirannwn)"],
+    "Elf capital (all crystal gear, Trahaearn soft-clay mine, Song of the Elves)"),
+  // Lletya carries the Tirannwn anchor for "Leaf-bladed weapon in Tirannwn"
+  // (equip-anywhere task — without this it falls back to the Fremennik
+  // Slayer Dungeon's Kurask/Turoth drops) and the Whiteberry pick task.
+  // Magic logs and Soft Clay used to live here too but moved to their
+  // canonical wiki spots (Magic Trees grove, Prifddinas Trahaearn mine).
   L("lletya", "Lletya", 2338, 3171, "Tirannwn", "city",
     ["lletya", "roving elves",
      "whiteberry", "whiteberries",
-     "soft clay in tirannwn", "soft clay (tirannwn)"],
-    "Elf outpost (Whiteberry bush, Soft Clay in Tirannwn)"),
+     "leaf-bladed sword", "leaf-bladed battleaxe", "leaf-bladed spear",
+     "leaf-bladed weapon", "leaf bladed"],
+    "Elf outpost (Whiteberry bush, Leaf-bladed weapon equip)"),
+  // Magic tree grove west of Lletya — the only surface magic-tree cluster
+  // in Tirannwn (wiki Magic_tree LocLine "West of Lletya": x=2284..2286,
+  // y=3137..3143). Carries the "Chop Magic Logs in Tirannwn" alias so the
+  // resolver doesn't fall back to Lletya proper (~70 tiles east of the
+  // actual trees) or a Kandarin grove (Seers' Village / Sorcerer's
+  // Tower). Only the Tirannwn-scoped alias lives here — a bare "magic
+  // log" alias would steal General tasks like "Burn Some Magic Logs".
+  L("tirannwn-magic-trees", "Magic trees (Tirannwn)", 2284, 3137, "Tirannwn", "landmark",
+    ["magic logs in tirannwn", "magic log in tirannwn"],
+    "Surface magic-tree grove west of Lletya"),
   L("tirannwn-mynydd", "Mynydd", 2158, 3423, "Tirannwn", "landmark",
     ["mynydd"],
     "Wilderness of Tirannwn"),
@@ -871,8 +894,20 @@ export const LOCATIONS: WorldLocation[] = [
   L("hill-giants-edge", "Hill Giants — Edgeville Dungeon", 3097, 3469, "Misthalin", "resource",
     ["hill giant"],
     "Edgeville dungeon hill giants (Misthalin — locked in DP league)"),
+  // Aliases include "seers' village agility" and "seers' village
+  // rooftop" so the task-name-bonus in the resolver fires on
+  // #922 "Complete the Seers' Village Agility Course" — otherwise
+  // `camelot` wins via its "seers' village" alias even though the
+  // course start is 230 tiles SW of the castle. The bare "rooftop
+  // agility" alias used to live here too but it false-matched any
+  // wiki link containing "Rooftop Agility Course" — including the
+  // Ardougne course — so it's been dropped in favour of region-specific
+  // phrases that can only match the Seers' Village course.
   L("seers-rooftop", "Seers' Rooftop Agility", 2729, 3486, "Kandarin", "minigame",
-    ["seers' rooftop", "seers rooftop", "canifis rooftop", "werewolf agility", "marks of grace", "rooftop agility"],
+    ["seers' rooftop", "seers rooftop",
+     "seers' village agility", "seers village agility",
+     "seers' village rooftop", "seers village rooftop",
+     "canifis rooftop", "werewolf agility", "marks of grace"],
     "Seers' village rooftop course"),
   L("tempoross", "Tempoross", 3035, 2850, "Desert", "boss",
     ["tempoross",
@@ -933,11 +968,22 @@ export const LOCATIONS: WorldLocation[] = [
      "justiciar", "justiciar faceguard", "justiciar chestguard", "justiciar legguards",
      "sanguine dust", "holy ornament kit"],
     "ToB raid (Ghrazi Rapier, Avernic Defender, Justiciar, Scythe)"),
-  L("cerberus", "Cerberus (Taverley Slayer Cave)", 2874, 3426, "Asgarnia", "boss",
+  // Anchored at the Taverley Dungeon ladder (2884, 3398) per the wiki
+  // {{Map|x=2884|y=3398}} on the Taverley Dungeon page — same tile as
+  // the descend-to-Cerberus path through the hellhound area. Carries
+  // BOTH the Cerberus boss/drops aliases AND the "taverley dungeon"
+  // alias so that #167 "Enter the Taverley Dungeon", #717 "Unlock a
+  // Gate in Taverley Dungeon", and the 5 Cerberus tasks all collapse
+  // onto a single pin (the dungeon entry tile is the only meaningful
+  // surface destination for any of them). Used to be at (2874, 3426);
+  // moved to the canonical ladder so the dungeon-tagged tasks land on
+  // the actual entry tile instead of the open Taverley pasture.
+  L("cerberus", "Taverley Dungeon (Cerberus's Lair)", 2884, 3398, "Asgarnia", "dungeon",
     ["cerberus", "smouldering stone", "hellhound",
      "primordial boots", "pegasian boots", "eternal boots",
-     "primordial crystal", "pegasian crystal", "eternal crystal"],
-    "Cerberus lair beneath Taverley (Primordial/Pegasian/Eternal Boots)"),
+     "primordial crystal", "pegasian crystal", "eternal crystal",
+     "taverley dungeon"],
+    "Taverley Dungeon ladder — hellhound area descends to Cerberus's Lair (Primordial/Pegasian/Eternal Boots)"),
   L("camdozaal", "Ruins of Camdozaal", 2987, 3501, "Asgarnia", "dungeon",
     ["camdozaal", "below ice mountain", "ruins of camdozaal",
      "imcando hammer", "imcando pickaxe",
@@ -952,7 +998,7 @@ export const LOCATIONS: WorldLocation[] = [
      "zenyte shard", "zenyte jewelry"],
     "Monkey Madness island south of Karamja (Dragon Scimitar, Monkey backpacks, Ballistae, Zenyte)"),
   L("kraken-cove", "Kraken Cove", 2280, 3617, "Kandarin", "boss",
-    ["kraken", "cave kraken", "trident of the seas", "kraken tentacle",
+    ["kraken", "kraken cove", "cave kraken", "trident of the seas", "kraken tentacle",
      "abyssal tentacle"],
     "Kraken Cove north of Piscatoris (Trident of the Seas, Kraken tentacle → abyssal tentacle)"),
   L("ancient-cavern", "Ancient Cavern", 2513, 3513, "Kandarin", "dungeon",

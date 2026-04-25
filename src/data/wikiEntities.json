@@ -2989,12 +2989,34 @@
       [
         3426,
         3573
+      ],
+      [
+        2198,
+        3253
       ]
     ],
     "category": "monster",
     "leagueRegion": "Asgarnia",
     "resolvedTitle": "Bloodveld",
     "source": "locline",
+    "spawnNotes": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Iorwerth Dungeon"
+    ],
     "spawnRegions": [
       "Morytania",
       "Morytania",
@@ -3010,7 +3032,8 @@
       "Morytania",
       "Morytania",
       "Morytania",
-      "Morytania"
+      "Morytania",
+      "Tirannwn"
     ],
     "title": "Bloodveld",
     "x": 3409,
@@ -6821,28 +6844,6 @@
     "x": 1535,
     "y": 3050
   },
-  "cerberus": {
-    "allSpawns": [
-      [
-        2884,
-        3398
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Asgarnia",
-    "note": "Taverley Dungeon",
-    "resolvedTitle": "Cerberus",
-    "source": "curated",
-    "spawnNotes": [
-      "Taverley Dungeon"
-    ],
-    "spawnRegions": [
-      "Asgarnia"
-    ],
-    "title": "Cerberus",
-    "x": 2884,
-    "y": 3398
-  },
   "cerulean twitch": {
     "allSpawns": [
       [
@@ -9014,24 +9015,24 @@
   "dark beast": {
     "allSpawns": [
       [
-        2338,
-        3171
+        2198,
+        3253
       ]
     ],
     "category": "monster",
     "leagueRegion": "Tirannwn",
-    "note": "Lletya",
+    "note": "Iorwerth Camp",
     "resolvedTitle": "Dark Beast",
     "source": "curated",
     "spawnNotes": [
-      "Lletya"
+      "Iorwerth Camp"
     ],
     "spawnRegions": [
       "Tirannwn"
     ],
     "title": "Dark Beast",
-    "x": 2338,
-    "y": 3171
+    "x": 2198,
+    "y": 3253
   },
   "darkmeyer": {
     "allSpawns": [
@@ -12113,18 +12114,31 @@
       [
         1676,
         3098
+      ],
+      [
+        2210,
+        3415
       ]
     ],
     "category": "scenery",
     "leagueRegion": "Kandarin",
     "resolvedTitle": "Gem stall",
     "source": "objectlocline",
+    "spawnNotes": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Prifddinas (Trahaearn)"
+    ],
     "spawnRegions": [
       "Kandarin",
       "Kourend",
       "Kourend",
       "Varlamore",
-      "Varlamore"
+      "Varlamore",
+      "Tirannwn"
     ],
     "title": "Gem Stall",
     "x": 2668,
@@ -18650,50 +18664,6 @@
     "x": 3363,
     "y": 3148
   },
-  "kraken": {
-    "allSpawns": [
-      [
-        2278,
-        3611
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Kandarin",
-    "note": "Kraken Cove",
-    "resolvedTitle": "Kraken",
-    "source": "curated",
-    "spawnNotes": [
-      "Kraken Cove"
-    ],
-    "spawnRegions": [
-      "Kandarin"
-    ],
-    "title": "Kraken",
-    "x": 2278,
-    "y": 3611
-  },
-  "kraken cove": {
-    "allSpawns": [
-      [
-        2278,
-        3611
-      ]
-    ],
-    "category": "dungeon",
-    "leagueRegion": "Kandarin",
-    "note": "Kraken Cove",
-    "resolvedTitle": "Kraken Cove",
-    "source": "curated",
-    "spawnNotes": [
-      "Kraken Cove"
-    ],
-    "spawnRegions": [
-      "Kandarin"
-    ],
-    "title": "Kraken Cove",
-    "x": 2278,
-    "y": 3611
-  },
   "kree'arra": {
     "allSpawns": [
       [
@@ -18721,6 +18691,10 @@
       [
         2797,
         3616
+      ],
+      [
+        2198,
+        3253
       ]
     ],
     "category": "monster",
@@ -18729,10 +18703,12 @@
     "resolvedTitle": "Kurask",
     "source": "curated",
     "spawnNotes": [
-      "Fremennik Slayer Dungeon"
+      "Fremennik Slayer Dungeon",
+      "Iorwerth Dungeon"
     ],
     "spawnRegions": [
-      "Fremennik"
+      "Fremennik",
+      "Tirannwn"
     ],
     "title": "Kurask",
     "x": 2797,
@@ -21874,24 +21850,24 @@
   "moss giant (iorwerth dungeon)": {
     "allSpawns": [
       [
-        2338,
-        3171
+        2198,
+        3253
       ]
     ],
     "category": "monster",
     "leagueRegion": "Tirannwn",
-    "note": "Lletya",
+    "note": "Iorwerth Camp",
     "resolvedTitle": "Moss Giant (Iorwerth Dungeon)",
     "source": "curated",
     "spawnNotes": [
-      "Lletya"
+      "Iorwerth Camp"
     ],
     "spawnRegions": [
       "Tirannwn"
     ],
     "title": "Moss Giant (Iorwerth Dungeon)",
-    "x": 2338,
-    "y": 3171
+    "x": 2198,
+    "y": 3253
   },
   "motherlode mine": {
     "allSpawns": [
@@ -22080,12 +22056,30 @@
       [
         3449,
         3572
+      ],
+      [
+        2198,
+        3253
       ]
     ],
     "category": "monster",
     "leagueRegion": "Morytania",
     "resolvedTitle": "Nechryael",
     "source": "locline",
+    "spawnNotes": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "Iorwerth Dungeon"
+    ],
     "spawnRegions": [
       "Morytania",
       "Morytania",
@@ -22097,7 +22091,8 @@
       "Morytania",
       "Morytania",
       "Morytania",
-      "Morytania"
+      "Morytania",
+      "Tirannwn"
     ],
     "title": "Nechryael",
     "x": 3433,
@@ -28863,15 +28858,25 @@
       [
         1626,
         3664
+      ],
+      [
+        2210,
+        3415
       ]
     ],
     "category": "scenery",
     "leagueRegion": "Fremennik",
     "resolvedTitle": "Silver stall",
     "source": "objectlocline",
+    "spawnNotes": [
+      null,
+      null,
+      "Prifddinas (Trahaearn)"
+    ],
     "spawnRegions": [
       "Kandarin",
-      "Kourend"
+      "Kourend",
+      "Tirannwn"
     ],
     "title": "Silver Stall",
     "x": 2657,
@@ -29752,14 +29757,23 @@
       [
         1765,
         3095
+      ],
+      [
+        2210,
+        3415
       ]
     ],
     "category": "item",
     "leagueRegion": "Varlamore",
     "resolvedTitle": "Soft clay",
     "source": "itemspawnline",
+    "spawnNotes": [
+      null,
+      "Trahaearn mine (Prifddinas)"
+    ],
     "spawnRegions": [
-      "Varlamore"
+      "Varlamore",
+      "Tirannwn"
     ],
     "title": "soft clay",
     "x": 1765,
@@ -34738,36 +34752,6 @@
     "x": 2680,
     "y": 3426
   },
-  "taverley": {
-    "allSpawns": [
-      [
-        2910,
-        3451
-      ]
-    ],
-    "category": "landmark",
-    "leagueRegion": "Asgarnia",
-    "resolvedTitle": "Taverley",
-    "source": "map",
-    "title": "Taverley",
-    "x": 2910,
-    "y": 3451
-  },
-  "taverley dungeon": {
-    "allSpawns": [
-      [
-        2884,
-        3398
-      ]
-    ],
-    "category": "landmark",
-    "leagueRegion": "Asgarnia",
-    "resolvedTitle": "Taverley Dungeon",
-    "source": "map",
-    "title": "Taverley Dungeon",
-    "x": 2884,
-    "y": 3398
-  },
   "taxidermist": {
     "allSpawns": [
       [
@@ -35049,28 +35033,6 @@
     "title": "The Old Nite",
     "x": 3152,
     "y": 3644
-  },
-  "theatre of blood": {
-    "allSpawns": [
-      [
-        3663,
-        3219
-      ]
-    ],
-    "category": "raid",
-    "leagueRegion": "Morytania",
-    "note": "Theatre of Blood",
-    "resolvedTitle": "Theatre of Blood",
-    "source": "curated",
-    "spawnNotes": [
-      "Theatre of Blood"
-    ],
-    "spawnRegions": [
-      "Morytania"
-    ],
-    "title": "Theatre of Blood",
-    "x": 3663,
-    "y": 3219
   },
   "thermonuclear smoke devil": {
     "allSpawns": [
@@ -39601,25 +39563,6 @@
     "title": "windmill",
     "x": 2632,
     "y": 3385
-  },
-  "wintertodt": {
-    "allSpawns": [
-      [
-        1630,
-        3965
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Kourend",
-    "note": "Doors of Dinh",
-    "resolvedTitle": "Wintertodt",
-    "source": "curated",
-    "spawnNotes": [
-      "Doors of Dinh"
-    ],
-    "title": "Wintertodt",
-    "x": 1630,
-    "y": 3965
   },
   "wizards' guild": {
     "allSpawns": [

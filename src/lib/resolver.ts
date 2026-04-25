@@ -189,12 +189,31 @@ function matchEntitiesViaText(task: Task): string[] {
   return [...hits];
 }
 
+/**
+ * Per-task cache of "the longest alias by which landmark X matched"
+ * — populated by matchLocations and read by pickPrimary so that more
+ * specific aliases (multi-word phrases like "taverley dungeon" on the
+ * cerberus landmark) outrank generic substrings (the single word
+ * "taverley" on the taverley city landmark) when both match the same
+ * task. Without this, identical region scores fall back to PREPARED
+ * order — which is just file order and routes "Defeat Cerberus" to
+ * the city pin instead of the dungeon entrance. Cleared between
+ * resolveTask calls.
+ */
+const matchSpecificity = new Map<string, number>();
+
 function matchLocations(task: Task): string[] {
   const haystack = (
     task.descriptionClean +
     " " +
     task.wikiLinks.join(" ")
   ).toLowerCase();
+
+  matchSpecificity.clear();
+  const recordMatch = (id: string, aliasLen: number) => {
+    const prev = matchSpecificity.get(id) ?? 0;
+    if (aliasLen > prev) matchSpecificity.set(id, aliasLen);
+  };
 
   const matches = new Set<string>();
   // Prefer same-region matches first.
@@ -203,7 +222,7 @@ function matchLocations(task: Task): string[] {
     for (const alias of p.aliases) {
       if (hasAlias(haystack, alias)) {
         matches.add(p.id);
-        break;
+        recordMatch(p.id, alias.length);
       }
     }
   }
@@ -215,7 +234,7 @@ function matchLocations(task: Task): string[] {
     for (const alias of p.aliases) {
       if (hasAlias(haystack, alias)) {
         matches.add(p.id);
-        break;
+        recordMatch(p.id, alias.length);
       }
     }
   }
@@ -253,6 +272,28 @@ function pickPrimary(task: Task, candidates: string[]): string | undefined {
     } else {
       const loc = LOCATIONS.find((l) => l.id === id);
       if (loc?.region === task.region) score += 100;
+      // Reward landmarks whose matched alias was more specific (length
+      // is a coarse proxy for word count). Multiplied by 2 so a 16-char
+      // alias like "taverley dungeon" beats an 8-char alias like
+      // "taverley" by 16 points — enough to flip a tie but not enough
+      // to outrank a same-region match (+100) or an entity bonus (+10).
+      const specificity = matchSpecificity.get(id);
+      if (specificity != null) score += specificity * 2;
+      // Same task-name bonus we apply to entities, scaled down because
+      // landmarks are coarser. Without this, "Defeat Vet'ion" matches
+      // both the `vetion` landmark (alias "vet'ion", 7 chars) and the
+      // `hunters-end` landmark (alias "calvar'ion", 10 chars — pulled
+      // in via the task's "or Calvar'ion" wikiLink), and pure
+      // specificity routes the Vet'ion-named task to the wrong lair.
+      if (loc) {
+        const aliases = [loc.name.toLowerCase(), ...(loc.aliases ?? []).map((a) => a.toLowerCase())];
+        for (const a of aliases) {
+          if (a.length >= 4 && taskName.includes(a)) {
+            score += 500;
+            break;
+          }
+        }
+      }
     }
     if (score > bestScore) {
       bestScore = score;

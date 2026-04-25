@@ -91,6 +91,42 @@ SKIP_TITLES: set[str] = {
     "bounty hunter", "last man standing",
     "tzhaar-ket-rak's challenges",
     "god wars dungeon",  # we have gwd landmark
+    # Raid / boss surface entrances that already have a curated landmark in
+    # src/data/locations.ts which carries BOTH the boss aliases (so
+    # "Defeat the Wintertodt" still resolves) AND every drop-equip alias
+    # (so "Equip an Abyssal Tentacle" lands on Kraken Cove instead of
+    # falling through to a region centroid). Without skipping, the wiki
+    # scraper produces a second entity pin a few tiles away from the
+    # landmark — the kill-tasks pin to the entity, the equip-tasks pin to
+    # the landmark, and the user sees two visually-overlapping markers at
+    # the same physical location. Same Phantom-Muspah / Nex / Sire pattern
+    # as the bosses skipped above.
+    "theatre of blood",     # → theatre-of-blood landmark
+    "cerberus",             # → cerberus landmark (Taverley Dungeon ladder)
+    "wintertodt",           # → wintertodt landmark
+    "kraken",               # → kraken-cove landmark
+    # Sibling pages that the wiki scraper picks up via wikiLinks on the
+    # boss/raid pages we just skipped, then resolves to the SAME coord as
+    # the entity we removed — recreating the dup pin under a different
+    # entity slug. The Cerberus page wikiLinks "Taverley Dungeon", and the
+    # cave-kraken / kraken-boss pages wikiLink "Kraken Cove", so without
+    # SKIPing these too the resolver falls into a sibling-entity match
+    # (not the landmark) and the user still sees two pins. The matching
+    # landmark already covers both the "Enter the Taverley Dungeon"
+    # generic tasks (via "taverley dungeon" alias on the cerberus
+    # landmark) and the Kraken/Cave Kraken tasks (via "kraken" /
+    # "cave kraken" on kraken-cove).
+    "taverley dungeon",     # → cerberus landmark (carries "taverley dungeon" alias)
+    "kraken cove",          # → kraken-cove landmark
+    # `taverley` city has its own landmark in src/data/locations.ts at the
+    # same exact tile (2910, 3451). The wiki-scraped entity is redundant
+    # AND was the *real* reason "Defeat Cerberus" / "Enter the Taverley
+    # Dungeon" tasks couldn't reach the cerberus landmark — the entity
+    # text-scan fires on the substring "Taverley" inside "Taverley
+    # Dungeon" and pins the task to the city before landmark matching
+    # ever runs. Skipping it lets the resolver fall through to the
+    # cerberus landmark (which carries the "taverley dungeon" alias).
+    "taverley",
     # `[[Evil twin|Postie Pete random event]]` — the Demonic Pacts wiki
     # task list pipes "Postie Pete random event" through the `Evil twin`
     # page, which has 32 spawn LocLines scattered across every region.
@@ -101,6 +137,24 @@ SKIP_TITLES: set[str] = {
     # task fall through to "no pin, still in task list" (correct for
     # General-region random-event tasks with no actionable map position).
     "evil twin",
+    # Lesser Wilderness boss pages all auto-resolve via {{LocLine}} to the
+    # exact same tile as the corresponding hand-curated landmark in
+    # src/data/locations.ts (Vet'ion = vetion 3219,3788, Callisto =
+    # callisto 3291,3849, Venenatis = venenatis 3319,3798, Artio =
+    # hunters-end 3116,3677, Chaos Elemental = chaos-ele 3261,3927).
+    # Without skipping, the kill / CA tasks pin to the entity and the
+    # equip-drop tasks pin to the landmark, producing two markers on the
+    # same tile. Same Phantom-Muspah / Nex / Sire / GWD pattern — the
+    # landmark already carries every drop-equip alias and stays. The
+    # "X / Y / Z" landmarks intentionally bundle the upper- and lower-
+    # tier alts (Vet'ion + Calvar'ion, Callisto + Artio, Venenatis +
+    # Spindel) onto a single curated pin per lair; the entity-side
+    # equivalents would re-fragment that grouping.
+    "vet'ion", "calvar'ion",
+    "callisto", "artio",
+    "venenatis", "spindel",
+    "chaos elemental",
+    "scorpia",
 }
 
 
@@ -173,6 +227,11 @@ ANCHOR_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
     # area. Wiki: {{Map|1309,3104|1305,3033|caption=Entrances to Tonali
     # Cavern}}.
     "Tonali Cavern": (1309, 3104),
+    # Iorwerth Camp wiki Map is `{{Map|name=Iorwerth Camp|x=2198|y=3253|...}}`.
+    # Locked here so SUPPLEMENTAL_SPAWNS for Bloodveld/Kurask/Nechryael
+    # (Iorwerth Dungeon spawns) doesn't depend on the parser handling the
+    # name= attribute correctly.
+    "Iorwerth Camp": (2198, 3253),
 }
 
 
@@ -215,6 +274,69 @@ ENTITY_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
     # which is the canonical middle of the sand-crab line on the Hosidius
     # beach — players land on top of King Sand Crab spawns there.
     "king sand crab":               (1782, 3469),
+}
+
+
+# ---------------------------------------------------------------------------
+# Supplemental per-region spawns — APPENDED, not replacing
+# ---------------------------------------------------------------------------
+# For entities whose wiki LocLines for a particular league region are ALL
+# underground (mapID > 0, dropped by the surface-coord filter), we append a
+# wiki-authoritative surface anchor here. Unlike CURATED_ENTITIES this does
+# NOT replace the wiki-scraped data — it simply adds another (x, y) +
+# spawnRegions entry so the runtime can emit a region-specific pin.
+#
+# Use SUPPLEMENTAL_SPAWNS when the entity already has good wiki data for
+# OTHER regions and you only need to fix ONE region's missing surface
+# anchor. Use CURATED_ENTITIES with `spawns` when you need to override
+# every region the entity appears in.
+#
+# Each entry is keyed by the lowercased wiki title and lists one anchor
+# per missing region:
+#   "<entity title>": [
+#       {"anchor": "<wiki page>", "region": "<canonical region>", "note": "<blurb>"},
+#   ]
+SUPPLEMENTAL_SPAWNS: dict[str, list[dict]] = {
+    # Bloodveld: wiki LocLines for the Iorwerth Dungeon spawn (Mutated
+    # Bloodveld, which counts as Bloodveld for slayer & league tasks)
+    # are mapID > 0 and dropped. Surface anchor is the Iorwerth Camp
+    # entrance to the dungeon (wiki Iorwerth_Camp page Map = 2198,3253).
+    "bloodveld": [
+        {"anchor": "Iorwerth Camp", "region": "Tirannwn", "note": "Iorwerth Dungeon"},
+    ],
+    # Kurask: wiki Kurask page lists the Iorwerth Dungeon LocLine with
+    # leagueRegion = Tirannwn but mapID = -1, so the auto-scrape drops
+    # it. Surface anchor is the same Iorwerth Camp entrance.
+    "kurask": [
+        {"anchor": "Iorwerth Camp", "region": "Tirannwn", "note": "Iorwerth Dungeon"},
+    ],
+    # Nechryael: wiki Greater_Nechryael page has the Iorwerth Dungeon
+    # LocLine tagged Tirannwn (mapID = 34). Same Iorwerth Camp anchor.
+    "nechryael": [
+        {"anchor": "Iorwerth Camp", "region": "Tirannwn", "note": "Iorwerth Dungeon"},
+    ],
+    # Silver Stall: the Prifddinas Trahaearn-district market silver stall
+    # is reachable inside the Tirannwn city. Anchor to Prifddinas (which
+    # ANCHOR_COORD_OVERRIDES locks to the Tower of Voices walk-in).
+    "silver stall": [
+        {"anchor": "Prifddinas", "region": "Tirannwn", "note": "Prifddinas (Trahaearn)"},
+    ],
+    # Gem Stall: same Trahaearn market, same Prifddinas anchor.
+    "gem stall": [
+        {"anchor": "Prifddinas", "region": "Tirannwn", "note": "Prifddinas (Trahaearn)"},
+    ],
+    # Soft Clay: wiki Soft_clay page says verbatim "The only place to mine
+    # soft clay directly is in the Trahaearn mine" (Prifddinas, Tirannwn).
+    # The Trahaearn mine itself is mapID > 0 (instanced city interior at
+    # 3290..3295, 12443..12452) so the auto-scrape drops it and the entity
+    # ends up with only its Varlamore / Karamja non-clay surface spawns.
+    # Without this supplement, "Mine 200 Soft Clay in Tirannwn" can't find
+    # an entity-level Tirannwn pin and falls through to the lletya landmark
+    # (~190 tiles SE of the actual mining spot). Anchor to Prifddinas (which
+    # ANCHOR_COORD_OVERRIDES locks to the Tower of Voices walk-in).
+    "soft clay": [
+        {"anchor": "Prifddinas", "region": "Tirannwn", "note": "Trahaearn mine (Prifddinas)"},
+    ],
 }
 
 
@@ -375,11 +497,16 @@ CURATED_ENTITIES: dict[str, dict] = {
     # without any region unlock); without that, kill tasks were
     # showing up with a Wilderness badge in the popup despite being
     # General-region in the task list.
-    # Cerberus' Lair is accessed via the hellhound room in Taverley
-    # Dungeon (Asgarnia). The Cerberus' Lair wiki page's own Map template
-    # points at instance coords (mapID=10030), so we anchor to Taverley
-    # Dungeon's surface entrance at (2884, 3398) instead.
-    "cerberus":                  {"anchor": "Taverley Dungeon",       "category": "boss"},
+    # Cerberus is intentionally NOT a curated entity — the `cerberus`
+    # landmark in src/data/locations.ts already carries both the boss
+    # alias (so "Defeat Cerberus" still resolves) AND the boot drops
+    # (Primordial / Pegasian / Eternal Boots + crystals). Two pins were
+    # splitting the 5 kill / CA / boots-set tasks (matched via wikiLink →
+    # entity at Taverley Dungeon ladder 2884,3398) from the 1 generic
+    # boots-equip task (matched via landmark alias at Taverley Slayer
+    # Cave 2874,3426). Same Phantom-Muspah / Nex / Sire pattern —
+    # landmark wins. Listed in SKIP_TITLES above to keep wiki re-scrapes
+    # from re-creating the entity from the Cerberus wiki page.
     "alchemical hydra":          {"anchor": "Mount Karuulm",          "category": "boss"},
     # Wiki distinguishes [[Smoke Dungeon]] (Desert, DT1-era dust devils at
     # 3310,2962) from [[Smoke Devil Dungeon]] (Kandarin, the thermonuclear's
@@ -421,7 +548,10 @@ CURATED_ENTITIES: dict[str, dict] = {
     "the nightmare":             {"anchor": "Slepe",                  "category": "boss"},
     "phosani's nightmare":       {"anchor": "Slepe",                  "category": "boss"},
     "tempoross":                 {"anchor": "Ruins of Unkah",         "category": "boss"},
-    "wintertodt":                {"anchor": "Doors of Dinh",          "category": "boss"},
+    # Wintertodt is intentionally NOT a curated entity — the `wintertodt`
+    # landmark already carries both the boss alias AND the Frozen Cache /
+    # Pyromancer outfit drops. Listed in SKIP_TITLES above. Same
+    # landmark-wins dedup as Cerberus / ToB / Kraken.
 
     # ───── Barrows brothers & their equipment → Barrows mounds ─────
     "dharok the wretched":              {"anchor": "Barrows", "category": "monster"},
@@ -440,7 +570,17 @@ CURATED_ENTITIES: dict[str, dict] = {
     # ───── Raids (surface entrances) ─────
     "chambers of xeric":         {"anchor": "Chambers of Xeric",      "category": "raid"},
     "tombs of amascut":          {"anchor": "Tombs of Amascut",       "category": "raid"},
-    "theatre of blood":          {"anchor": "Theatre of Blood",       "category": "raid"},
+    # Theatre of Blood is intentionally NOT a curated entity — the
+    # `theatre-of-blood` landmark in src/data/locations.ts already carries
+    # both "theatre of blood" / "tob" / "ver sinhaza" aliases AND every
+    # ToB drop the player goes there for (Scythe of Vitur, Ghrazi
+    # Rapier, Avernic Defender, Justiciar set pieces, Sanguine dust, ToB
+    # ornament kit). Two pins were splitting the 4 kill / ornament / CA
+    # tasks (matched via wikiLink → entity at 3663,3219) from the 5
+    # equip-set tasks (matched via landmark alias at 3671,3224 — the
+    # actual Ver Sinhaza entrance). Listed in SKIP_TITLES above. Same
+    # landmark-wins dedup as CoX/ToA stay curated because their entity
+    # coords already happen to exactly match the landmark.
 
     # ───── TzHaar ─────
     "tzhaar-ket-rak":              {"anchor": "Mor Ul Rek", "category": "monster"},
@@ -513,11 +653,19 @@ CURATED_ENTITIES: dict[str, dict] = {
     ], "category": "monster", "leagueRegion": "Karamja"},
     "drake":                           {"anchor": "Mount Karuulm",              "category": "monster"},
     "hydra":                           {"anchor": "Mount Karuulm",              "category": "monster"},
-    # Dark beasts live in the Iorwerth Dungeon (Tirannwn). West Ardougne
-    # was inheriting Kandarin from the bbox.
-    "dark beast":                      {"anchor": "Lletya",                     "category": "monster",
+    # Dark beasts live in the Iorwerth Dungeon (Tirannwn). The dungeon's
+    # surface entry point is the Iorwerth Camp at (2198, 3253) — same
+    # anchor used for Bloodveld/Kurask/Nechryael spawns inside the same
+    # dungeon, so all five Iorwerth Dungeon slayer pins cluster correctly.
+    # Lletya was the previous anchor; it sits in Isafdar but is *not*
+    # the dungeon entrance (Lletya = (2338, 3171) ≈ 140 tiles east).
+    "dark beast":                      {"anchor": "Iorwerth Camp",              "category": "monster",
                                         "leagueRegion": "Tirannwn"},
-    "moss giant (iorwerth dungeon)":   {"anchor": "Lletya",                     "category": "monster"},
+    # Same story for the Iorwerth Dungeon moss giants — wiki page
+    # `Moss giant (Iorwerth Dungeon)` (linked from Iorwerth_Dungeon
+    # gallery) is the only fightable Tirannwn moss giant.
+    "moss giant (iorwerth dungeon)":   {"anchor": "Iorwerth Camp",              "category": "monster",
+                                        "leagueRegion": "Tirannwn"},
     "elf":                             {"anchor": "Lletya",                     "category": "monster"},
     "elf (disambiguation)":            {"anchor": "Lletya",                     "category": "monster"},
     # Song of the Elves final boss — fought in Prifddinas's Grand Library,
@@ -625,8 +773,14 @@ CURATED_ENTITIES: dict[str, dict] = {
     # ("Defeat Any God Wars Dungeon Boss N Times") now match the
     # "god wars dungeon" alias on `nex-lair`.
     "waterbirth island dungeon":   {"anchor": "Waterbirth Island",     "category": "dungeon"},
-    "kraken":                      {"anchor": "Kraken Cove",           "category": "boss"},
-    "kraken cove":                 {"anchor": "Kraken Cove",           "category": "dungeon"},
+    # Kraken / Kraken Cove are intentionally NOT curated entities — the
+    # `kraken-cove` landmark already carries "kraken" / "cave kraken" /
+    # "kraken cove" aliases AND every drop player goes there for
+    # (Trident of the Seas, Kraken tentacle → Abyssal tentacle). Both
+    # entity slugs (`kraken` and `kraken cove`) used to render at
+    # essentially the same tile (~6 apart from the landmark), so leaving
+    # either one in produced a visible double pin. Both listed in
+    # SKIP_TITLES above. Same Phantom-Muspah / Nex / Sire dedup.
     # See note on "thermonuclear smoke devil" — the Smoke Devil Dungeon entity
     # is the Kandarin one (south-east of Castle Wars), not the Desert "Smoke
     # Dungeon" from DT1.
@@ -1492,6 +1646,44 @@ def main() -> int:
         else:
             curated_added += 1
     print(f"\nCurated overrides: replaced {curated_applied}, added {curated_added} new entities, skipped {curated_skipped} (unresolvable).")
+
+    # -------------------------------------------------------------------
+    # Apply SUPPLEMENTAL_SPAWNS — append additional region anchors to
+    # existing entities WITHOUT replacing their wiki-scraped data. Used
+    # for entities whose wiki LocLines for a particular league region
+    # are all underground (mapID > 0, dropped by the surface-coord filter)
+    # so the auto-scrape leaves no candidate for "in <region>" tasks.
+    # Unlike CURATED_ENTITIES with `spawns`, this preserves every other
+    # region's existing pin coord. See patch-tirannwn-spawns.mjs for the
+    # equivalent JSON-only patcher used outside the scrape pipeline.
+    # -------------------------------------------------------------------
+    supplemental_applied = 0
+    for key, supplements in SUPPLEMENTAL_SPAWNS.items():
+        ent = entities.get(key)
+        if not ent:
+            print(f"  WARN SUPPLEMENTAL_SPAWNS: no entity '{key}' to supplement; skipping")
+            continue
+        all_spawns = ent.setdefault("allSpawns", [])
+        spawn_regions = ent.setdefault("spawnRegions", [None] * len(all_spawns))
+        spawn_notes = ent.setdefault("spawnNotes", [None] * len(all_spawns))
+        # Pad parallel arrays if upstream populated only some.
+        while len(spawn_regions) < len(all_spawns):
+            spawn_regions.append(None)
+        while len(spawn_notes) < len(all_spawns):
+            spawn_notes.append(None)
+        for sup in supplements:
+            region = sup["region"]
+            if any((r or "").lower() == region.lower() for r in spawn_regions):
+                continue  # already has a spawn in this region
+            xy = ANCHOR_COORD_OVERRIDES.get(sup["anchor"]) or anchor_coord.get(sup["anchor"])
+            if not xy:
+                print(f"  WARN SUPPLEMENTAL_SPAWNS: anchor '{sup['anchor']}' unresolved for {key}; skipping")
+                continue
+            all_spawns.append([xy[0], xy[1]])
+            spawn_regions.append(region)
+            spawn_notes.append(sup.get("note") or sup["anchor"])
+            supplemental_applied += 1
+    print(f"Supplemental spawns applied: {supplemental_applied}")
 
     # -------------------------------------------------------------------
     # Apply ENTITY_COORD_OVERRIDES as a final pass. These correct entities
