@@ -5,6 +5,7 @@ import { matchesFilter } from "../lib/filters";
 import type { FilterState } from "../lib/filters";
 import { ALL_PLACEMENTS, ALL_TASKS } from "../lib/taskIndex";
 import type { ProgressStats } from "../lib/useCompletedTasks";
+import { analytics } from "../lib/analytics";
 import "./FilterSidebar.css";
 
 // Render `⌘K` on macOS (where Cmd+K is muscle memory) and `Ctrl K` on every
@@ -36,6 +37,13 @@ export interface FilterSidebarProps {
   progress: ProgressStats;
   /** Reset the entire completion set. Confirmed locally before firing. */
   onResetProgress: () => void;
+  /**
+   * Total tasks currently visible after filters apply (mappable +
+   * unmappable). Threaded down only so the debounced search-tracking
+   * effect can record "this query → N results" without re-deriving
+   * the whole filter pipeline here.
+   */
+  visibleCount: number;
 }
 
 interface FacetCounts {
@@ -97,9 +105,33 @@ export default function FilterSidebar({
   completed,
   progress,
   onResetProgress,
+  visibleCount,
 }: FilterSidebarProps) {
   const { regionCounts, difficultyCounts } = useFacetCounts(filters, completed);
   const [confirmReset, setConfirmReset] = useState(false);
+
+  // Debounced search analytics. Wait until the user has stopped
+  // typing for 800 ms so we don't ship one event per keystroke
+  // (which would blow through the Vercel custom-event quota AND
+  // produce a noisy dashboard of "vor", "vork", "vorka", "vorkat",
+  // "vorkath"). Empty / cleared searches are skipped — a "search"
+  // dashboard cluttered with empty-string entries is useless.
+  // visibleCount lets us spot popular queries with zero results,
+  // which surfaces gaps in wiki coverage worth fixing.
+  useEffect(() => {
+    const q = filters.search.trim();
+    if (!q) return;
+    const handle = window.setTimeout(() => {
+      analytics.searchPerformed({
+        // Lowercase + truncate keeps the value within Vercel's 255-char
+        // property cap and buckets case variants together.
+        query: q.toLowerCase().slice(0, 64),
+        length: q.length,
+        visibleCount,
+      });
+    }, 800);
+    return () => window.clearTimeout(handle);
+  }, [filters.search, visibleCount]);
   // Manual JSON export/import was deliberately removed: nobody
   // hand-rolls JSON for their league progress. A future "Sync from
   // RuneLite" flow will hit the LeaguesSync community plugin's
@@ -122,38 +154,56 @@ export default function FilterSidebar({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onToggle]);
 
-  const toggleRegion = (r: Region) =>
+  const toggleRegion = (r: Region) => {
+    const enabled = !filters.regions.has(r);
+    analytics.filterChanged({ kind: "region", value: r, enabled });
     setFilters((f) => {
       const next = new Set(f.regions);
       if (next.has(r)) next.delete(r);
       else next.add(r);
       return { ...f, regions: next };
     });
-  const toggleDifficulty = (d: Difficulty) =>
+  };
+  const toggleDifficulty = (d: Difficulty) => {
+    const enabled = !filters.difficulties.has(d);
+    analytics.filterChanged({ kind: "difficulty", value: d, enabled });
     setFilters((f) => {
       const next = new Set(f.difficulties);
       if (next.has(d)) next.delete(d);
       else next.add(d);
       return { ...f, difficulties: next };
     });
+  };
 
   const allRegionsOn = filters.regions.size === REGION_DISPLAY_ORDER.length;
   const allDifficultiesOn = filters.difficulties.size === DIFFICULTIES.length;
 
-  const toggleAllRegions = () =>
+  const toggleAllRegions = () => {
+    analytics.filterChanged({
+      kind: "region",
+      value: allRegionsOn ? "none" : "all",
+      enabled: null,
+    });
     setFilters((f) => ({
       ...f,
       regions: allRegionsOn
         ? new Set<Region>()
         : new Set<Region>(REGION_DISPLAY_ORDER),
     }));
-  const toggleAllDifficulties = () =>
+  };
+  const toggleAllDifficulties = () => {
+    analytics.filterChanged({
+      kind: "difficulty",
+      value: allDifficultiesOn ? "none" : "all",
+      enabled: null,
+    });
     setFilters((f) => ({
       ...f,
       difficulties: allDifficultiesOn
         ? new Set<Difficulty>()
         : new Set<Difficulty>(DIFFICULTIES),
     }));
+  };
 
   const activeCount =
     (filters.regions.size < REGION_DISPLAY_ORDER.length
@@ -271,9 +321,15 @@ export default function FilterSidebar({
             <input
               type="checkbox"
               checked={filters.hideCompleted}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, hideCompleted: e.target.checked }))
-              }
+              onChange={(e) => {
+                const enabled = e.target.checked;
+                analytics.filterChanged({
+                  kind: "hideCompleted",
+                  value: String(enabled),
+                  enabled,
+                });
+                setFilters((f) => ({ ...f, hideCompleted: enabled }));
+              }}
             />
             <span className="optrow-check" aria-hidden />
             <span className="optrow-label">Hide completed</span>
@@ -429,23 +485,40 @@ export default function FilterSidebar({
           checked={filters.pactOnly}
           label="Demonic Pact tasks only"
           hint="Hide tasks that aren't part of a pact"
-          onChange={(v) => setFilters((f) => ({ ...f, pactOnly: v }))}
+          onChange={(v) => {
+            analytics.filterChanged({
+              kind: "pactOnly",
+              value: String(v),
+              enabled: v,
+            });
+            setFilters((f) => ({ ...f, pactOnly: v }));
+          }}
         />
         <OptRow
           checked={filters.includeCentroidFallbacks}
           label="Region fallback pins"
           hint="Show pins at region centers when an exact location is unknown"
-          onChange={(v) =>
-            setFilters((f) => ({ ...f, includeCentroidFallbacks: v }))
-          }
+          onChange={(v) => {
+            analytics.filterChanged({
+              kind: "includeCentroidFallbacks",
+              value: String(v),
+              enabled: v,
+            });
+            setFilters((f) => ({ ...f, includeCentroidFallbacks: v }));
+          }}
         />
         <OptRow
           checked={filters.includeUnmappable}
           label="Non-spatial tasks"
           hint="Include skill, achievement, and collection-log tasks"
-          onChange={(v) =>
-            setFilters((f) => ({ ...f, includeUnmappable: v }))
-          }
+          onChange={(v) => {
+            analytics.filterChanged({
+              kind: "includeUnmappable",
+              value: String(v),
+              enabled: v,
+            });
+            setFilters((f) => ({ ...f, includeUnmappable: v }));
+          }}
         />
       </section>
       </div>

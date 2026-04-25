@@ -12,8 +12,10 @@ import FilterSidebar from "./components/FilterSidebar";
 import TaskList from "./components/TaskList";
 import { defaultFilters, matchesFilter } from "./lib/filters";
 import type { FilterState } from "./lib/filters";
-import { ALL_PLACEMENTS, ALL_TASKS, getPlacement } from "./lib/taskIndex";
+import { ALL_PLACEMENTS, ALL_TASKS, getPlacement, getTask } from "./lib/taskIndex";
 import { useCompletedTasks } from "./lib/useCompletedTasks";
+import { analytics } from "./lib/analytics";
+import type { TaskSelectSource } from "./lib/analytics";
 import type { Task } from "./types";
 import "./App.css";
 
@@ -70,6 +72,33 @@ function App() {
     stats: progressStats,
   } = useCompletedTasks();
 
+  // Track every completion toggle. Wrapping the raw mutator (rather
+  // than instrumenting it inside the hook) keeps `useCompletedTasks`
+  // analytics-free and lets us pass a `source` discriminator from the
+  // call site — sidebar list vs. map-popup checkbox.
+  const handleToggleComplete = useCallback(
+    (id: string, source: TaskSelectSource = "list") => {
+      const wasDone = completed.has(id);
+      const t = getTask(id);
+      if (t) {
+        analytics.taskCompletionToggled({
+          taskId: id,
+          region: t.region,
+          tier: t.difficulty,
+          completed: !wasDone,
+          source,
+        });
+      }
+      toggleTask(id);
+    },
+    [completed, toggleTask],
+  );
+
+  const handleResetProgress = useCallback(() => {
+    analytics.progressReset({ completedCountBefore: completed.size });
+    resetAll();
+  }, [completed.size, resetAll]);
+
   // Only forward `completed` into matchesFilter when the user actually
   // turned on "Hide completed". Otherwise the filter ignores it anyway,
   // and mixing it into the dep list rebuilds tasksByLocation (and thus
@@ -119,11 +148,20 @@ function App() {
   }, [filters, completedForFilter]);
 
 
-  const handleSelectTask = useCallback((id: string) => {
+  const handleSelectTask = useCallback((id: string, source: TaskSelectSource = "list") => {
     setSelectedTaskId(id);
     const placement = getPlacement(id);
     if (placement && placement.locations.length > 0) {
       setSelectedLocationId(placement.primary ?? placement.locations[0]);
+    }
+    const t = getTask(id);
+    if (t) {
+      analytics.taskSelected({
+        taskId: id,
+        region: t.region,
+        tier: t.difficulty,
+        source,
+      });
     }
     // On the mobile bottom-sheet layout, the sidebar is floating over the
     // map. If we leave the accordions expanded after a task tap, the user
@@ -182,7 +220,10 @@ function App() {
   // component because (a) it owns no reusable logic and (b) the project
   // rule is to prefer existing files over new ones.
   const [aboutOpen, setAboutOpen] = useState(false);
-  const openAboutDialog = useCallback(() => setAboutOpen(true), []);
+  const openAboutDialog = useCallback(() => {
+    analytics.aboutDialogOpened();
+    setAboutOpen(true);
+  }, []);
   const closeAboutDialog = useCallback(() => setAboutOpen(false), []);
   // Global Escape close for the About modal mirrors the bug dialog's
   // a11y contract — the listener only attaches while the modal is open
@@ -207,6 +248,7 @@ function App() {
   const bugTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const openBugDialog = useCallback(() => {
+    analytics.bugDialogOpened();
     setBugStatus("idle");
     setBugError(null);
     setBugOpen(true);
@@ -271,6 +313,7 @@ function App() {
         );
       }
       setBugStatus("sent");
+      analytics.bugSubmitted({ status: "success", messageLength: trimmed.length });
       // Auto-close after a moment so the user gets a clear receipt.
       setTimeout(() => closeBugDialog(), 1400);
     } catch (err) {
@@ -280,6 +323,7 @@ function App() {
           ? err.message
           : "Couldn't send the report — please try again.",
       );
+      analytics.bugSubmitted({ status: "error", messageLength: trimmed.length });
     }
   }, [bugMessage, bugHoneypot, closeBugDialog]);
 
@@ -337,7 +381,8 @@ function App() {
           onToggle={toggleFilters}
           completed={completed}
           progress={progressStats}
-          onResetProgress={resetAll}
+          onResetProgress={handleResetProgress}
+          visibleCount={mappableTasks.length + unmappableTasks.length}
         />
         <TaskList
           tasks={mappableTasks}
@@ -348,7 +393,7 @@ function App() {
           open={tasksOpen}
           onToggle={toggleTasks}
           completed={completed}
-          onToggleComplete={toggleTask}
+          onToggleComplete={handleToggleComplete}
         />
       </aside>
       <main className="app-map">
@@ -359,7 +404,7 @@ function App() {
             onSelectLocation={handleSelectLocation}
             onSelectTask={handleSelectTask}
             completed={completed}
-            onToggleComplete={toggleTask}
+            onToggleComplete={handleToggleComplete}
           />
         </Suspense>
       </main>

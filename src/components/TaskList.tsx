@@ -1,13 +1,14 @@
 import { useMemo, useRef, useEffect } from "react";
 import type { Task, TaskPlacement } from "../types";
 import { getLocation, getPlacement } from "../lib/taskIndex";
+import type { TaskSelectSource } from "../lib/analytics";
 import "./TaskList.css";
 
 export interface TaskListProps {
   tasks: Task[];
   unmappableTasks: Task[];
   selectedTaskId: string | null;
-  onSelectTask: (id: string) => void;
+  onSelectTask: (id: string, source?: TaskSelectSource) => void;
   onSelectLocation: (id: string) => void;
   open: boolean;
   onToggle: () => void;
@@ -190,7 +191,7 @@ interface TaskRowProps {
   task: Task;
   placement?: TaskPlacement;
   selected: boolean;
-  onSelectTask: (id: string) => void;
+  onSelectTask: (id: string, source?: TaskSelectSource) => void;
   onSelectLocation: (id: string) => void;
   nonSpatial?: boolean;
   done: boolean;
@@ -220,7 +221,7 @@ function TaskRow({
   const interactive = !nonSpatial;
   const handleClick = interactive
     ? () => {
-        onSelectTask(task.id);
+        onSelectTask(task.id, "list");
         if (placement?.locations[0]) {
           onSelectLocation(placement.primary ?? placement.locations[0]);
         }

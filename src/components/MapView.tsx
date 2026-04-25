@@ -10,6 +10,8 @@ import {
   imagePixelToGame,
 } from "../lib/calibration";
 import { ALL_LOCATIONS, getLocation } from "../lib/taskIndex";
+import { analytics } from "../lib/analytics";
+import type { TaskSelectSource } from "../lib/analytics";
 import "leaflet/dist/leaflet.css";
 import "./MapView.css";
 
@@ -17,7 +19,7 @@ export interface MapViewProps {
   tasksByLocation: Map<string, Task[]>;
   selectedLocationId: string | null;
   onSelectLocation: (id: string | null) => void;
-  onSelectTask: (id: string) => void;
+  onSelectTask: (id: string, source?: TaskSelectSource) => void;
   /**
    * Set of task ids the user has marked complete. Threaded through so
    * pin badges show REMAINING tasks, fully-done pins can dim out, and
@@ -94,7 +96,7 @@ function buildPopupContent(
   loc: { name: string; region: string; blurb?: string },
   tasks: Task[],
   completed: ReadonlySet<string>,
-  onSelectTask: (id: string) => void,
+  onSelectTask: (id: string, source?: TaskSelectSource) => void,
   onToggleComplete: (id: string) => void,
 ): HTMLElement {
   const el = document.createElement("div");
@@ -162,7 +164,7 @@ function buildPopupContent(
       // Only treat clicks outside the checkbox as a "jump to task".
       const target = e.target as HTMLElement;
       if (target.closest(".task-line-check")) return;
-      onSelectTask(t.id);
+      onSelectTask(t.id, "popup");
     });
     list.appendChild(li);
   }
@@ -378,7 +380,7 @@ export default function MapView({
             loc,
             tasks,
             completedRef.current,
-            (id) => onSelectTaskRef.current(id),
+            (id, source) => onSelectTaskRef.current(id, source),
             (id) => onToggleCompleteRef.current(id),
           ),
         {
@@ -388,6 +390,25 @@ export default function MapView({
           autoPanPaddingBottomRight: L.point(24, 200),
         },
       );
+      // Pin-click analytics. Bound to `click` (not `popupopen`) on
+      // purpose: `popupopen` also fires when the sidebar selects a
+      // task and we programmatically open that pin's popup, which
+      // would double-count and conflate the two interaction sources.
+      // `click` fires only on real user clicks/taps on the marker
+      // itself.
+      marker.on("click", () => {
+        const remaining = tasks.reduce(
+          (n, t) => (completedRef.current.has(t.id) ? n : n + 1),
+          0,
+        );
+        analytics.pinClicked({
+          locationId: loc.id,
+          region: loc.region,
+          taskCount: tasks.length,
+          remaining,
+          hasPact,
+        });
+      });
       marker.on("popupopen", () => onSelectLocationRef.current(loc.id));
       marker.on("popupclose", () => {
         // Only deselect on close if this pin is still the selected one
@@ -456,7 +477,7 @@ export default function MapView({
               loc,
               meta.tasks,
               completed,
-              (tid) => onSelectTaskRef.current(tid),
+              (tid, source) => onSelectTaskRef.current(tid, source),
               (tid) => onToggleCompleteRef.current(tid),
             ),
           );
