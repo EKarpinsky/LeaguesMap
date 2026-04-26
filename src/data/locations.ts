@@ -435,7 +435,20 @@ export const LOCATIONS: WorldLocation[] = [
      "virtus", "virtus top", "virtus mask", "virtus robe", "virtus robes"],
     "The Leviathan (DT2 boss in The Scar). In Demonic Pacts the only Desert-accessible route is the GotR portal Jagex placed next to the Mage Training Arena: take the portal, then talk to the Catalytic Guardian inside the Temple of the Eye to travel into The Scar. Drops the Venator vestige, Venator Bow shards, and a shared DT2 hilt fragment (Soulreaper Axe / Virtus armour)."),
   L("gotr", "Guardians of the Rift", 3367, 3318, "Desert", "minigame",
-    ["guardians of the rift", "abyssal pearls", "wrath talisman",
+    // The "Guardians of the Rift X Rifts closed" tasks wikilink to
+    // [[Temple of the Eye (location)]] and have descriptions like
+    // "Close the Rift in the Temple of the Eye 10 times." — no
+    // mention of "Guardians of the Rift" in either the wikiLink OR
+    // the description body, so the resolver's text-scan misses the
+    // primary "guardians of the rift" alias entirely. Adding the
+    // Temple-of-the-Eye aliases lets the wikilink hit, and "rift
+    // closed" / "close the rift" / "the rift" guard against future
+    // task description variants. The drop-tasks (Divine Rune pouch /
+    // Abyssal Lantern / etc.) already match via their own aliases.
+    ["guardians of the rift",
+     "temple of the eye", "temple of the eye (location)",
+     "close the rift", "rift closed", "rifts closed",
+     "abyssal pearls", "wrath talisman",
      "divine rune pouch", "divine spirit shield",
      "abyssal needle", "abyssal lantern"],
     "Runecraft minigame in the Temple of the Eye. Demonic Pacts adds a dedicated portal next to the Mage Training Arena so Desert unlocks can reach it without going through the Wizards' Tower (Misthalin is locked). Source of the Colossal/Divine Rune pouch, Raiment of the Eye, and catalytic talismans."),

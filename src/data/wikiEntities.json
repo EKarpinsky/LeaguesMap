@@ -15010,28 +15010,6 @@
     "x": 1645,
     "y": 3108
   },
-  "guardians of the rift": {
-    "allSpawns": [
-      [
-        1700,
-        3800
-      ]
-    ],
-    "category": "minigame",
-    "leagueRegion": "Desert",
-    "note": "Arceuus",
-    "resolvedTitle": "Guardians Of The Rift",
-    "source": "curated",
-    "spawnNotes": [
-      "Arceuus"
-    ],
-    "spawnRegions": [
-      "Desert"
-    ],
-    "title": "Guardians Of The Rift",
-    "x": 1700,
-    "y": 3800
-  },
   "guthan the infested": {
     "allSpawns": [
       [

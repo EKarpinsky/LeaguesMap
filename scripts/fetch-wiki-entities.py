@@ -105,6 +105,23 @@ SKIP_TITLES: set[str] = {
     "cerberus",             # → cerberus landmark (Taverley Dungeon ladder)
     "wintertodt",           # → wintertodt landmark
     "kraken",               # → kraken-cove landmark
+    # Guardians of the Rift: the wiki tags the minigame `leagueRegion =
+    # Desert` even though the live-game surface entry (Wizards' Tower
+    # basement) is in Misthalin, because Demonic Pacts adds a dedicated
+    # GotR portal next to the Mage Training Arena in the Kharidian
+    # Desert (see https://oldschool.runescape.wiki/w/Demonic_Pacts_League/Areas/Desert
+    # — "A portal to Guardians of the Rift will be located near the
+    # Mage Training Arena."). The previous curated entry anchored to
+    # the `Arceuus` page (~1700, 3800) which forced the badge to "Desert"
+    # but rendered the pin geographically inside Arceuus city — same
+    # pre-DP Temple-of-the-Eye coords the wiki Map points at. The `gotr`
+    # landmark in src/data/locations.ts already lives at the actual MTA
+    # portal (3367, 3318) AND carries the "guardians of the rift" alias
+    # plus every drop-equip alias (Abyssal Lantern, Divine Rune Pouch,
+    # Raiments of the Eye, etc.), so deleting the entity lets the
+    # landmark win and the pin lands where region-locked Desert players
+    # can actually reach it.
+    "guardians of the rift", # → gotr landmark (DP-only MTA portal in Desert)
     # Sibling pages that the wiki scraper picks up via wikiLinks on the
     # boss/raid pages we just skipped, then resolves to the SAME coord as
     # the entity we removed — recreating the dup pin under a different
@@ -762,12 +779,16 @@ CURATED_ENTITIES: dict[str, dict] = {
     "aerial fishing":              {"anchor": "Lovakengj",             "category": "minigame"},
     "trouble brewing":             {"anchor": "Trouble Brewing",       "category": "minigame"},
     "hallowed sepulchre":          {"anchor": "Hallowed Sepulchre",    "category": "minigame"},
-    # Wiki [[Guardians of the Rift]] infobox tags the minigame `leagueRegion = Desert`
-    # despite the surface entrance being in Arceuus (Kourend). Per the rule
-    # "follow the wiki, period", we override the anchor's inherited LR so the
-    # pin's badge is Desert (matching the wiki's own classification of the activity).
-    "guardians of the rift":       {"anchor": "Arceuus",               "category": "minigame",
-                                    "leagueRegion": "Desert"},
+    # Guardians of the Rift is intentionally NOT a curated entity — see
+    # the long comment in SKIP_TITLES above. The `gotr` landmark in
+    # src/data/locations.ts already pins to the Demonic Pacts-only MTA
+    # portal (3367, 3318) in the Desert, which is the only route a
+    # Desert-locked player has to reach the minigame (the live-game
+    # Wizards' Tower entry is in Misthalin, a permanently-locked DP
+    # region). Same landmark-wins dedup as Cerberus / Wintertodt / ToB
+    # / Kraken. The previous curated anchor was `Arceuus` (~1700, 3800)
+    # which forced the badge to "Desert" but rendered the pin
+    # geographically inside Arceuus city — exactly the bug this fixes.
     "barbarian assault":           {"anchor": "Barbarian Outpost",     "category": "minigame"},
     # Blast Furnace's wiki Map is `{{Map|2930,10197|mapID=10|...}}` — the
     # actual minigame floor inside Keldagrim, mapID > 0, dropped by the
