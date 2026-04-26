@@ -45,8 +45,10 @@ export const LOCATIONS: WorldLocation[] = [
     ["sunset coast", "bucket with sand", "hunter's crossbow"],
     "Beach south of Civitas"),
   L("cam-torum", "Cam Torum", 1421, 3114, "Varlamore", "city",
-    ["cam torum", "calcified moth", "trim your beard in cam", "calcified deposits"],
-    "Underground city (surface entrance shown)"),
+    ["cam torum", "calcified moth", "trim your beard in cam",
+     "calcified deposits", "calcified rocks",
+     "blessed bone shard", "blessed bone shards"],
+    "Underground city (surface entrance shown). Cam Torum mine is the only source of calcified rocks, which drop blessed bone shards."),
   L("tal-teklan", "Tal Teklan", 1223, 3111, "Varlamore", "city",
     ["tal teklan", "arcuani", "tal teklan agility"],
     "Ancient city in Varlamore Part 3"),
@@ -88,6 +90,33 @@ export const LOCATIONS: WorldLocation[] = [
   L("mastering-mixology", "Mastering Mixology", 1389, 2918, "Varlamore", "minigame",
     ["mastering mixology", "mixology shop", "alchemists outfit", "alchemist labcoat", "reagents pouch", "chugging barrel"],
     "Herblore minigame in Aldarin"),
+  // Shrine of Ralos at The Teomat — the iconic Varlamore religious hub.
+  // There are five Shrines of Ralos scattered across Varlamore, but the
+  // Teomat one is wiki-cited as the most-used shrine and is the only one
+  // co-located with the Exposed Altar (where jugs of blessed sunfire wine
+  // are made). One landmark covers two task families:
+  //
+  //   * Sunfire runes — created at any Shrine of Ralos. The "sunfire rune"
+  //     alias here lets the same-region (Varlamore) resolver pass win
+  //     before "fire rune" on the Desert `fire-altar` landmark gets
+  //     matched via substring fallback (which was misrouting "Craft 1000
+  //     Sunfire Runes" all the way out to Al Kharid).
+  //   * Blessed sunfire wine — exposed altar at the summit of Ralos' Rise
+  //     (1436, 3144), just south of the Teomat shrine. NOT made at the
+  //     Stonecutter Outpost as the previous aliases implied.
+  //
+  // NOTE: blessed bone shard aliases deliberately live on `cam-torum`
+  // instead, because the only blessed-bone-shard task in the dataset is
+  // "Mine 250 Blessed Bone Shards" — the calcified rocks that drop them
+  // are in the Cam Torum mine. If a "Offer N at the Libation Bowl" task
+  // is ever added, route it here via wikiLinks/explicit alias.
+  L("shrine-of-ralos", "Shrine of Ralos (The Teomat)", 1449, 3171, "Varlamore", "landmark",
+    ["shrine of ralos", "the teomat", "teomat", "ralos rise", "ralos' rise",
+     "sunfire rune", "sunfire runes", "craft sunfire",
+     "exposed altar", "libation bowl",
+     "sunfire wine", "blessed sunfire wine",
+     "jug of sunfire wine", "jug of blessed sunfire wine"],
+    "Shrine of Ralos at The Teomat (Ralos' Rise). Crafts sunfire runes; the adjacent Exposed Altar blesses jugs of sunfire wine."),
   L("hueycoatl-arena", "Hueycoatl Arena", 1341, 3080, "Varlamore", "boss",
     ["hueycoatl", "huey coatl"],
     "Hueycoatl battle arena in the Tombs of Amaxyathi"),
@@ -155,10 +184,8 @@ export const LOCATIONS: WorldLocation[] = [
     ["gemstone crab"],
     "Coastal boss east of Sunset Coast"),
   L("stonecutter-outpost", "Stonecutter Outpost", 1740, 2963, "Varlamore", "resource",
-    ["stonecutter outpost", "mine some coal from stonecutter", "mithril ore in the stonecutter",
-     "sunfire wine", "blessed sunfire wine",
-     "blessed bone shard", "blessed bone shards"],
-    "Coal & mithril mining north of Civitas (Sunfire wine, Blessed bone shards)"),
+    ["stonecutter outpost", "mine some coal from stonecutter", "mithril ore in the stonecutter"],
+    "Coal & mithril mining north of Civitas"),
   L("custodia-pass", "Custodia Pass", 1271, 3349, "Varlamore", "dungeon",
     ["custodia pass", "antler guard", "shadows of custodia", "shadow of custodia"],
     "Slayer dungeon in Varlamore Part 3"),
