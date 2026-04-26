@@ -1781,7 +1781,7 @@
     "allSpawns": [
       [
         3103,
-        3259
+        3265
       ]
     ],
     "category": "monster",
@@ -1797,7 +1797,7 @@
     ],
     "title": "Baby Impling",
     "x": 3103,
-    "y": 3259
+    "y": 3265
   },
   "bakery stall": {
     "allSpawns": [
@@ -2875,6 +2875,28 @@
     "title": "Black salamander (Hunter)",
     "x": 3298,
     "y": 3679
+  },
+  "blast furnace": {
+    "allSpawns": [
+      [
+        2744,
+        3719
+      ]
+    ],
+    "category": "minigame",
+    "leagueRegion": "Fremennik",
+    "note": "Keldagrim entrance",
+    "resolvedTitle": "Blast Furnace",
+    "source": "curated",
+    "spawnNotes": [
+      "Keldagrim entrance"
+    ],
+    "spawnRegions": [
+      "Fremennik"
+    ],
+    "title": "Blast Furnace",
+    "x": 2744,
+    "y": 3719
   },
   "blast mine": {
     "allSpawns": [
@@ -4280,7 +4302,7 @@
     "allSpawns": [
       [
         2760,
-        3184
+        3195
       ]
     ],
     "category": "landmark",
@@ -4289,7 +4311,7 @@
     "source": "map",
     "title": "Brimhaven",
     "x": 2760,
-    "y": 3184
+    "y": 3195
   },
   "brimhaven agility arena": {
     "allSpawns": [
@@ -11714,7 +11736,7 @@
     "allSpawns": [
       [
         3103,
-        3259
+        3265
       ]
     ],
     "category": "activity",
@@ -11730,7 +11752,7 @@
     ],
     "title": "Forestry",
     "x": 3103,
-    "y": 3259
+    "y": 3265
   },
   "forthos dungeon": {
     "allSpawns": [
@@ -27757,24 +27779,24 @@
   "royal titans": {
     "allSpawns": [
       [
-        2881,
-        3539
+        3008,
+        3150
       ]
     ],
     "category": "boss",
     "leagueRegion": "Asgarnia",
-    "note": "Burthorpe",
+    "note": "Asgarnian Ice Dungeon",
     "resolvedTitle": "Royal Titans",
     "source": "curated",
     "spawnNotes": [
-      "Burthorpe"
+      "Asgarnian Ice Dungeon"
     ],
     "spawnRegions": [
       "Asgarnia"
     ],
     "title": "Royal Titans",
-    "x": 2881,
-    "y": 3539
+    "x": 3008,
+    "y": 3150
   },
   "sabre-toothed kebbit": {
     "allSpawns": [
@@ -35430,30 +35452,24 @@
   "troll": {
     "allSpawns": [
       [
-        2881,
-        3539
-      ],
-      [
         2744,
         3719
       ]
     ],
     "category": "monster",
-    "leagueRegion": "Asgarnia",
-    "note": "Burthorpe",
+    "leagueRegion": "Fremennik",
+    "note": "Keldagrim entrance",
     "resolvedTitle": "Troll",
     "source": "curated",
     "spawnNotes": [
-      "Burthorpe",
       "Keldagrim entrance"
     ],
     "spawnRegions": [
-      "Asgarnia",
       "Fremennik"
     ],
     "title": "Troll",
-    "x": 2881,
-    "y": 3539
+    "x": 2744,
+    "y": 3719
   },
   "troll stronghold (location)": {
     "allSpawns": [

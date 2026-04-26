@@ -730,7 +730,18 @@ CURATED_ENTITIES: dict[str, dict] = {
     # the resolver — every Awakened task description still contains
     # the base boss name (e.g. "Defeat Awakened Whisperer.").
     "unbound jaltok-jad":              {"anchor": "Mor Ul Rek",                 "category": "boss"},
-    "royal titans":                    {"anchor": "Burthorpe",                  "category": "boss"},
+    # Royal Titans wiki page: "The Royal Titans can be accessed in the
+    # Asgarnian Ice Dungeon (fairy ring code AIQ)." Previous "Burthorpe"
+    # anchor was both physically wrong (Burthorpe is ~400 tiles north of
+    # the actual access point) AND broken — the Burthorpe wiki page now
+    # renders its Map as {{Map|mtype=polygon|2811:3582,2939:3582,...}}
+    # which the coord parser doesn't handle, so the curated entity was
+    # silently dropped on the last scrape ("skipped 1 (unresolvable)").
+    # Asgarnian_Ice_Dungeon Map = {{Map|x:3008,y:3150|mapID=0|...}},
+    # leagueRegion = Asgarnia. That's the correct surface tile players
+    # actually walk to (the trapdoor south of Falador).
+    "royal titans":                    {"anchor": "Asgarnian Ice Dungeon",      "category": "boss",
+                                        "leagueRegion": "Asgarnia"},
 
     # ───── Other high-value overrides ─────
     "shooting stars":             {"anchor": "Falador",                "category": "activity"},
@@ -752,6 +763,19 @@ CURATED_ENTITIES: dict[str, dict] = {
     "guardians of the rift":       {"anchor": "Arceuus",               "category": "minigame",
                                     "leagueRegion": "Desert"},
     "barbarian assault":           {"anchor": "Barbarian Outpost",     "category": "minigame"},
+    # Blast Furnace's wiki Map is `{{Map|2930,10197|mapID=10|...}}` — the
+    # actual minigame floor inside Keldagrim, mapID > 0, dropped by the
+    # surface-pin filter. Wiki page tags `leagueRegion = Fremennik` and
+    # `location = Keldagrim`. Surface entry is the Keldagrim entrance cave
+    # east of Rellekka (ANCHOR_COORD_OVERRIDES["Keldagrim entrance"] →
+    # 2744, 3719), which is also where the Fremennik Mountain Troll, the
+    # `keldagrim` landmark, and the fairy-ring DKS pin all sit. Without
+    # this curated entry, every "Blast Furnace" task ("Smelt 100 X bars")
+    # was text-scanning into the closest `furnace` entity — the Rellekka
+    # furnace at (2617, 3667) — because the description literal "Blast
+    # Furnace" survived the alias word-boundary check on "furnace".
+    "blast furnace":               {"anchor": "Keldagrim entrance",    "category": "minigame",
+                                    "leagueRegion": "Fremennik"},
     "mage training arena":         {"anchor": "Mage Training Arena",   "category": "minigame"},
     "barrows":                     {"anchor": "Barrows",               "category": "minigame"},
     "vale totems":                 {"anchor": "Auburnvale",            "category": "minigame"},

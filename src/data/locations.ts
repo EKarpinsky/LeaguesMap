@@ -296,9 +296,18 @@ export const LOCATIONS: WorldLocation[] = [
   L("white-wolf-mtn", "White Wolf Mountain", 2845, 3483, "Asgarnia", "landmark",
     ["white wolf mountain", "dire wolf"],
     "Mountain pass"),
-  L("royal-titans", "Royal Titans", 2908, 3536, "Asgarnia", "boss",
-    ["royal titans", "twinflame staff", "mystic vigour", "deadeye"],
-    "Burthorpe boss"),
+  // Royal Titans (Eldric the Ice King + Branda the Fire Queen) — fought
+  // in an arena off the Asgarnian Ice Dungeon, NOT Burthorpe. The wiki
+  // Royal_Titans page is explicit: "The Royal Titans can be accessed in
+  // the Asgarnian Ice Dungeon (fairy ring code AIQ)." Surface entrance
+  // is the trapdoor south of Falador at (3008, 3150) per the
+  // Asgarnian_Ice_Dungeon wiki Map template — same tile the curated
+  // `entity:royal titans` pin uses, so the two pins co-locate.
+  L("royal-titans", "Royal Titans", 3008, 3150, "Asgarnia", "boss",
+    ["royal titans", "eldric the ice king", "branda the fire queen",
+     "giantsoul amulet",
+     "twinflame staff", "mystic vigour", "deadeye"],
+    "Royal Titans (Eldric + Branda) entrance, Asgarnian Ice Dungeon trapdoor south of Falador. Fairy ring AIQ. Drops the Twinflame Staff and the Giantsoul amulet."),
 
   // ───────────────────────────── Desert ─────────────────────────────
   L("al-kharid", "Al Kharid", 3290, 3185, "Desert", "city",
