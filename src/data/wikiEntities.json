@@ -35452,24 +35452,30 @@
   "troll": {
     "allSpawns": [
       [
+        2868,
+        3586
+      ],
+      [
         2744,
         3719
       ]
     ],
     "category": "monster",
-    "leagueRegion": "Fremennik",
-    "note": "Keldagrim entrance",
+    "leagueRegion": "Asgarnia",
+    "note": "Death Plateau (location)",
     "resolvedTitle": "Troll",
     "source": "curated",
     "spawnNotes": [
+      "Death Plateau (location)",
       "Keldagrim entrance"
     ],
     "spawnRegions": [
+      "Asgarnia",
       "Fremennik"
     ],
     "title": "Troll",
-    "x": 2744,
-    "y": 3719
+    "x": 2868,
+    "y": 3586
   },
   "troll stronghold (location)": {
     "allSpawns": [

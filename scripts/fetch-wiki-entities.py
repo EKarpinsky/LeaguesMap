@@ -634,7 +634,13 @@ CURATED_ENTITIES: dict[str, dict] = {
         {"anchor": "Chaos Druid Tower",    "region_hint": "Kandarin"},
     ], "category": "monster", "leagueRegion": "Karamja"},
     "troll":                     {"spawns": [
-        {"anchor": "Burthorpe",            "region_hint": "Asgarnia"},
+        # Asgarnia Mountain Trolls spawn on Death Plateau (Mountain_troll
+        # wiki LocLine: 14 spawn tiles in the x:2852-2876 / y:3584-3595
+        # band, all tagged leagueRegion=Asgarnia). Death Plateau (location)
+        # wiki page has Map=2868,3586 which sits in the middle of that
+        # cluster; previous "Burthorpe" anchor put the pin at the bank in
+        # town (~2879,3538) where no trolls actually spawn.
+        {"anchor": "Death Plateau (location)", "region_hint": "Asgarnia"},
         # Fremennik Mountain Trolls only spawn underground in the south-of-
         # Keldagrim tunnel (Mountain_troll wiki LocLine, mapID=10, leagueRegion
         # = Fremennik). Surface entry is the cave east of Rellekka, reachable
