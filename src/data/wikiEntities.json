@@ -1881,130 +1881,24 @@
   "bandit": {
     "allSpawns": [
       [
-        3024,
-        3696
-      ],
-      [
-        3029,
-        3701
-      ],
-      [
-        3029,
-        3706
-      ],
-      [
-        3031,
-        3685
-      ],
-      [
-        3031,
-        3698
-      ],
-      [
-        3032,
-        3695
-      ],
-      [
-        3033,
-        3705
-      ],
-      [
-        3035,
-        3703
-      ],
-      [
-        3036,
-        3669
-      ],
-      [
-        3037,
-        3656
-      ],
-      [
-        3037,
-        3683
-      ],
-      [
-        3038,
-        3691
-      ],
-      [
-        3040,
-        3683
-      ],
-      [
-        3040,
-        3703
-      ],
-      [
-        3044,
-        3703
-      ],
-      [
-        3036,
-        3665
-      ],
-      [
-        3036,
-        3672
-      ],
-      [
-        3037,
-        3661
-      ],
-      [
-        3037,
-        3667
-      ],
-      [
-        3038,
-        3670
-      ],
-      [
-        3038,
-        3675
-      ],
-      [
-        3039,
-        3658
-      ],
-      [
-        3039,
-        3660
+        3171,
+        2979
       ]
     ],
     "category": "monster",
-    "leagueRegion": "Wilderness",
+    "leagueRegion": "Desert",
+    "note": "Bandit Camp (Kharidian Desert)",
     "resolvedTitle": "Bandit",
-    "source": "locline",
+    "source": "curated",
+    "spawnNotes": [
+      "Bandit Camp (Kharidian Desert)"
+    ],
     "spawnRegions": [
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness"
+      "Desert"
     ],
     "title": "Bandit",
-    "x": 3024,
-    "y": 3696
+    "x": 3171,
+    "y": 2979
   },
   "bandit (bandit camp)": {
     "allSpawns": [
@@ -3015,6 +2909,10 @@
       [
         2198,
         3253
+      ],
+      [
+        2428,
+        3425
       ]
     ],
     "category": "monster",
@@ -3037,7 +2935,8 @@
       null,
       null,
       null,
-      "Iorwerth Dungeon"
+      "Iorwerth Dungeon",
+      "Stronghold Slayer Cave"
     ],
     "spawnRegions": [
       "Morytania",
@@ -3055,7 +2954,8 @@
       "Morytania",
       "Morytania",
       "Morytania",
-      "Tirannwn"
+      "Tirannwn",
+      "Kandarin"
     ],
     "title": "Bloodveld",
     "x": 3409,
@@ -8658,14 +8558,23 @@
       [
         2781,
         2794
+      ],
+      [
+        2744,
+        3719
       ]
     ],
     "category": "scenery",
     "leagueRegion": "Fremennik",
     "resolvedTitle": "Crafting stall",
     "source": "objectlocline",
+    "spawnNotes": [
+      null,
+      "Keldagrim Trade Octant crafting stall"
+    ],
     "spawnRegions": [
-      "Kandarin"
+      "Kandarin",
+      "Fremennik"
     ],
     "title": "crafting stall",
     "x": 2781,
@@ -8904,6 +8813,28 @@
     "title": "cup of tea",
     "x": 2903,
     "y": 3441
+  },
+  "daeyalt essence": {
+    "allSpawns": [
+      [
+        3632,
+        3340
+      ]
+    ],
+    "category": "landmark",
+    "leagueRegion": "Morytania",
+    "note": "Daeyalt essence mine",
+    "resolvedTitle": "Daeyalt Essence",
+    "source": "curated",
+    "spawnNotes": [
+      "Daeyalt essence mine"
+    ],
+    "spawnRegions": [
+      "Morytania"
+    ],
+    "title": "Daeyalt Essence",
+    "x": 3632,
+    "y": 3340
   },
   "dagannoth": {
     "allSpawns": [
@@ -9796,6 +9727,28 @@
     "title": "Embertailed jerboa",
     "x": 1510,
     "y": 3046
+  },
+  "enhanced crystal chest": {
+    "allSpawns": [
+      [
+        2210,
+        3415
+      ]
+    ],
+    "category": "landmark",
+    "leagueRegion": "Tirannwn",
+    "note": "Prifddinas",
+    "resolvedTitle": "Enhanced Crystal Chest",
+    "source": "curated",
+    "spawnNotes": [
+      "Prifddinas"
+    ],
+    "spawnRegions": [
+      "Tirannwn"
+    ],
+    "title": "Enhanced Crystal Chest",
+    "x": 2210,
+    "y": 3415
   },
   "eternal slayer ring": {
     "allSpawns": [
@@ -34848,6 +34801,28 @@
     "x": 2210,
     "y": 3415
   },
+  "the final dawn": {
+    "allSpawns": [
+      [
+        1678,
+        3168
+      ]
+    ],
+    "category": "boss",
+    "leagueRegion": "Varlamore",
+    "note": "Servius, Teokan of Ralos",
+    "resolvedTitle": "The Final Dawn",
+    "source": "curated",
+    "spawnNotes": [
+      "Servius, Teokan of Ralos"
+    ],
+    "spawnRegions": [
+      "Varlamore"
+    ],
+    "title": "The Final Dawn",
+    "x": 1678,
+    "y": 3168
+  },
   "the forsaken tower (location)": {
     "allSpawns": [
       [
@@ -34888,12 +34863,8 @@
   "the golem": {
     "allSpawns": [
       [
-        3422,
-        3162
-      ],
-      [
-        3374,
-        3434
+        3488,
+        3089
       ]
     ],
     "category": "quest",
@@ -34901,8 +34872,8 @@
     "resolvedTitle": "The Golem",
     "source": "map",
     "title": "The Golem",
-    "x": 3422,
-    "y": 3162
+    "x": 3488,
+    "y": 3089
   },
   "the hueycoatl": {
     "allSpawns": [

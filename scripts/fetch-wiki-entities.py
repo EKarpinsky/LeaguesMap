@@ -192,6 +192,18 @@ SKIP_TITLES: set[str] = {
     "yama's lair",
     "voice of yama",
     "yama's domain",
+    # `Dawn` is the duo half of the Slayer Tower Gargoyle Boss "Grotesque
+    # Guardians" (Dawn + Dusk). The wiki page Dawn has Map = (3493, 3488)
+    # in the Slayer Tower (Morytania) and `leagueRegion = Morytania`. No
+    # DP task targets Dawn the boss directly — every "Dawn" reference
+    # is the Varlamore quest "The Final Dawn" — but the resolver's text
+    # scan picks up the 4-char "dawn" alias inside "Complete The Final
+    # Dawn", routing the Varlamore quest task to the Slayer Tower in
+    # Morytania. The `civitas` landmark already carries the
+    # "the final dawn" alias, and Dawn-the-boss is covered by the
+    # `slayer-tower` landmark via "grotesque guardians" / "dusk" / "dawn".
+    # Same SKIP-and-let-landmark-win pattern as `taverley` / `kraken`.
+    "dawn",
 }
 
 
@@ -269,6 +281,21 @@ ANCHOR_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
     # (Iorwerth Dungeon spawns) doesn't depend on the parser handling the
     # name= attribute correctly.
     "Iorwerth Camp": (2198, 3253),
+    # Stronghold Slayer Cave's wiki Map is `{{Map|2428,3425|...}}` —
+    # the surface ladder players use to enter the cave from inside the
+    # Tree Gnome Stronghold's eastern compound. Locked here so the
+    # Bloodveld Kandarin SUPPLEMENTAL_SPAWNS entry resolves regardless
+    # of any parser quirks. (2428, 3425) is firmly in Kandarin and
+    # matches the wiki's `leagueRegion = Kandarin` tag on the page.
+    "Stronghold Slayer Cave": (2428, 3425),
+    # Servius, Teokan of Ralos has no `{{Map}}` block on his wiki page —
+    # only an Infobox. The Final Dawn quest's `startmap = 1678,3168`
+    # gives his canonical position (the central plaza of Civitas illa
+    # Fortis where the Teokan of Ralos stands). Locked here so the
+    # `the final dawn` curated entity resolves to the quest-giver coord
+    # in Varlamore instead of falling back to the Slayer Tower via the
+    # `dawn` text-scan match.
+    "Servius, Teokan of Ralos": (1678, 3168),
 }
 
 
@@ -325,7 +352,20 @@ ENTITY_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
     # other quest tasks that pin to the start NPC instead of in-quest
     # locations.
     "spirits of the elid":          (3444, 2916),
-}
+    # `The Golem` quest's wiki page has TWO `{{Map}}` blocks before the
+    # quest-start coord shows up in `| startmap = 3488,3089`: a clay-mining
+    # square at (3422, 3162) and Elissa's NPC marker at (3374, 3434) in
+    # Varrock (Misthalin, locked this league). The first {{Map}} wins and
+    # the auto-scrape pins "Complete The Golem" at (3422, 3162) — visually
+    # on the Morytania-Desert border (Citharede Abbey area), nowhere near
+    # the Uzer ruins where the quest actually starts. Same quest-start-NPC
+    # pattern as `spirits of the elid` above: anchor to the canonical
+    # quest-giver coord (Clay Golem in Uzer, per the wiki `start = Talk
+    # to the [[clay golem]] in the ruins of [[Uzer]]` and `startmap =
+    # 3488,3089`). (3488, 3089) is firmly inside the Kharidian Desert and
+    # matches the `leagueRegion = Desert` infobox tag.
+    "the golem":                    (3488, 3089),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -348,13 +388,6 @@ ENTITY_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
 #       {"anchor": "<wiki page>", "region": "<canonical region>", "note": "<blurb>"},
 #   ]
 SUPPLEMENTAL_SPAWNS: dict[str, list[dict]] = {
-    # Bloodveld: wiki LocLines for the Iorwerth Dungeon spawn (Mutated
-    # Bloodveld, which counts as Bloodveld for slayer & league tasks)
-    # are mapID > 0 and dropped. Surface anchor is the Iorwerth Camp
-    # entrance to the dungeon (wiki Iorwerth_Camp page Map = 2198,3253).
-    "bloodveld": [
-        {"anchor": "Iorwerth Camp", "region": "Tirannwn", "note": "Iorwerth Dungeon"},
-    ],
     # Kurask: wiki Kurask page lists the Iorwerth Dungeon LocLine with
     # leagueRegion = Tirannwn but mapID = -1, so the auto-scrape drops
     # it. Surface anchor is the same Iorwerth Camp entrance.
@@ -387,6 +420,40 @@ SUPPLEMENTAL_SPAWNS: dict[str, list[dict]] = {
     # ANCHOR_COORD_OVERRIDES locks to the Tower of Voices walk-in).
     "soft clay": [
         {"anchor": "Prifddinas", "region": "Tirannwn", "note": "Trahaearn mine (Prifddinas)"},
+    ],
+    # Bloodveld: the wiki Bloodveld page's Stronghold Slayer Cave LocLine
+    # is mapID = 19 (the Tree Gnome Stronghold underground network) so
+    # the auto-scrape drops it and the entity ends up with only its
+    # Slayer Tower (Morytania) and GWD (Asgarnia) surface spawns.
+    # Without this supplement, "Defeat a Bloodveld in Kandarin" has no
+    # entity-level Kandarin candidate and the wikiLink "Bloodveld" routes
+    # to the bare entity (Asgarnia/Morytania), pinning a Kandarin task
+    # at the Slayer Tower (Morytania). Anchor "Stronghold Slayer Cave"
+    # has wiki Map = (2428, 3425), the surface ladder players use to
+    # enter the cave from inside the Tree Gnome Stronghold's eastern
+    # gate. Same Iorwerth-Camp / Mutated-Bloodveld pattern as the
+    # Tirannwn supplement above — the league's "X in Kandarin / X in
+    # Tirannwn" tasks both reach Bloodvelds via dungeons whose surface
+    # entrances are wiki-mapped pins.
+    "bloodveld": [
+        {"anchor": "Iorwerth Camp", "region": "Tirannwn", "note": "Iorwerth Dungeon"},
+        {"anchor": "Stronghold Slayer Cave", "region": "Kandarin", "note": "Stronghold Slayer Cave"},
+    ],
+    # Crafting stall: the wiki Crafting_stall page has TWO ObjectLocLines.
+    # The Marim (Ape Atoll) stall — leagueRegion = Kandarin — is mapID = 0
+    # surface and scrapes fine to (2781, 2794). The Keldagrim stall —
+    # leagueRegion = Fremennik — is mapID = 10 (Keldagrim underground at
+    # x:2886, y:10206) which the surface-coord filter drops, leaving the
+    # entity with only the Marim spawn. "Steal a Chisel from a crafting
+    # stall in Keldagrim" is wiki-tagged Fremennik but routes to the
+    # Marim coord under Karamja — region-locked Fremennik players land
+    # 800+ tiles from where they actually thieve. Anchor to "Keldagrim
+    # entrance" which ANCHOR_COORD_OVERRIDES locks to the surface cave
+    # east of Rellekka (2744, 3719) — the canonical wiki entry point
+    # players reach via fairy ring DKS to access Keldagrim's Trade Octant
+    # market where the crafting stall lives.
+    "crafting stall": [
+        {"anchor": "Keldagrim entrance", "region": "Fremennik", "note": "Keldagrim Trade Octant crafting stall"},
     ],
 }
 
@@ -884,6 +951,70 @@ CURATED_ENTITIES: dict[str, dict] = {
     "fight caves":                 {"anchor": "Mor Ul Rek",            "category": "minigame"},
     "the inferno":                 {"anchor": "Mor Ul Rek",            "category": "minigame"},
     "inferno":                     {"anchor": "Mor Ul Rek",            "category": "minigame"},
+
+    # `Bandit` is a wiki disambig that the auto-scraper resolves to the
+    # Wilderness Bandit Camp (level 56-130 bandits in Wilderness levels
+    # 18-24, leagueRegion = Wilderness). Every DP Bandit-named task is
+    # Desert-tagged ("Pickpocket a Bandit in the Bandit Camp",
+    # "Defeat 30 Bandits", "Offend some bandits") and the descriptions
+    # explicitly clarify `[[Bandit (Bandit Camp)|Bandit]]` — the
+    # Pollnivneach-area Zarosian bandit at (3173, 2981) Desert. Without
+    # this curated override, "Defeat 30 Bandits" (wiki-link = "Bandit")
+    # routes to the Wilderness disambig coord (3037, 3683), sending
+    # Desert-locked players to a tile they cannot reach. The page
+    # `Bandit (Bandit Camp)` (the Desert-tagged ObjectLocLine entity)
+    # exists in parallel and continues to serve the parenthesised
+    # tasks; this curated entry simply re-points the bare `Bandit`
+    # disambig at the same Desert anchor so all three task variants
+    # land in the same Pollnivneach Bandit Camp cluster.
+    "bandit":                      {"anchor": "Bandit Camp (Kharidian Desert)", "category": "monster",
+                                    "leagueRegion": "Desert"},
+    # The Final Dawn quest's wiki page has no `{{Map}}` block (its
+    # `leagueRegion = <poem>` infobox encodes Varlamore via the
+    # template parser fix in `_LEAGUE_REGION_TEMPLATE_RE`). The
+    # quest's `start = Speak to [[Servius, Teokan of Ralos]]` and
+    # `startmap = 1678,3168` give the canonical quest-giver coord
+    # in Civitas illa Fortis. Without this curated entity, the
+    # resolver text-scans "Complete The Final Dawn quest." and the
+    # 4-char `dawn` alias on `entity:dawn` (Slayer Tower, Morytania)
+    # wins — pinning a Varlamore quest at the Slayer Tower 1800+
+    # tiles north-east in Morytania. We pin to Servius's wiki page
+    # (Map = (1678, 3168) inside the Civitas plaza), matching the
+    # quest start and the `civitas` landmark's existing
+    # "the final dawn" alias. `dawn` is also added to SKIP_TITLES
+    # for belt-and-suspenders coverage.
+    "the final dawn":              {"anchor": "Servius, Teokan of Ralos", "category": "boss",
+                                    "leagueRegion": "Varlamore"},
+    # Enhanced Crystal Chest wiki page has `leagueRegion = Tirannwn`
+    # and `{{Map|name=Elven Crystal Chest|x=3273|y=6082|mapID=29}}`
+    # (the Prifddinas Tower of Voices interior, mapID=29 → dropped
+    # by the surface-coord filter). Without this curated entity, the
+    # wikiLink `Enhanced Crystal Chest` finds no entity and the
+    # text-scan picks up the bare `crystal chest` alias on
+    # `entity:crystal chest` (the Taverley chest at (2914, 3452)
+    # leagueRegion = Asgarnia) — pinning a Tirannwn task ~700 tiles
+    # east in Asgarnia. The Enhanced version is the upgraded chest
+    # in Prifddinas (post-Song-of-the-Elves), reached through the
+    # Tower of Voices teleport — anchor to Prifddinas which
+    # ANCHOR_COORD_OVERRIDES locks to that walk-in.
+    "enhanced crystal chest":      {"anchor": "Prifddinas",            "category": "landmark",
+                                    "leagueRegion": "Tirannwn"},
+    # Daeyalt essence / Daeyalt mining wiki page tags
+    # `leagueRegion = Morytania` and has Map = (3632, 3340) for the
+    # essence mine's surface entrance (the underground mine itself
+    # is mapID = 10038 → dropped). Without this curated entity,
+    # "Craft a Rune Using Daeyalt Essence" (Morytania-tagged) routes
+    # to the `dark-altar` landmark in Kourend via the existing
+    # "daeyalt essence" alias on dark-altar — that's WHERE you
+    # craft blood/soul runes from daeyalt, but the league badge is
+    # Morytania because the gating step is mining the essence in
+    # Meiyerditch. Anchoring this entity to "Daeyalt essence mine"
+    # (Map = 3632,3340 surface entrance) puts the pin in the actual
+    # Morytania region the badge promises, matching the same
+    # gating-region-vs-action-region precedent as the Wilderness
+    # Diary tasks pinning to Edgeville.
+    "daeyalt essence":             {"anchor": "Daeyalt essence mine",  "category": "landmark",
+                                    "leagueRegion": "Morytania"},
 
     # ───── Off-map / instanced leftovers ─────
     # Baby impling wiki LocLines all tag `leagueRegion = General`

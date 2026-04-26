@@ -234,15 +234,25 @@ export const LOCATIONS: WorldLocation[] = [
   L("musa-point", "Musa Point", 2904, 3162, "Karamja", "city",
     ["musa point", "luthas at musa point", "crate with bananas", "pineapple on karamja"],
     "Karamja docks"),
+  // Brimhaven also carries a bare "spirit tree" alias (in addition to
+  // the more specific "spirit tree on karamja" / "spirit tree (karamja)"
+  // ones below) because the Karamja task description "Check the health
+  // of a Spirit tree you've grown on Karamja." doesn't contain the
+  // word-order needed for "spirit tree on karamja" to match. The wiki
+  // Spirit_tree page maps the Karamja patch to (2802, 3203) NE of
+  // Brimhaven near the Agility Arena. The `gnome-stronghold` landmark
+  // (Kandarin) keeps "spirit tree" / "spirit trees" too — region-aware
+  // tiebreaking sends Karamja-tagged tasks here and Kandarin-tagged
+  // tasks to the Tree Gnome Stronghold patch.
   L("brimhaven", "Brimhaven", 2760, 3184, "Karamja", "city",
     ["brimhaven", "brimhaven agility arena", "brimhaven dungeon",
      "pirate jackie the fruit", "agility arena ticket", "pirate hook",
      "karamja achievement diary", "karamja diary",
-     "spirit tree on karamja", "spirit tree (karamja)",
+     "spirit tree", "spirit tree on karamja", "spirit tree (karamja)",
      "dragon platelegs", "dragon plateskirt",
      "smuggle", "ring of charos",
      "steel dragon on karamja"],
-    "Western Karamja port / Karamja diary reward-giver (Brimhaven Dungeon, steel dragons)"),
+    "Western Karamja port / Karamja diary reward-giver (Brimhaven Dungeon, steel dragons; Spirit Tree NE near Agility Arena)"),
   L("shilo-village", "Shilo Village", 2922, 3000, "Karamja", "city",
     ["shilo village", "paramaya inn", "stepping stones agility shortcut in shilo", "salmon on karamja"],
     "South Karamja village"),
@@ -449,7 +459,6 @@ export const LOCATIONS: WorldLocation[] = [
   L("leviathan-lair", "The Leviathan", 3367, 3318, "Desert", "boss",
     ["leviathan", "the leviathan",
      "venator ring", "venator vestige",
-     "venator bow",
      "desert treasure ii", "the fallen empire",
      "soulreaper axe", "soul reaper axe",
      "virtus", "virtus top", "virtus mask", "virtus robe", "virtus robes"],
@@ -578,8 +587,11 @@ export const LOCATIONS: WorldLocation[] = [
     ["yanille"],
     "Magic Guild town"),
   L("khazard", "Port Khazard", 2653, 3159, "Kandarin", "city",
-    ["port khazard", "fight arena"],
-    "Khazardian port"),
+    ["port khazard", "fight arena",
+     "fishing trawler",
+     "angler", "angler's outfit", "anglers outfit",
+     "angler hat", "angler top", "angler waders", "angler boots"],
+    "Khazardian port (Fishing Trawler — Angler's Outfit)"),
   L("gnome-stronghold", "Tree Gnome Stronghold", 2440, 3460, "Kandarin", "city",
     ["tree gnome stronghold", "grand tree", "path of glouphrie",
      "brimstail", "spirit tree", "spirit trees",
@@ -996,11 +1008,20 @@ export const LOCATIONS: WorldLocation[] = [
      "seers' village rooftop", "seers village rooftop",
      "canifis rooftop", "werewolf agility", "marks of grace"],
     "Seers' village rooftop course"),
+  // Angler's Outfit aliases live on the `khazard` (Port Khazard) landmark
+  // because the wiki page Angler%27s_outfit lists Fishing Trawler as the
+  // canonical drop source: "After completing a game of Fishing Trawler,
+  // pieces of the outfit may be found in the trawler net" — and Fishing
+  // Trawler departs from Port Khazard in Kandarin. Tempoross drops the
+  // SPIRIT Angler outfit (a separate cosmetic recolour) and the Fish
+  // Barrel; those stay here. Without this split, "Equip a Full Angler's
+  // Outfit" (wiki-tagged Kandarin) was matching the "angler's outfit"
+  // alias on this Desert landmark — region-locked Kandarin players
+  // landed at Tempoross 700+ tiles south.
   L("tempoross", "Tempoross", 3035, 2850, "Desert", "boss",
     ["tempoross",
-     "angler", "angler's outfit", "anglers outfit", "angler hat", "angler top", "angler waders", "angler boots",
      "spirit angler", "fish barrel"],
-    "Fishing minigame boss (Angler's Outfit, Spirit Angler, Fish Barrel)"),
+    "Fishing minigame boss (Spirit Angler outfit, Fish Barrel)"),
   L("wintertodt", "Wintertodt", 1630, 3981, "Kourend", "boss",
     ["wintertodt",
      "frozen cache", "warm gloves", "pyromancer"],
@@ -1107,10 +1128,19 @@ export const LOCATIONS: WorldLocation[] = [
   // a Desert-badged pin on a Fremennik landmark. The remaining
   // aliases catch every Muspah-related task (boss kills, CA, Ancient
   // Sceptre line, Mine Ancient Essence) on a single pin.
+  // Venator Bow is the Phantom Muspah drop (charged from venator shards
+  // + ancient essence, both from Muspah). Wiki Venator_bow page tags
+  // `leagueRegion = Fremennik` and the bow's shard half drops only here.
+  // The Leviathan landmark used to claim "venator bow" because the DT2
+  // boss drops the Venator VESTIGE (the ring-component, NOT the bow) —
+  // moving the alias here matches the wiki's drop attribution and pins
+  // every "Equip the Venator Bow" / "Obtain a Venator Shard" task to
+  // the actual source (Muspah's lair) instead of a Desert DT2 boss.
   L("ghorrock-dungeon", "Phantom Muspah", 2870, 3940, "Fremennik", "boss",
     ["ghorrock dungeon", "ancient essence", "phantom muspah",
-     "ancient sceptre", "ice ancient sceptre", "shadow ancient sceptre"],
-    "Phantom Muspah's lair, accessed via Weiss → Salt Mine → Ghorrock Dungeon (Ancient Sceptre, Ancient Essence)"),
+     "ancient sceptre", "ice ancient sceptre", "shadow ancient sceptre",
+     "venator bow", "venator shard", "venator shards"],
+    "Phantom Muspah's lair, accessed via Weiss → Salt Mine → Ghorrock Dungeon (Ancient Sceptre, Ancient Essence, Venator Bow)"),
 
   // ─────────────── Additional quest/activity anchors ───────────────
   L("sorceress-garden", "Sorceress's Garden", 3320, 3141, "Desert", "minigame",
