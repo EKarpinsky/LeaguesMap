@@ -40,17 +40,17 @@ const PROD_HOST = "leagues-map.karpinsky.io";
  * Master kill-switch for `track()` calls.
  *
  * Vercel Web Analytics gates `track()` (custom events) behind the Pro
- * plan — Hobby projects only get automatic page-view + Web Vitals
- * tracking via the `<Analytics />` component, which we keep enabled in
- * App.tsx. Calling `track()` from a Hobby project either no-ops
- * server-side or counts toward a tiny quota before being rejected, so
- * we short-circuit the wrapper here.
+ * plan. Hobby projects only get automatic page-view + Web Vitals
+ * tracking via the `<Analytics />` component (kept enabled in
+ * App.tsx). On Pro, `track()` ships every event in the typed
+ * `analytics.*` catalogue below; the host gate in `send()` still
+ * keeps dev / `vite preview` / Lighthouse runs / *.vercel.app
+ * previews from polluting prod metrics.
  *
- * To re-enable after a plan upgrade: flip this to `true`. Every
- * call site already goes through the typed `analytics.*` helpers
- * below, so one edit lights up the whole event catalogue.
+ * If we ever downgrade off Pro, flip this back to `false` to avoid
+ * the `[Vercel Web Analytics] track is not loaded` warnings.
  */
-const CUSTOM_EVENTS_ENABLED = false;
+const CUSTOM_EVENTS_ENABLED = true;
 
 const isAnalyticsHost = (): boolean =>
   typeof window !== "undefined" && window.location.hostname === PROD_HOST;
