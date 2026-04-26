@@ -34,9 +34,29 @@ export const LOCATIONS: WorldLocation[] = [
      "valuables", "a valuable",
      "at first light", "meat and greet", "death on the isle", "the final dawn"],
     "Capital of Varlamore (Valuables thieving, At First Light quest hub)"),
-  L("yamas-lair", "Yama's Lair", 1484, 3202, "General", "boss",
-    ["yama's lair", "yamas lair", "yama", "yama's stepping stones", "stepping stones in his league domain"],
-    "Demonic Pacts home region"),
+  // Yama's Lair entry portal in Civitas illa Fortis. The wiki Yama's_Lair
+  // page tags the minigame `leagueRegion = General` and points the Map at
+  // (1503, 10050) / (1503, 5603) — both mapID=-1 instance coords inside
+  // the lair itself, with no surface tile players can actually walk to.
+  // In Demonic Pacts, players reach Yama (and re-enter the lair) through
+  // a glowing portal in Civitas illa Fortis (DP page: "players begin in
+  // Yama's Lair with an exit to Civitas illa Fortis"). The base-game
+  // route via the Chasm of Fire (Yama's Domain in Kourend) is not the
+  // league access — pinning Yama tasks at the Chasm pin sends region-
+  // locked players to a spot they can't use. This landmark sits in the
+  // Civitas central plaza so all 6 Yama-related tasks (Defeat Yama,
+  // Talk to the Voice of Yama, Scatter Ashes in Yama's Lair, Jump on
+  // stepping stones, etc.) resolve to the actual portal players walk
+  // to in DP. Region = Varlamore even though the wiki tags the underlying
+  // Yama NPC `leagueRegion = Kourend`, because the DP-specific access
+  // is wholly inside Varlamore — same Demonic-Pacts-portal precedent as
+  // the `leviathan-lair` (Desert MTA portal) and `gotr` (Desert MTA
+  // portal) landmarks.
+  L("yamas-lair", "Yama's Lair", 1722, 3140, "Varlamore", "boss",
+    ["yama's lair", "yamas lair", "yama", "voice of yama",
+     "yama's stepping stones", "stepping stones in his league domain",
+     "ashes in yama's lair", "yama's lair (location)"],
+    "Demonic Pacts home arena. Glowing portal in Civitas illa Fortis re-enters the lair (also reachable via League Home Teleport)."),
   L("aldarin", "Aldarin", 1391, 2935, "Varlamore", "city",
     ["aldarin", "grape barrel", "foreman in aldarin", "fairy ring (ckq)",
      "statue of ates in aldarin", "andras"],

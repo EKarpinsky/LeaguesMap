@@ -172,6 +172,26 @@ SKIP_TITLES: set[str] = {
     "venenatis", "spindel",
     "chaos elemental",
     "scorpia",
+    # Yama (DP-only league portal). Yama's wiki page tags `leagueRegion =
+    # Kourend` and the Map = (1503, 10091) is mapID=-1 (inside the
+    # instanced lair, no surface tile). The Yama's_Lair page also points
+    # only at instance coords (1503, 5603). In Demonic Pacts, players
+    # access Yama exclusively through a glowing portal in Civitas illa
+    # Fortis (Varlamore) — see the DP page: "players begin in Yama's
+    # Lair with an exit to Civitas illa Fortis". Without skipping, the
+    # entity falls back to the Kourend Chasm of Fire / Yama's Domain
+    # surface coord (1435, 3668), which sends region-locked Varlamore
+    # players to a tile they cannot reach. Same DP-portal pattern as
+    # `leviathan` (Desert MTA portal) and `guardians of the rift`
+    # (Desert MTA portal) — landmark wins, entity is skipped. The
+    # `yamas-lair` landmark in src/data/locations.ts pins all 6 Yama
+    # tasks (Defeat Yama 1/50/150x, Talk to the Voice of Yama, Scatter
+    # Ashes in Yama's Lair, Jump on stepping stones) at the Civitas
+    # central plaza where the glowing portal sits.
+    "yama",
+    "yama's lair",
+    "voice of yama",
+    "yama's domain",
 }
 
 
@@ -291,6 +311,20 @@ ENTITY_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
     # which is the canonical middle of the sand-crab line on the Hosidius
     # beach — players land on top of King Sand Crab spawns there.
     "king sand crab":               (1782, 3469),
+    # Spirits of the Elid quest's wiki page Map blocks point at the two
+    # IN-QUEST landmarks: the waterfall (3371,3132) and the crevice west
+    # of Nardah (3374,2905). Both are Desert tiles — geographically
+    # correct and the page now resolves leagueRegion = Desert via the
+    # `<poem>{{LeagueRegion|Desert}}</poem>` infobox form (see
+    # `_LEAGUE_REGION_TEMPLATE_RE`). But "Complete Spirits of the Elid"
+    # is a quest task, not a "go to the waterfall" task — players need
+    # to find the QUEST GIVER. Awusah the Mayor's wiki page Map =
+    # (3444, 2916), which is his Nardah town-hall position; that's the
+    # canonical quest-start coord per the wiki's `start = Talk to
+    # [[Awusah]], Mayor of [[Nardah]].` field. Same pattern we use for
+    # other quest tasks that pin to the start NPC instead of in-quest
+    # locations.
+    "spirits of the elid":          (3444, 2916),
 }
 
 
@@ -735,10 +769,18 @@ CURATED_ENTITIES: dict[str, dict] = {
     "urium shade":                     {"anchor": "Shades of Mort'ton",         "category": "monster",
                                         "leagueRegion": "Morytania"},
     "sarachnis":                       {"anchor": "Forthos Dungeon",            "category": "boss"},
-    # Yama's Domain is accessed from the Chasm of Fire (Kourend, surface
-    # entry at 1435, 3668). Slepe was a copy-paste from the Nightmare
-    # entries above and put the pin in Morytania.
-    "yama":                            {"anchor": "Chasm of Fire",              "category": "boss"},
+    # Yama is intentionally NOT a curated entity — see the long comment
+    # in SKIP_TITLES above ("yama" / "yama's lair" / "voice of yama" /
+    # "yama's domain"). The previous curated entry anchored to "Chasm
+    # of Fire" (1435, 3668 in Kourend), which is the BASE-game Yama's
+    # Domain entry — wrong for Demonic Pacts because region-locked
+    # Varlamore players cannot reach Kourend. In DP, Yama is accessed
+    # through a glowing portal in Civitas illa Fortis. The `yamas-lair`
+    # landmark in src/data/locations.ts now lives at that portal so all
+    # 6 Yama tasks (Defeat Yama 1/50/150x, Talk to the Voice of Yama,
+    # Scatter Ashes in Yama's Lair, Jump on stepping stones) resolve
+    # via landmark alias instead of via this curated entity. Same
+    # DP-portal pattern as `leviathan` and `guardians of the rift`.
     # See the long comment on `"the mimic"` above — Mimic challenge is at
     # the Strange Casket upstairs in Watson's house, Hosidius. Watson's
     # NPC infobox has {{Map|x=1646|y=3574}} which the anchor resolver
@@ -872,6 +914,34 @@ _STYLE_KEYWORDS = (
 )
 _INFOBOX_RE = re.compile(r"\{\{Infobox\s+([A-Za-z][A-Za-z ]*)", re.IGNORECASE)
 _LEAGUE_REGION_RE = re.compile(r"leagueRegion\s*=\s*([A-Za-z' ]+)", re.IGNORECASE)
+# Fallback for infobox `leagueRegion` fields that use the {{LeagueRegion|X}}
+# template wrapped in a <poem> block instead of the bare `leagueRegion = X`
+# parameter form. Wiki convention varies by page type: many quest / minigame
+# / activity pages (e.g. Spirits_of_the_Elid, Cook's_Assistant, Fishing_Contest)
+# write
+#
+#     | leagueRegion = <poem>
+#     {{LeagueRegion|Desert}} — location requirement
+#     </poem>
+#
+# so the bare-parameter regex `_LEAGUE_REGION_RE` captures `<` (the first
+# char after `=`) and `_normalize_league_region` rejects it as junk —
+# leaving the entity with `leagueRegion = None`. Without this fallback,
+# Spirits-of-the-Elid coords (3371,3132) / (3374,2905) fall through to
+# bbox classification and get mis-tagged Morytania even though the wiki
+# explicitly says Desert.
+#
+# Anchoring on `leagueRegion\s*=` (with `\|\s*` in front to require the
+# infobox-parameter context) keeps the `{{LeagueRegion|X}}` cells inside
+# wikitable rows (which live in `class="leagues-global-flag"|{{LeagueRegion|X}}`
+# and are handled by `_LEAGUE_FLAG_THEN_MAP_RE` per-row, not as a page-level
+# fallback) from polluting the entity-level region. The 500-char window
+# keeps the match scoped to the infobox area and prevents pulling a
+# far-away table row's tag.
+_LEAGUE_REGION_TEMPLATE_RE = re.compile(
+    r"\|\s*leagueRegion\s*=\s*[\s\S]{0,500}?\{\{LeagueRegion\s*\|\s*([A-Za-z][A-Za-z' ]*?)\s*\}\}",
+    re.IGNORECASE,
+)
 
 # Canonical Demonic Pacts league regions. Used to validate every value the
 # wiki scraper extracts from `leagueRegion=` parameters, `{{LeagueRegion|X}}`
@@ -1092,16 +1162,27 @@ def parse_coords(wt: str) -> list[dict]:
     # nearest `|-` delimiter). Resolved to a leagueRegion in a second
     # pass once all entities have been parsed — see
     # `apply_row_location_regions` below.
+    #
+    # Only Map templates that genuinely sit inside a wikitable row
+    # (i.e. with a `\n|-` delimiter somewhere before them) are eligible.
+    # Standalone Map blocks in prose (Spirits_of_the_Elid, quest infoboxes,
+    # etc.) MUST NOT participate — without this guard, `_row_location_for`
+    # falls back to scanning from start-of-page and picks up the first
+    # `|[[wikilink]]` it finds (e.g. Spirits of the Elid latched onto
+    # `{{Needed|[[Needle]]}}` in the Walkthrough, which then resolved to
+    # a Morytania entity and stamped both the Kharidian-Desert spawns
+    # with `spawnRegions = ["Morytania", "Morytania"]`).
     row_delim_offsets = [m.end() for m in _TABLE_ROW_DELIM_RE.finditer(wt)]
-    row_delim_offsets.insert(0, 0)
 
     def _row_location_for(template_start: int) -> str | None:
-        last_delim = 0
+        last_delim: int | None = None
         for off in row_delim_offsets:
             if off <= template_start:
                 last_delim = off
             else:
                 break
+        if last_delim is None:
+            return None
         row_segment = wt[last_delim:template_start]
         m = _TABLE_ROW_LOCATION_LINK_RE.search(row_segment)
         return m.group(1).strip() if m else None
@@ -1301,9 +1382,18 @@ def infer_category(wt: str) -> str | None:
 
 def extract_league_region(wt: str) -> str | None:
     m = _LEAGUE_REGION_RE.search(wt)
-    if not m:
-        return None
-    return _normalize_league_region(m.group(1))
+    if m:
+        normalized = _normalize_league_region(m.group(1))
+        if normalized:
+            return normalized
+    # Fallback: pages like Spirits_of_the_Elid use the template form
+    # `Region = <poem>{{LeagueRegion|X}}</poem>` instead of the
+    # `leagueRegion = X` parameter form. See `_LEAGUE_REGION_TEMPLATE_RE`
+    # comment for the full rationale.
+    tm = _LEAGUE_REGION_TEMPLATE_RE.search(wt)
+    if tm:
+        return _normalize_league_region(tm.group(1))
+    return None
 
 
 # ---------------------------------------------------------------------------

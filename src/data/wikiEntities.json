@@ -2377,7 +2377,7 @@
       ]
     ],
     "category": "quest",
-    "leagueRegion": null,
+    "leagueRegion": "Desert",
     "resolvedTitle": "Beneath Cursed Sands",
     "source": "map",
     "title": "Beneath Cursed Sands",
@@ -9582,7 +9582,7 @@
       ]
     ],
     "category": "quest",
-    "leagueRegion": null,
+    "leagueRegion": "Asgarnia",
     "resolvedTitle": "Dwarf Cannon",
     "source": "map",
     "title": "Dwarf Cannon",
@@ -10303,7 +10303,7 @@
       ]
     ],
     "category": "quest",
-    "leagueRegion": null,
+    "leagueRegion": "Kandarin",
     "resolvedTitle": "Fishing Contest",
     "source": "map",
     "title": "Fishing Contest",
@@ -15142,7 +15142,7 @@
       ]
     ],
     "category": "quest",
-    "leagueRegion": null,
+    "leagueRegion": "Morytania",
     "resolvedTitle": "Haunted Mine",
     "source": "map",
     "title": "Haunted Mine",
@@ -21535,7 +21535,7 @@
       ]
     ],
     "category": "quest",
-    "leagueRegion": null,
+    "leagueRegion": "Kandarin",
     "resolvedTitle": "Monk's Friend",
     "source": "map",
     "title": "Monk's Friend",
@@ -28661,12 +28661,15 @@
       ]
     ],
     "category": "minigame",
-    "leagueRegion": null,
+    "leagueRegion": "Morytania",
     "note": "Shades of Mort'ton",
     "resolvedTitle": "Shades Of Mort'Ton",
     "source": "curated",
     "spawnNotes": [
       "Shades of Mort'ton"
+    ],
+    "spawnRegions": [
+      "Morytania"
     ],
     "title": "Shades Of Mort'Ton",
     "x": 3482,
@@ -28699,7 +28702,7 @@
       ]
     ],
     "category": "quest",
-    "leagueRegion": null,
+    "leagueRegion": "Desert",
     "resolvedTitle": "Shadow of the Storm",
     "source": "map",
     "title": "Shadow of the Storm",
@@ -29973,25 +29976,17 @@
   "spirits of the elid": {
     "allSpawns": [
       [
-        3371,
-        3132
-      ],
-      [
-        3374,
-        2905
+        3444,
+        2916
       ]
     ],
     "category": "quest",
-    "leagueRegion": null,
+    "leagueRegion": "Desert",
     "resolvedTitle": "Spirits of the Elid",
     "source": "map",
-    "spawnRegions": [
-      "Morytania",
-      "Morytania"
-    ],
     "title": "Spirits of the Elid",
-    "x": 3371,
-    "y": 3132
+    "x": 3444,
+    "y": 2916
   },
   "statue of quoatlos": {
     "allSpawns": [
@@ -34902,7 +34897,7 @@
       ]
     ],
     "category": "quest",
-    "leagueRegion": null,
+    "leagueRegion": "Desert",
     "resolvedTitle": "The Golem",
     "source": "map",
     "title": "The Golem",
@@ -35316,7 +35311,7 @@
       ]
     ],
     "category": "quest",
-    "leagueRegion": null,
+    "leagueRegion": "Kandarin",
     "resolvedTitle": "Tower of Life",
     "source": "map",
     "title": "Tower of Life",
@@ -40129,28 +40124,6 @@
     "title": "yak",
     "x": 2318,
     "y": 3794
-  },
-  "yama": {
-    "allSpawns": [
-      [
-        1435,
-        3668
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Kourend",
-    "note": "Chasm of Fire",
-    "resolvedTitle": "Yama",
-    "source": "curated",
-    "spawnNotes": [
-      "Chasm of Fire"
-    ],
-    "spawnRegions": [
-      "Kourend"
-    ],
-    "title": "Yama",
-    "x": 1435,
-    "y": 3668
   },
   "yanille": {
     "allSpawns": [
