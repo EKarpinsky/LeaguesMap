@@ -591,7 +591,7 @@ export const LOCATIONS: WorldLocation[] = [
      "fishing trawler",
      "angler", "angler's outfit", "anglers outfit",
      "angler hat", "angler top", "angler waders", "angler boots"],
-    "Khazardian port (Fishing Trawler — Angler's Outfit)"),
+    "Khazardian port (Fishing Trawler, Angler's Outfit)"),
   L("gnome-stronghold", "Tree Gnome Stronghold", 2440, 3460, "Kandarin", "city",
     ["tree gnome stronghold", "grand tree", "path of glouphrie",
      "brimstail", "spirit tree", "spirit trees",
@@ -763,25 +763,91 @@ export const LOCATIONS: WorldLocation[] = [
     "Canifis stuffed-head vendor"),
 
   // ───────────────────────────── Tirannwn ─────────────────────────────
-  // Prifddinas carries the "Soft Clay in Tirannwn" alias because the wiki
-  // (Soft_clay page) says "The only place to mine soft clay directly is
-  // in the Trahaearn mine" — and Trahaearn is the south-east district of
-  // Prifddinas. Lletya has no clay rocks at all, so falling through to
-  // it (the previous behaviour) parked the pin ~190 tiles south-east of
-  // the actual mining spot.
-  L("prifddinas", "Prifddinas", 2210, 3390, "Tirannwn", "city",
+  // Prifddinas was previously a single landmark absorbing ~31 tasks via
+  // a sprawling alias list — Trahaearn mine ore tasks, Ithell Singing-
+  // bowl crystal-craft tasks, Crystal Grail (Gwenith rabbit), city-wide
+  // cosmopolitan tasks (Song of the Elves, dragonstone gear, crystal
+  // impling), AND boss tasks (Gauntlet, Zalcano) all stacked on the
+  // same pin. The wiki confirms every Prifddinas interior (Trahaearn
+  // mine `mapID=-1`, both Singing bowls `mapID=29`, Gauntlet Portal
+  // `mapID=29`, Zalcano `mapID=29`) is instanced with no surface
+  // coord — only the Crystal Grail rabbit lives in `Elven rabbit cave`
+  // at (2264, 3418) `mapID=0`. To unbloat the orb, this landmark now
+  // owns ONLY the cosmopolitan-city subset (Song of the Elves cohort,
+  // dragonstone gear, crystal impling, district names that don't tie
+  // to a specific sub-orb). Trahaearn mine, Singing bowl, Gauntlet,
+  // Zalcano, and Crystal Grail are split out into their own landmarks
+  // below at cosmetic offsets within the visible Prifddinas footprint.
+  // Coord (2210, 3415) matches ANCHOR_COORD_OVERRIDES["Prifddinas"] —
+  // the Tower of Voices walk-in pad — so curated entities anchored to
+  // "Prifddinas" land here exactly.
+  L("prifddinas", "Prifddinas (Tower of Voices)", 2210, 3415, "Tirannwn", "city",
     ["prifddinas", "crystal shards", "song of the elves", "iorwerth",
-     "crystal armour", "crystal bow", "crystal halberd", "crystal shield", "crystal helmet",
-     "crystal helm", "crystal body", "crystal legs", "crystal chest",
-     "bow of faerdhinen", "blade of saeldor",
-     "trahaearn", "cadarn", "amlodd", "hefin", "ithell", "meilyr",
-     "crystal grail", "crystal crown", "elven signet",
-     "singing bowl", "eternal teleport crystal", "teleport crystal",
+     "cadarn", "amlodd", "hefin", "meilyr",
+     "crystal crown", "elven signet",
      "crystal tree",
      "dragonstone armour", "dragonstone amulet", "crystal impling",
      "dark bow", "dark beast", "mourner tunnels",
-     "soft clay in tirannwn", "soft clay (tirannwn)"],
-    "Elf capital (all crystal gear, Trahaearn soft-clay mine, Song of the Elves)"),
+     // Catches the SOTE final boss task (#1039 "Defeat the memory of
+     // Seren") so it falls onto this landmark instead of producing a
+     // separate `entity:fragment of seren` pin at the same coord.
+     // The fragment of seren entity is SKIP_TITLES'd in
+     // scripts/fetch-wiki-entities.py for that dedup reason.
+     "fragment of seren", "memory of seren",
+     "enhanced crystal chest"],
+    "Elf capital. Tower of Voices (Song of the Elves and cosmopolitan-city tasks)"),
+  // Trahaearn mine — south-east district of Prifddinas (Soft Clay,
+  // Runite, Gold ore). The wiki Trahaearn_mine page has only
+  // `{{Map|...|3296,12448|mapID=-1}}` — instanced city interior, no
+  // surface coord exists. Coord below is a cosmetic offset SE of the
+  // Tower of Voices walk-in (2210, 3415), positioned inside the painted
+  // Trahaearn district label on the world-map PNG (south-east quadrant
+  // of the Prifddinas city outline). Aliases are intentionally narrow
+  // and Tirannwn-qualified — broad aliases like "runite" or "gold ore"
+  // match generic smithing tasks ("Smith a Rune Item", #823) and other
+  // region tasks via text scan, dragging unrelated General/Asgarnia
+  // tasks onto this pin. Only the three Tirannwn-tagged mining tasks
+  // belong here: #1130 Soft Clay in Tirannwn, #1522 Runite Ore in
+  // Tirannwn, #646 gold rocks in Tirannwn — each carries the
+  // "in tirannwn" / "(tirannwn)" suffix that the matching alias
+  // requires.
+  L("trahaearn-mine", "Trahaearn Mine", 2225, 3400, "Tirannwn", "resource",
+    ["trahaearn",
+     "soft clay in tirannwn", "soft clay (tirannwn)",
+     "runite ore in tirannwn", "runite ore (tirannwn)",
+     "gold rocks in tirannwn", "gold rocks (tirannwn)",
+     "gold ore in tirannwn"],
+    "Prifddinas Trahaearn district mine (Soft Clay, Runite, Gold)."),
+  // Singing Bowl — Ithell district crystal-crafting station. The wiki
+  // Singing_bowl page lists two `mapID=29` LocLines (Ithell `x:3239,
+  // y:6066` and Trahaearn `x:3295,y:6045`) — instanced, no surface
+  // coord. Coord below is a cosmetic offset NW of the Tower of Voices
+  // walk-in, positioned inside the painted Ithell district label. Owns
+  // the singing-bowl crafting aliases (crystal armour set, crystal
+  // weapons, blade of saeldor / bow of faerdhinen, teleport crystals)
+  // so all crystal-craft tasks share one orb separate from the city
+  // center.
+  L("prifddinas-singing-bowl", "Prifddinas Singing Bowl (Ithell)", 2192, 3432, "Tirannwn", "landmark",
+    ["singing bowl",
+     "teleport crystal", "eternal teleport crystal",
+     "crystal armour", "crystal helm", "crystal helmet",
+     "crystal body", "crystal legs", "crystal chest", "crystal shield",
+     "crystal bow", "crystal halberd",
+     "blade of saeldor", "bow of faerdhinen"],
+    "Ithell-district Singing Bowl (crystal-craft tasks)."),
+  // Elven rabbit cave — the Gwenith Hunter valley cave where the rabbit
+  // that drops the Crystal Grail spawns. Coord (2264, 3418) is the
+  // wiki-confirmed surface entrance from the `Elven rabbit cave`
+  // infobox `{{Map|x=2264|y=3418|plane=0|mapID=0|...|name=Cave}}` —
+  // the only NEW surface coord introduced by the Prifddinas split (every
+  // other Prifddinas-interior task is wiki-instanced). Carries the
+  // "crystal grail" alias so id #1428 (Equip Crystal Grail) co-locates
+  // with id #1346 (Catch 300 Red Chinchompas in Tirannwn) — the
+  // Carnivorous chinchompa Tirannwn spawns sit ~5–15 tiles away in the
+  // same Gwenith valley.
+  L("elven-rabbit-cave", "Elven Rabbit Cave (Gwenith)", 2264, 3418, "Tirannwn", "resource",
+    ["crystal grail", "elven rabbit cave"],
+    "Gwenith Hunter valley cave. The rabbit here drops the Crystal Grail."),
   // Lletya carries the Tirannwn anchor for "Leaf-bladed weapon in Tirannwn"
   // (equip-anywhere task — without this it falls back to the Fremennik
   // Slayer Dungeon's Kurask/Turoth drops) and the Whiteberry pick task.
@@ -809,18 +875,52 @@ export const LOCATIONS: WorldLocation[] = [
   L("tirannwn-elven-coast", "Isafdar Forest", 2244, 3182, "Tirannwn", "landmark",
     ["isafdar"],
     "Elven forest"),
-  L("corrupted-hunllef", "Corrupted Hunllef (Gauntlet)", 2210, 3415, "Tirannwn", "boss",
+  // Corrupted Hunllef / Gauntlet — the Gauntlet portal is wiki-described
+  // as in the "north-western corner of Prifddinas" (Gauntlet wiki page).
+  // The boss arena itself is `mapID=29` instanced with no surface coord.
+  // Previous coord (2210, 3415) sat on the Tower of Voices walk-in,
+  // visually overlapping every other Prifddinas-interior pin. Coord
+  // below is a cosmetic offset NW of the Tower of Voices walk-in,
+  // positioned in the NW quadrant of the painted Prifddinas city
+  // outline so the pin lands on the wiki's stated portal location.
+  // The matching `the gauntlet` / `corrupted hunllef` curated entities
+  // in fetch-wiki-entities.py also anchor here.
+  L("corrupted-hunllef", "Corrupted Hunllef (Gauntlet)", 2178, 3438, "Tirannwn", "boss",
     ["corrupted hunllef", "crystal blessing", "gauntlet"],
-    "The Corrupted Gauntlet"),
-  L("zalcano", "Zalcano", 2209, 3396, "Tirannwn", "boss",
+    "The Corrupted Gauntlet. NW corner of Prifddinas."),
+  // Zalcano — wiki Zalcano page describes the boss as "Trahaearn
+  // district teleport platform west of the south-eastern bank"
+  // (mapID=29 instanced, no surface coord). Previous coord (2209, 3396)
+  // sat next to the Tower of Voices walk-in. Coord below is a cosmetic
+  // offset SE of the walk-in, in the Trahaearn quadrant so the pin
+  // lands on the wiki's stated platform location — also visually
+  // separated from `trahaearn-mine` (~17 tiles south) so both can be
+  // distinguished at city zoom.
+  L("zalcano", "Zalcano", 2240, 3392, "Tirannwn", "boss",
     ["zalcano"],
-    "Prifddinas boss"),
+    "Zalcano. Trahaearn SE platform inside Prifddinas."),
 
   // ───────────────────────────── Wilderness ─────────────────────────────
+  // Wilderness Diary aliases used to live here, but Edgeville is in
+  // Misthalin (locked in the Demonic Pacts league), so any task pinned
+  // here is unreachable in-league. The Lesser Fanatic (the diary
+  // reward-giver) explicitly relocates to Ferox Enclave in DP per the
+  // wiki: "In the Demonic Pacts League, he can be found in Ferox
+  // Enclave, as Misthalin is inaccessible." Aliases moved to
+  // `ferox-enclave` below; the `Wilderness Achievement Diary` entity
+  // gets a coord override in fetch-wiki-entities.py for the same reason.
   L("edgeville", "Edgeville", 3080, 3492, "Misthalin", "city",
-    ["edgeville",
-     "wilderness achievement diary", "wilderness diary"],
-    "Wilderness gateway (Lesser Fanatic, Wilderness diary reward-giver)"),
+    ["edgeville"],
+    "Wilderness gateway (Misthalin, locked in DP league)"),
+  // Ferox Enclave — the Wilderness DP-league hub. Coord = wiki infobox
+  // {{Map|x=3137|y=3623}} on `Ferox Enclave`. Also the in-league home
+  // of the Lesser Fanatic / Wilderness Diary reward-giver per the
+  // wiki note quoted above.
+  L("ferox-enclave", "Ferox Enclave", 3137, 3623, "Wilderness", "landmark",
+    ["ferox enclave",
+     "wilderness achievement diary", "wilderness diary",
+     "lesser fanatic"],
+    "Wilderness gateway (Lesser Fanatic + Wilderness diary reward-giver in DP league)"),
   L("bh", "Mage Arena", 3095, 3955, "Wilderness", "minigame",
     ["mage arena", "mage bank",
      "god cape", "saradomin cape", "zamorak cape", "guthix cape",
@@ -886,13 +986,32 @@ export const LOCATIONS: WorldLocation[] = [
   L("chaos-altar", "Chaos Altar (Wilderness)", 3059, 3590, "Wilderness", "landmark",
     ["chaos altar"],
     "Prayer altar in wildy"),
+  // Black-chinchompa aliases used to live here, but every "Equip N Black
+  // Chinchompas" task wikilinks the *item* page (`Black chinchompa`, no
+  // `(Hunter)` qualifier) which has no entity, so they fell through to
+  // landmark-alias matching and landed here — a different cave, miles
+  // from the only chin spawn. The catch task ("Catch a Black Chinchompa")
+  // wikilinks `Black chinchompa (Hunter)` which DOES have an entity at
+  // (3134, 3786), so it correctly pinned at the Wilderness Hunter ground
+  // — splitting the catch and equip tasks visually. Aliases now live on
+  // the `black-chin-hunter` landmark below so both sets of tasks share
+  // one orb at the actual chin-hunting site.
   L("wilderness-slayer-cave", "Wilderness Slayer Cave", 3246, 3740, "Wilderness", "dungeon",
     ["wilderness slayer cave", "revenant",
-     "black chinchompa", "black chinchompas",
      "dark crab", "dark crabs",
      "malediction ward", "odium ward",
      "enchanted slayer staff", "slayer staff"],
-    "Lava Maze slayer cave (Black Chins, Dark Crabs at Resource Area, Warded shards)"),
+    "Lava Maze slayer cave (Dark Crabs at Resource Area, Warded shards)"),
+  // Wilderness Hunter ground south-east of the Mage Arena — the only
+  // surface spot where black chinchompas spawn. Coord = wiki LocLine on
+  // `Black chinchompa (Hunter)` (mapID=0, 12 surface spawns clustered
+  // 3134–3159, 3769–3786). Using the first spawn tile as the canonical
+  // pin so it co-locates with the entity-resolved "Catch a Black
+  // Chinchompa" task. Aliases route the equip tasks (#1042/1043/1416)
+  // here instead of the slayer cave above.
+  L("black-chin-hunter", "Black Chinchompa Hunting", 3134, 3786, "Wilderness", "resource",
+    ["black chinchompa", "black chinchompas"],
+    "Wilderness Hunter ground south-east of Mage Arena (only Black Chinchompa spawn)"),
   // Coords from the Wilderness God Wars Dungeon wiki page's own
   // {{Map}} (3016.5, 3739.5 — cave east of The Forgotten Cemetery,
   // level 28 Wilderness). Region is `Wilderness` per the page's
@@ -1109,9 +1228,18 @@ export const LOCATIONS: WorldLocation[] = [
     ["kraken", "kraken cove", "cave kraken", "trident of the seas", "kraken tentacle",
      "abyssal tentacle"],
     "Kraken Cove north of Piscatoris (Trident of the Seas, Kraken tentacle → abyssal tentacle)"),
+  // Funeral pyre / pyre ship aliases live here as a defensive fallback
+  // alongside the curated `funeral pyre (barbarian)` entity anchor in
+  // fetch-wiki-entities.py — both routes collapse "Light a Pyre Ship" /
+  // Dragon-Full-Helm tasks onto the same Otto's-Grotto orb (the surface
+  // walk-up shared by the Baxtorian Falls dungeon entry and the Funeral
+  // Pyre log spawns at 2503-2519, 3498-3519). Without the aliases, any
+  // "Pyre Ship" task lacking a wiki link fell through to text-scan and
+  // produced a separate pin ~7 tiles away.
   L("ancient-cavern", "Ancient Cavern", 2513, 3513, "Kandarin", "dungeon",
-    ["ancient cavern", "mithril dragon", "dragon full helm", "waterfall dungeon"],
-    "Baxtorian Falls underground (Mithril Dragons, Dragon Full Helm)"),
+    ["ancient cavern", "mithril dragon", "dragon full helm", "waterfall dungeon",
+     "funeral pyre", "pyre ship"],
+    "Baxtorian Falls underground (Mithril Dragons, Dragon Full Helm, Funeral Pyre / Pyre Ship)"),
   L("horror-lighthouse", "Lighthouse (Horror from the Deep)", 2510, 3640, "Fremennik", "quest",
     ["lighthouse", "horror from the deep",
      "god book", "damaged god book", "completed god book",

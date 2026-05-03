@@ -198,6 +198,30 @@ export const analytics = {
   },
 
   /**
+   * "What's new" / changelog modal opened. `trigger` distinguishes the
+   * once-per-release auto-popup from a manual click on the header link
+   * so we can tell whether the auto-popup is doing its job (most
+   * sessions should be `auto`) versus people hunting for the changelog
+   * after the fact (`manual` — usually means the auto-popup got
+   * suppressed earlier).
+   */
+  changelogOpened(p: { trigger: "auto" | "manual"; version: string }): void {
+    send("changelog_opened", p);
+  },
+
+  /**
+   * Changelog modal closed. `suppressForever` is the state of the
+   * "Don't show me this on future releases" checkbox at close time —
+   * a true value writes `lm.changelogSuppressed=1` so the modal will
+   * never auto-open again, regardless of future versions. Tracking it
+   * lets us see how aggressively users opt out (high opt-out rate
+   * suggests the popup feels intrusive).
+   */
+  changelogClosed(p: { version: string; suppressForever: boolean }): void {
+    send("changelog_closed", p);
+  },
+
+  /**
    * RuneLite Tasks Tracker import resolved. We capture both the parser
    * outcome and (on success) the bit-decoded task count so the dashboard
    * can surface "average completion at sync time" without us ever

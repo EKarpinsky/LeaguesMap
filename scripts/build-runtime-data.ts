@@ -36,6 +36,47 @@ mkdirSync(OUT_DIR, { recursive: true });
 const ALL_TASKS = tasksJson as Task[];
 const placements: TaskPlacement[] = resolveTasks(ALL_TASKS);
 
+// ─────────────────── League-specific placement overrides ────────────
+// The Demonic Pacts league introduces a "raid megarare voucher": any of
+// ToA / CoX / ToB drops it on a megarare roll, and the player can
+// redeem it for whichever of the three megarares they want — even
+// without unlocking that raid's region. Source: Yogy Bear's regional
+// unlocks infographic FAQ, confirmed against the league blog.
+//
+//   - Equip a Scythe of Vitur  → home ToB,  also CoX, ToA
+//   - Equip a Twisted Bow      → home CoX,  also ToA, ToB
+//   - Equip the Tumeken's Shadow → home ToA, also CoX, ToB
+//
+// The wiki resolver has no signal for this league-only mechanic, so we
+// patch placements after the resolver runs. Each megarare's `primary`
+// stays at its canonical drop home (so clicking the task pans to where
+// the item normally lives) and the other two raid landmarks join
+// `locations` so the General-region fan-out in App.tsx renders a pin
+// at every raid the player has unlocked. Without this, a Kourend-only
+// player who does CoX gets a Twisted Bow pin (correct) but sees no
+// pin for "Equip a Scythe of Vitur" — even though their voucher buys
+// it — because Morytania is filtered out.
+const MEGARARE_VOUCHER_FANOUT: Record<
+  string,
+  { primary: string; locations: string[] }
+> = {
+  // "Equip a Scythe of Vitur"
+  "1549": { primary: "theatre-of-blood", locations: ["theatre-of-blood", "cox", "toa"] },
+  // "Equip a Twisted Bow"
+  "1550": { primary: "cox",              locations: ["cox", "toa", "theatre-of-blood"] },
+  // "Equip the Tumeken's Shadow"
+  "1552": { primary: "toa",              locations: ["toa", "cox", "theatre-of-blood"] },
+};
+
+for (const p of placements) {
+  const override = MEGARARE_VOUCHER_FANOUT[p.taskId];
+  if (!override) continue;
+  p.primary = override.primary;
+  p.locations = [...override.locations];
+  p.unmappable = false;
+  p.matchMethod = "explicit-alias";
+}
+
 // Collect every location id any placement actually references plus every
 // region that needs a centroid fallback pin. This drives runtime
 // payload pruning.

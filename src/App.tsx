@@ -11,14 +11,32 @@ import { Analytics } from "@vercel/analytics/react";
 import FilterSidebar from "./components/FilterSidebar";
 import TaskList from "./components/TaskList";
 import { matchesFilter } from "./lib/filters";
-import { ALL_PLACEMENTS, ALL_TASKS, getPlacement, getTask } from "./lib/taskIndex";
+import { ALL_PLACEMENTS, ALL_TASKS, getLocation, getPlacement, getTask } from "./lib/taskIndex";
 import { useCompletedTasks } from "./lib/useCompletedTasks";
 import { usePersistedFilters } from "./lib/usePersistedFilters";
 import { analytics } from "./lib/analytics";
 import type { TaskSelectSource } from "./lib/analytics";
 import { parseTasksTrackerExport } from "./lib/runeliteImport";
+import { CHANGELOG, LATEST_VERSION } from "./data/changelog";
 import type { Task } from "./types";
 import "./App.css";
+
+// localStorage keys for the auto-popup "What's new" modal. Live under the
+// existing `lm.` namespace so they cluster with `lm.filters.v1` /
+// `lm.tasks.completed.v1` in DevTools.
+const CHANGELOG_SUPPRESSED_KEY = "lm.changelogSuppressed";
+const CHANGELOG_SEEN_VERSION_KEY = "lm.changelogSeenVersion";
+// Same persisted-state keys we use as a "first-time visitor" heuristic
+// in the auto-popup gate (see useEffect below). Mirror of the keys
+// owned by usePersistedFilters / useCompletedTasks; repeated here so
+// the gate logic doesn't accidentally drift if those modules rename.
+const FILTERS_STORAGE_KEY = "lm.filters.v1";
+const COMPLETED_STORAGE_KEY = "lm.completed.v1";
+
+// Auto-popup delay: long enough to let MapView's lazy chunk land and
+// the initial paint settle so the modal slides in over a fully-painted
+// UI (slamming it over a loading skeleton feels like an interrupt).
+const CHANGELOG_AUTOPOP_DELAY_MS = 700;
 
 // Bug-report dialog states. Discriminated string union so renderers can
 // switch exhaustively without bool soup.
@@ -111,7 +129,6 @@ function App() {
       if (placement.unmappable) {
         unmappable.push(task);
       } else {
-        mappable.push(task);
         // Pin the task at one place per task, not at every wiki-linked
         // entity. Without this, "Enter the Wizards' Guild in Yanille"
         // (wikiLinks: [Wizards' Guild, Yanille]) shows up at BOTH the
@@ -123,13 +140,31 @@ function App() {
         // Exception: "General"-region tasks like "Pickpocket a Citizen"
         // are intentionally pinned in every region the entity spawns
         // in, so the player sees a marker in each league area they've
-        // unlocked. For those we keep the full locations fan-out.
-        const ids =
+        // unlocked. For those we keep the full locations fan-out — but
+        // we still respect the region filter on the *location* itself.
+        // Otherwise unchecking Desert leaves Desert pins for General
+        // tasks like "Equip the Tumeken's Shadow" (drops from TOA,
+        // region General — only pin lives in the Desert), which the
+        // user reads as "I filtered out Desert but still see TOA tasks."
+        const candidateIds =
           task.region === "General"
             ? placement.locations
             : [placement.primary ?? placement.locations[0]];
-        for (const locId of ids) {
+        const visibleIds: string[] = [];
+        for (const locId of candidateIds) {
           if (!locId) continue;
+          if (task.region === "General") {
+            const loc = getLocation(locId);
+            if (loc && !filters.regions.has(loc.region)) continue;
+          }
+          visibleIds.push(locId);
+        }
+        // If a General task's only pins all sit in regions the user
+        // filtered out, drop it from the list too — leaving it visible
+        // with no map pin to click is worse than just hiding it.
+        if (visibleIds.length === 0) continue;
+        mappable.push(task);
+        for (const locId of visibleIds) {
           const arr = byLoc.get(locId) ?? [];
           arr.push(task);
           byLoc.set(locId, arr);
@@ -232,6 +267,137 @@ function App() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [aboutOpen, closeAboutDialog]);
+
+  // ─────────────────── Changelog ("What's new") dialog state ──────────
+  // Two-key auto-popup gate (see CHANGELOG_*_KEY constants above):
+  //
+  //   1. lm.changelogSuppressed === "1" → permanent opt-out, never
+  //      auto-opens regardless of version. Set ONLY when the user ticks
+  //      "Don't show me this on future releases" inside the modal.
+  //   2. lm.changelogSeenVersion === LATEST_VERSION → already saw this
+  //      release, don't auto-open (but stays clearable on next ship).
+  //
+  // The header link bypasses both gates entirely so users can always
+  // reopen the modal even after suppressing.
+  const [changelogOpen, setChangelogOpen] = useState(false);
+  // Whether to show the small unread dot on the header link. True when
+  // there's an unseen release AND the user hasn't permanently
+  // suppressed the popup. Initialized synchronously from localStorage
+  // (via a useState lazy initializer rather than a separate effect) so
+  // the dot never flashes-then-disappears on refresh — and so the
+  // first paint is consistent with whatever the auto-popup gate
+  // decides. Cleared the first time the modal opens (auto or manual).
+  const [changelogUnread, setChangelogUnread] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      const suppressed =
+        window.localStorage.getItem(CHANGELOG_SUPPRESSED_KEY) === "1";
+      const seenVersion = window.localStorage.getItem(
+        CHANGELOG_SEEN_VERSION_KEY,
+      );
+      const hasFilters =
+        window.localStorage.getItem(FILTERS_STORAGE_KEY) !== null;
+      const hasCompleted =
+        window.localStorage.getItem(COMPLETED_STORAGE_KEY) !== null;
+      const isFirstTimeVisitor =
+        seenVersion === null && !hasFilters && !hasCompleted;
+      const alreadyDismissed = seenVersion === LATEST_VERSION;
+      // Show the dot whenever the auto-popup gate WOULD fire — same
+      // exact predicate (suppressed | already-seen | first-time
+      // visitor all disqualify).
+      return !suppressed && !alreadyDismissed && !isFirstTimeVisitor;
+    } catch {
+      return false;
+    }
+  });
+  // Tracks the user's "Don't show me this again" checkbox state so
+  // backdrop / Escape / × paths honour it the same way the explicit
+  // "Got it" button does. Ref instead of state because this value only
+  // matters at the moment we close — no re-render needed when it flips.
+  const changelogSuppressRef = useRef(false);
+
+  // Mark the dot resolved + write the seen-version key. Suppression is
+  // a separate write so we don't accidentally tie "I dismissed this
+  // release" to "I never want to see another release". Returns nothing —
+  // it's a side-effect-only finalizer the close handlers all share.
+  const markChangelogSeen = useCallback((suppressForever: boolean) => {
+    try {
+      window.localStorage.setItem(
+        CHANGELOG_SEEN_VERSION_KEY,
+        LATEST_VERSION,
+      );
+      if (suppressForever) {
+        window.localStorage.setItem(CHANGELOG_SUPPRESSED_KEY, "1");
+      }
+    } catch {
+      // localStorage can throw under quota / private-browsing policies;
+      // we just lose persistence for this session, no UX consequence.
+    }
+    setChangelogUnread(false);
+  }, []);
+
+  const handleChangelogClose = useCallback(
+    (suppressForever: boolean) => {
+      analytics.changelogClosed({
+        version: LATEST_VERSION,
+        suppressForever,
+      });
+      markChangelogSeen(suppressForever);
+      setChangelogOpen(false);
+      // Reset the suppress ref after the close transition so the next
+      // open starts with the checkbox unchecked again.
+      setTimeout(() => {
+        changelogSuppressRef.current = false;
+      }, 200);
+    },
+    [markChangelogSeen],
+  );
+
+  const closeChangelogDialog = useCallback(() => {
+    handleChangelogClose(changelogSuppressRef.current);
+  }, [handleChangelogClose]);
+
+  const openChangelogDialog = useCallback(
+    (trigger: "auto" | "manual") => {
+      analytics.changelogOpened({ trigger, version: LATEST_VERSION });
+      // Opening clears the unread dot immediately — the user has now
+      // seen the indicator AND the modal contents.
+      setChangelogUnread(false);
+      setChangelogOpen(true);
+    },
+    [],
+  );
+
+  // Auto-popup scheduler. The "should we ever open?" predicate already
+  // ran synchronously inside the changelogUnread initializer above
+  // (so the unread dot is correct on first paint without an extra
+  // render). Here we just react to that decision once: if the dot is
+  // on at mount, schedule the modal after CHANGELOG_AUTOPOP_DELAY_MS
+  // so the lazy MapView chunk lands and the initial paint settles
+  // first. Captures `openChangelogDialog` from the first-render
+  // closure deliberately — later state changes to changelogUnread
+  // (e.g. the dot clearing when the user opens manually before the
+  // delay elapses) must not retrigger the auto-popup.
+  const autoPopupArmed = useRef(changelogUnread);
+  useEffect(() => {
+    if (!autoPopupArmed.current) return;
+    const t = setTimeout(() => {
+      openChangelogDialog("auto");
+    }, CHANGELOG_AUTOPOP_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [openChangelogDialog]);
+
+  // Escape closes the changelog modal — same a11y contract as the bug
+  // / about / sync dialogs. Honours the user's checkbox state via the
+  // shared closeChangelogDialog finalizer.
+  useEffect(() => {
+    if (!changelogOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeChangelogDialog();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [changelogOpen, closeChangelogDialog]);
 
   // ─────────────────── RuneLite sync dialog state ────────────────────
   // Workflow: user pastes (or file-picks) the JSON exported from the
@@ -536,6 +702,27 @@ function App() {
             <button
               type="button"
               className="bug-report-link"
+              onClick={() => openChangelogDialog("manual")}
+              title={`Latest fixes (${LATEST_VERSION})`}
+            >
+              What's new
+              {/*
+                Unread dot. Only shown when there's an unseen release
+                AND the user hasn't permanently suppressed the modal —
+                clears the moment the modal opens (auto or manual).
+                aria-hidden because the text already conveys the
+                action; the dot is purely a visual scent for "new".
+              */}
+              {changelogUnread && (
+                <span
+                  className="bug-report-link-dot"
+                  aria-hidden="true"
+                />
+              )}
+            </button>
+            <button
+              type="button"
+              className="bug-report-link"
               onClick={openBugDialog}
               title="Send a bug report to eli@karpinsky.io"
             >
@@ -655,6 +842,83 @@ function App() {
                 </em>
               </p>
             </div>
+          </div>
+        </div>
+      )}
+      {/*
+        Changelog ("What's new") modal. Auto-pops once per release the
+        user hasn't seen, with a permanent-suppression checkbox in the
+        footer. Reuses the bug-dialog shell + about-dialog body styles —
+        no new modal primitives. Backdrop click + Escape + × all close
+        via closeChangelogDialog, which honours whatever the suppress
+        checkbox was at close time.
+      */}
+      {changelogOpen && (
+        <div
+          className="bug-dialog-backdrop"
+          onMouseDown={closeChangelogDialog}
+          role="presentation"
+        >
+          <div
+            className="bug-dialog about-dialog changelog-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="changelog-dialog-title"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <header className="bug-dialog-head">
+              <h2 id="changelog-dialog-title">What's new</h2>
+              <button
+                type="button"
+                className="bug-dialog-close"
+                onClick={closeChangelogDialog}
+                aria-label="Close changelog dialog"
+              >
+                ×
+              </button>
+            </header>
+            <div className="about-dialog-body changelog-dialog-body">
+              {CHANGELOG.map((entry, idx) => (
+                <section
+                  key={entry.version}
+                  className={
+                    "changelog-release" +
+                    (idx === 0 ? " latest" : " older")
+                  }
+                >
+                  <h3>
+                    {entry.version}
+                    <time dateTime={entry.date}> · {entry.date}</time>
+                  </h3>
+                  <ul>
+                    {entry.highlights.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
+            </div>
+            <footer className="bug-dialog-foot changelog-dialog-foot">
+              <label className="changelog-suppress-checkbox">
+                <input
+                  type="checkbox"
+                  defaultChecked={false}
+                  onChange={(e) => {
+                    changelogSuppressRef.current = e.target.checked;
+                  }}
+                />
+                Don't show me this on future releases
+              </label>
+              <div className="bug-dialog-actions">
+                <button
+                  type="button"
+                  className="bug-dialog-btn primary"
+                  onClick={closeChangelogDialog}
+                >
+                  Got it
+                </button>
+              </div>
+            </footer>
           </div>
         </div>
       )}
@@ -870,7 +1134,7 @@ function App() {
               className="bug-dialog-textarea"
               value={bugMessage}
               onChange={(e) => setBugMessage(e.target.value)}
-              placeholder="e.g. ‘King Sand Crab pin is in the wrong place. It should be on the Hosidius beach, not the town centre.'"
+              placeholder="e.g. ‘King Sand Crab is in the wrong place. It should be on the Hosidius beach, not the town centre.'"
               maxLength={BUG_MAX_LEN}
               rows={5}
               disabled={bugStatus === "sending" || bugStatus === "sent"}

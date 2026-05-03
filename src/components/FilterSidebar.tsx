@@ -545,8 +545,8 @@ export default function FilterSidebar({
         />
         <OptRow
           checked={filters.includeCentroidFallbacks}
-          label="Region fallback pins"
-          hint="Show pins at region centers when an exact location is unknown"
+          label="Region fallback markers"
+          hint="Show a marker at the region center when an exact location is unknown"
           onChange={(v) => {
             analytics.filterChanged({
               kind: "includeCentroidFallbacks",

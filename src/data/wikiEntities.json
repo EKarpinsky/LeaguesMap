@@ -523,54 +523,6 @@
   "anvil": {
     "allSpawns": [
       [
-        3246,
-        3404
-      ],
-      [
-        3248,
-        3404
-      ],
-      [
-        3188,
-        3426
-      ],
-      [
-        3188,
-        3424
-      ],
-      [
-        3188,
-        3421
-      ],
-      [
-        3228,
-        3436
-      ],
-      [
-        3228,
-        3434
-      ],
-      [
-        2950,
-        3452
-      ],
-      [
-        2950,
-        3451
-      ],
-      [
-        3360,
-        3155
-      ],
-      [
-        2991,
-        3689
-      ],
-      [
-        2999,
-        3144
-      ],
-      [
         2645,
         2392
       ],
@@ -671,6 +623,10 @@
         3829
       ],
       [
+        3360,
+        3155
+      ],
+      [
         2918,
         3573
       ],
@@ -697,6 +653,14 @@
       [
         3190,
         3938
+      ],
+      [
+        2950,
+        3452
+      ],
+      [
+        2950,
+        3451
       ],
       [
         2551,
@@ -739,12 +703,20 @@
         3758
       ],
       [
+        2991,
+        3689
+      ],
+      [
         2501,
         3330
       ],
       [
         2499,
         3332
+      ],
+      [
+        2999,
+        3144
       ],
       [
         3754,
@@ -755,20 +727,12 @@
         3320
       ],
       [
-        2790,
-        3101
-      ],
-      [
         3406,
         2834
       ],
       [
-        3227,
-        3250
-      ],
-      [
-        3082,
-        3411
+        2790,
+        3101
       ],
       [
         2502,
@@ -785,18 +749,6 @@
     "source": "map",
     "spawnRegions": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      "Asgarnia",
-      "Asgarnia",
-      "Desert",
-      "Wilderness",
-      "Asgarnia",
-      null,
       "Kandarin",
       "Kandarin",
       "Kandarin",
@@ -821,13 +773,16 @@
       "Kourend",
       "Kourend",
       "Kourend",
+      "Desert",
       "Asgarnia",
       "Kandarin",
       "Kandarin",
       "Kandarin",
       "Varlamore",
       "Varlamore",
-      null,
+      "Wilderness",
+      "Asgarnia",
+      "Asgarnia",
       "Fremennik",
       "Fremennik",
       "Fremennik",
@@ -838,20 +793,20 @@
       "Morytania",
       "Kourend",
       "Kourend",
+      "Wilderness",
       "Kandarin",
       "Kandarin",
+      "Asgarnia",
       "Morytania",
       "Morytania",
+      "Desert",
       "Karamja",
-      "Desert",
-      null,
       "Kandarin",
-      "Kandarin",
-      null
+      "Desert"
     ],
     "title": "Anvil",
-    "x": 3246,
-    "y": 3404
+    "x": 2645,
+    "y": 2392
   },
   "ape atoll": {
     "allSpawns": [
@@ -2400,79 +2355,6 @@
     "title": "Bird_snare",
     "x": 3324,
     "y": 2742
-  },
-  "black chinchompa (hunter)": {
-    "allSpawns": [
-      [
-        3134,
-        3786
-      ],
-      [
-        3140,
-        3784
-      ],
-      [
-        3136,
-        3782
-      ],
-      [
-        3139,
-        3780
-      ],
-      [
-        3142,
-        3775
-      ],
-      [
-        3146,
-        3774
-      ],
-      [
-        3159,
-        3774
-      ],
-      [
-        3154,
-        3773
-      ],
-      [
-        3138,
-        3772
-      ],
-      [
-        3158,
-        3770
-      ],
-      [
-        3141,
-        3769
-      ],
-      [
-        3152,
-        3769
-      ]
-    ],
-    "category": "monster",
-    "leagueRegion": "Wilderness",
-    "resolvedTitle": "Black chinchompa (Hunter)",
-    "source": "locline",
-    "spawnRegions": [
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness",
-      "Wilderness"
-    ],
-    "title": "Black chinchompa (Hunter)",
-    "x": 3134,
-    "y": 3786
   },
   "black demon": {
     "allSpawns": [
@@ -8516,28 +8398,6 @@
     "x": 3203,
     "y": 3681
   },
-  "corrupted hunllef": {
-    "allSpawns": [
-      [
-        2210,
-        3415
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Tirannwn",
-    "note": "Prifddinas",
-    "resolvedTitle": "Corrupted Hunllef",
-    "source": "curated",
-    "spawnNotes": [
-      "Prifddinas"
-    ],
-    "spawnRegions": [
-      "Tirannwn"
-    ],
-    "title": "Corrupted Hunllef",
-    "x": 2210,
-    "y": 3415
-  },
   "crafting guild": {
     "allSpawns": [
       [
@@ -9728,28 +9588,6 @@
     "x": 1510,
     "y": 3046
   },
-  "enhanced crystal chest": {
-    "allSpawns": [
-      [
-        2210,
-        3415
-      ]
-    ],
-    "category": "landmark",
-    "leagueRegion": "Tirannwn",
-    "note": "Prifddinas",
-    "resolvedTitle": "Enhanced Crystal Chest",
-    "source": "curated",
-    "spawnNotes": [
-      "Prifddinas"
-    ],
-    "spawnRegions": [
-      "Tirannwn"
-    ],
-    "title": "Enhanced Crystal Chest",
-    "x": 2210,
-    "y": 3415
-  },
   "eternal slayer ring": {
     "allSpawns": [
       [
@@ -10119,21 +9957,6 @@
     "x": 2560,
     "y": 2944
   },
-  "ferox enclave": {
-    "allSpawns": [
-      [
-        3137,
-        3623
-      ]
-    ],
-    "category": "landmark",
-    "leagueRegion": "Wilderness",
-    "resolvedTitle": "Ferox Enclave",
-    "source": "map",
-    "title": "Ferox Enclave",
-    "x": 3137,
-    "y": 3623
-  },
   "fight caves": {
     "allSpawns": [
       [
@@ -10341,21 +10164,6 @@
     "title": "fishing rod",
     "x": 2860,
     "y": 3335
-  },
-  "fishing trawler": {
-    "allSpawns": [
-      [
-        2669,
-        3161
-      ]
-    ],
-    "category": "activity",
-    "leagueRegion": "Kandarin",
-    "resolvedTitle": "Fishing Trawler",
-    "source": "map",
-    "title": "Fishing Trawler",
-    "x": 2669,
-    "y": 3161
   },
   "fiyr shade": {
     "allSpawns": [
@@ -11745,28 +11553,6 @@
     "x": 1824,
     "y": 3107
   },
-  "fragment of seren": {
-    "allSpawns": [
-      [
-        2210,
-        3415
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Tirannwn",
-    "note": "Prifddinas",
-    "resolvedTitle": "Fragment Of Seren",
-    "source": "curated",
-    "spawnNotes": [
-      "Prifddinas"
-    ],
-    "spawnRegions": [
-      "Tirannwn"
-    ],
-    "title": "Fragment Of Seren",
-    "x": 2210,
-    "y": 3415
-  },
   "frank (bloodveld)": {
     "allSpawns": [
       [
@@ -11876,41 +11662,6 @@
     "title": "Frost Crab",
     "x": 1530,
     "y": 2983
-  },
-  "funeral pyre (barbarian)": {
-    "allSpawns": [
-      [
-        2519,
-        3519
-      ],
-      [
-        2518,
-        3519
-      ],
-      [
-        2507,
-        3518
-      ],
-      [
-        2506,
-        3518
-      ],
-      [
-        2503,
-        3499
-      ],
-      [
-        2503,
-        3498
-      ]
-    ],
-    "category": "scenery",
-    "leagueRegion": null,
-    "resolvedTitle": "Funeral pyre (Barbarian)",
-    "source": "map",
-    "title": "Funeral pyre (Barbarian)",
-    "x": 2519,
-    "y": 3519
   },
   "fur stall": {
     "allSpawns": [
@@ -12091,8 +11842,8 @@
         3098
       ],
       [
-        2210,
-        3415
+        2218,
+        3406
       ]
     ],
     "category": "scenery",
@@ -12105,7 +11856,7 @@
       null,
       null,
       null,
-      "Prifddinas (Trahaearn)"
+      "Prifddinas Trahaearn marketplace"
     ],
     "spawnRegions": [
       "Kandarin",
@@ -16648,28 +16399,6 @@
     "title": "Jormungand's Prison",
     "x": 2621,
     "y": 3691
-  },
-  "jubster": {
-    "allSpawns": [
-      [
-        2656,
-        3212
-      ]
-    ],
-    "category": "monster",
-    "leagueRegion": "Kandarin",
-    "note": "Tower of Life",
-    "resolvedTitle": "Jubster",
-    "source": "curated",
-    "spawnNotes": [
-      "Tower of Life"
-    ],
-    "spawnRegions": [
-      "Kandarin"
-    ],
-    "title": "Jubster",
-    "x": 2656,
-    "y": 3212
   },
   "jugs of wine": {
     "allSpawns": [
@@ -23262,21 +22991,6 @@
     "x": 2466,
     "y": 2846
   },
-  "port khazard": {
-    "allSpawns": [
-      [
-        2653,
-        3159
-      ]
-    ],
-    "category": "landmark",
-    "leagueRegion": "Kandarin",
-    "resolvedTitle": "Port Khazard",
-    "source": "map",
-    "title": "Port Khazard",
-    "x": 2653,
-    "y": 3159
-  },
   "port master": {
     "allSpawns": [
       [
@@ -25234,7 +24948,7 @@
       ]
     ],
     "category": "monster",
-    "leagueRegion": "Varlamore",
+    "leagueRegion": "Asgarnia",
     "resolvedTitle": "Rabbit",
     "source": "locline",
     "spawnRegions": [
@@ -28816,8 +28530,8 @@
         3664
       ],
       [
-        2210,
-        3415
+        2218,
+        3406
       ]
     ],
     "category": "scenery",
@@ -28827,7 +28541,7 @@
     "spawnNotes": [
       null,
       null,
-      "Prifddinas (Trahaearn)"
+      "Prifddinas Trahaearn marketplace"
     ],
     "spawnRegions": [
       "Kandarin",
@@ -29707,33 +29421,6 @@
     "title": "Snowy Knight",
     "x": 2864,
     "y": 3957
-  },
-  "soft clay": {
-    "allSpawns": [
-      [
-        1765,
-        3095
-      ],
-      [
-        2210,
-        3415
-      ]
-    ],
-    "category": "item",
-    "leagueRegion": "Varlamore",
-    "resolvedTitle": "Soft clay",
-    "source": "itemspawnline",
-    "spawnNotes": [
-      null,
-      "Trahaearn mine (Prifddinas)"
-    ],
-    "spawnRegions": [
-      "Varlamore",
-      "Tirannwn"
-    ],
-    "title": "soft clay",
-    "x": 1765,
-    "y": 3095
   },
   "sol heredit": {
     "allSpawns": [
@@ -34779,28 +34466,6 @@
     "x": 3165,
     "y": 2845
   },
-  "the corrupted gauntlet": {
-    "allSpawns": [
-      [
-        2210,
-        3415
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Tirannwn",
-    "note": "Prifddinas",
-    "resolvedTitle": "The Corrupted Gauntlet",
-    "source": "curated",
-    "spawnNotes": [
-      "Prifddinas"
-    ],
-    "spawnRegions": [
-      "Tirannwn"
-    ],
-    "title": "The Corrupted Gauntlet",
-    "x": 2210,
-    "y": 3415
-  },
   "the final dawn": {
     "allSpawns": [
       [
@@ -34838,28 +34503,6 @@
     "x": 1383,
     "y": 3813
   },
-  "the gauntlet": {
-    "allSpawns": [
-      [
-        2210,
-        3415
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Tirannwn",
-    "note": "Prifddinas",
-    "resolvedTitle": "The Gauntlet",
-    "source": "curated",
-    "spawnNotes": [
-      "Prifddinas"
-    ],
-    "spawnRegions": [
-      "Tirannwn"
-    ],
-    "title": "The Gauntlet",
-    "x": 2210,
-    "y": 3415
-  },
   "the golem": {
     "allSpawns": [
       [
@@ -34896,28 +34539,6 @@
     "title": "the Hueycoatl",
     "x": 1512,
     "y": 3285
-  },
-  "the hunllef": {
-    "allSpawns": [
-      [
-        2210,
-        3415
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Tirannwn",
-    "note": "Prifddinas",
-    "resolvedTitle": "The Hunllef",
-    "source": "curated",
-    "spawnNotes": [
-      "Prifddinas"
-    ],
-    "spawnRegions": [
-      "Tirannwn"
-    ],
-    "title": "The Hunllef",
-    "x": 2210,
-    "y": 3415
   },
   "the inferno": {
     "allSpawns": [
@@ -35273,64 +34894,6 @@
     "title": "Tortoise",
     "x": 2410,
     "y": 3528
-  },
-  "tower of life": {
-    "allSpawns": [
-      [
-        2656,
-        3212
-      ]
-    ],
-    "category": "quest",
-    "leagueRegion": "Kandarin",
-    "resolvedTitle": "Tower of Life",
-    "source": "map",
-    "title": "Tower of Life",
-    "x": 2656,
-    "y": 3212
-  },
-  "tower of life (building)": {
-    "allSpawns": [
-      [
-        2647,
-        3225
-      ],
-      [
-        2643,
-        3221
-      ],
-      [
-        2643,
-        3216
-      ],
-      [
-        2647,
-        3212
-      ],
-      [
-        2652,
-        3212
-      ],
-      [
-        2656,
-        3216
-      ],
-      [
-        2656,
-        3221
-      ],
-      [
-        2652,
-        3225
-      ]
-    ],
-    "category": "landmark",
-    "leagueRegion": "Kandarin",
-    "resolvedTitle": "Tower of Life (building)",
-    "source": "map",
-    "title": "Tower of Life (building)",
-    "x": 2647,
-    "y": 3225
   },
   "tree gnome stronghold": {
     "allSpawns": [
@@ -37626,21 +37189,6 @@
     "x": 2362,
     "y": 3578
   },
-  "wilderness achievement diary": {
-    "allSpawns": [
-      [
-        3121,
-        3516
-      ]
-    ],
-    "category": "achievement",
-    "leagueRegion": "Wilderness",
-    "resolvedTitle": "Wilderness Diary",
-    "source": "map",
-    "title": "Wilderness Achievement Diary",
-    "x": 3121,
-    "y": 3516
-  },
   "wilderness resource area": {
     "allSpawns": [
       [
@@ -39729,7 +39277,7 @@
       ]
     ],
     "category": "monster",
-    "leagueRegion": "Misthalin",
+    "leagueRegion": "Kourend",
     "resolvedTitle": "Woman",
     "source": "locline",
     "spawnRegions": [
@@ -40129,28 +39677,6 @@
     "title": "Yanille Agility Dungeon",
     "x": 2570,
     "y": 3123
-  },
-  "zalcano": {
-    "allSpawns": [
-      [
-        2210,
-        3415
-      ]
-    ],
-    "category": "boss",
-    "leagueRegion": "Tirannwn",
-    "note": "Prifddinas",
-    "resolvedTitle": "Zalcano",
-    "source": "curated",
-    "spawnNotes": [
-      "Prifddinas"
-    ],
-    "spawnRegions": [
-      "Tirannwn"
-    ],
-    "title": "Zalcano",
-    "x": 2210,
-    "y": 3415
   },
   "zombie pirate": {
     "allSpawns": [

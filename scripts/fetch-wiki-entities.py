@@ -135,6 +135,72 @@ SKIP_TITLES: set[str] = {
     # "cave kraken" on kraken-cove).
     "taverley dungeon",     # → cerberus landmark (carries "taverley dungeon" alias)
     "kraken cove",          # → kraken-cove landmark
+    # ───── DP v1.4 dedup batch ─────
+    # Every entry below is an entity whose `{{Map}}` coord lives at (or
+    # near) an existing landmark in src/data/locations.ts. Without
+    # skipping, the resolver's wiki-link entity match wins before
+    # landmark alias matching, so the entity produces an
+    # `entity:<title>:<region>` pin while the landmark also produces a
+    # pin from any tasks that text-scan into its aliases — TWO
+    # visually-overlapping orbs at the same physical location, which
+    # is the bug-report pattern users keep filing. Coord-matching
+    # alone does NOT dedup pins — the MapView keys by location id,
+    # and entity ids and landmark ids never collide. Skip the
+    # entities so all matching tasks fall through to the landmark
+    # alias and share one orb. Same Phantom-Muspah / Nex / Kraken
+    # pattern as the bosses skipped above.
+    "black chinchompa (hunter)",   # → black-chin-hunter landmark
+    "fishing trawler",             # → khazard landmark (carries "fishing trawler" alias)
+    "tower of life",               # → tower-of-life landmark (covers quest start)
+    "tower of life (building)",    # → tower-of-life landmark (covers creature dungeon)
+    "jubster",                     # → tower-of-life landmark (Jubster only spawns inside it)
+    "funeral pyre (barbarian)",    # → ancient-cavern landmark (carries "funeral pyre" / "pyre ship" aliases)
+    "wilderness achievement diary", # → ferox-enclave landmark (carries "wilderness diary" alias; Lesser Fanatic relocates to Ferox in DP)
+    "zalcano",                     # → zalcano landmark
+    "corrupted hunllef",           # → corrupted-hunllef landmark
+    "the hunllef",                 # → corrupted-hunllef landmark
+    "the corrupted gauntlet",      # → corrupted-hunllef landmark
+    "the gauntlet",                # → corrupted-hunllef landmark (alias "gauntlet")
+    # `Soft clay`: the only DP league task that touches it is #1130
+    # "Mine 200 Soft Clay in Tirannwn". The wiki page has Varlamore +
+    # Karamja surface spawns plus the instanced Trahaearn-mine spawn
+    # (added previously via SUPPLEMENTAL_SPAWNS). With the entity left
+    # in, #1130 wikilinks `Soft Clay` → entity match wins → pin lives at
+    # the supplemental Trahaearn-mine spawn (2225, 3400) AS A
+    # SEPARATE LOCATION-ID from the `trahaearn-mine` landmark at the
+    # exact same coord — same dup-pin bug. Skip the entity so the
+    # task falls through to the landmark alias `soft clay in tirannwn`.
+    # No other DP task references Soft Clay so no collateral damage.
+    "soft clay",                   # → trahaearn-mine landmark (only DP task is Tirannwn-tagged)
+    # `Port Khazard` entity coord matches the `khazard` landmark exactly
+    # (2653, 3159) — the wiki `{{Map}}` for the city. With the entity
+    # left in, "Complete a Fishing Trawler Game" wikilinked Port Khazard
+    # → entity:port khazard pin, while "Equip a Full Angler's Outfit"
+    # text-scanned to the `khazard` landmark — two overlapping orbs at
+    # the same dock. Skipping the entity collapses both onto the
+    # landmark via the alias "fishing trawler" / "port khazard".
+    "port khazard",                # → khazard landmark
+    # `Ferox Enclave` entity coord (3137, 3623) matches the new
+    # ferox-enclave landmark exactly. With the entity left in, "Visit
+    # Ferox Enclave" pinned to entity:ferox enclave while the four
+    # Wilderness Diary tasks pinned to the landmark — two overlapping
+    # orbs. Skip the entity so the landmark catches both via the
+    # alias "ferox enclave".
+    "ferox enclave",               # → ferox-enclave landmark
+    # `Fragment of Seren` resolves via its CURATED_ENTITIES anchor
+    # ("Prifddinas") which now lands at (2210, 3415) — the exact same
+    # coord as the prifddinas landmark. Without skipping, "Defeat the
+    # memory of Seren" pins to entity:fragment of seren and the
+    # other 27 Prifddinas tasks pin to the landmark — same dup-pin
+    # bug. Skipping forces the seren task into the landmark via the
+    # newly-added alias "fragment of seren".
+    "fragment of seren",           # → prifddinas landmark
+    # `Enhanced Crystal Chest` is curated to anchor "Prifddinas", so
+    # its coord is also (2210, 3415) — same dup-pin pattern. It's
+    # Prifddinas-only (the chest physically lives in the city) so
+    # skipping it has no cross-region impact. The prifddinas landmark
+    # owns "enhanced crystal chest" via the alias added below.
+    "enhanced crystal chest",      # → prifddinas landmark
     # `taverley` city has its own landmark in src/data/locations.ts at the
     # same exact tile (2910, 3451). The wiki-scraped entity is redundant
     # AND was the *real* reason "Defeat Cerberus" / "Enter the Taverley
@@ -296,6 +362,14 @@ ANCHOR_COORD_OVERRIDES: dict[str, tuple[int, int]] = {
     # in Varlamore instead of falling back to the Slayer Tower via the
     # `dawn` text-scan match.
     "Servius, Teokan of Ralos": (1678, 3168),
+    # Synthetic anchor used by SUPPLEMENTAL_SPAWNS for Prifddinas
+    # Trahaearn-district stalls (silver stall + gem stall) so they
+    # don't collide with the prifddinas landmark at (2210, 3415).
+    # Cosmetic offset between the prifddinas landmark (Tower of Voices,
+    # north) and the trahaearn-mine landmark (south-east of city
+    # centre) — visually represents the central marketplace plaza
+    # inside the painted Prifddinas footprint.
+    "Prifddinas Trahaearn marketplace": (2218, 3406),
 }
 
 
@@ -399,28 +473,29 @@ SUPPLEMENTAL_SPAWNS: dict[str, list[dict]] = {
     "nechryael": [
         {"anchor": "Iorwerth Camp", "region": "Tirannwn", "note": "Iorwerth Dungeon"},
     ],
-    # Silver Stall: the Prifddinas Trahaearn-district market silver stall
-    # is reachable inside the Tirannwn city. Anchor to Prifddinas (which
-    # ANCHOR_COORD_OVERRIDES locks to the Tower of Voices walk-in).
+    # Silver Stall + Gem Stall: the Trahaearn-district market stalls
+    # in Prifddinas. Previously anchored to "Prifddinas" (which
+    # ANCHOR_COORD_OVERRIDES resolves to (2210, 3415) — the Tower of
+    # Voices walk-in) — that produced an entity pin at the EXACT same
+    # coord as the prifddinas landmark, an invisible-but-still-real
+    # dup-pin. Re-anchor both to a fresh "Trahaearn marketplace"
+    # cosmetic coord (2218, 3406) — central plaza of the painted
+    # Trahaearn district, distinct from the trahaearn-mine landmark
+    # (2225, 3400) AND the prifddinas landmark (2210, 3415). Visible
+    # as a separate orb between the city centre and the mine, which
+    # is faithful to where the stalls actually are in-game.
     "silver stall": [
-        {"anchor": "Prifddinas", "region": "Tirannwn", "note": "Prifddinas (Trahaearn)"},
+        {"anchor": "Prifddinas Trahaearn marketplace", "region": "Tirannwn", "note": "Prifddinas Trahaearn marketplace"},
     ],
-    # Gem Stall: same Trahaearn market, same Prifddinas anchor.
     "gem stall": [
-        {"anchor": "Prifddinas", "region": "Tirannwn", "note": "Prifddinas (Trahaearn)"},
+        {"anchor": "Prifddinas Trahaearn marketplace", "region": "Tirannwn", "note": "Prifddinas Trahaearn marketplace"},
     ],
-    # Soft Clay: wiki Soft_clay page says verbatim "The only place to mine
-    # soft clay directly is in the Trahaearn mine" (Prifddinas, Tirannwn).
-    # The Trahaearn mine itself is mapID > 0 (instanced city interior at
-    # 3290..3295, 12443..12452) so the auto-scrape drops it and the entity
-    # ends up with only its Varlamore / Karamja non-clay surface spawns.
-    # Without this supplement, "Mine 200 Soft Clay in Tirannwn" can't find
-    # an entity-level Tirannwn pin and falls through to the lletya landmark
-    # (~190 tiles SE of the actual mining spot). Anchor to Prifddinas (which
-    # ANCHOR_COORD_OVERRIDES locks to the Tower of Voices walk-in).
-    "soft clay": [
-        {"anchor": "Prifddinas", "region": "Tirannwn", "note": "Trahaearn mine (Prifddinas)"},
-    ],
+    # `soft clay` is intentionally NOT supplemented — it's SKIP_TITLES'd
+    # entirely (see comment block in SKIP_TITLES above). The only DP
+    # task touching Soft Clay is #1130 "Mine 200 Soft Clay in Tirannwn",
+    # which falls through to the `trahaearn-mine` landmark via the
+    # alias "soft clay in tirannwn" without the supplement. Anything
+    # we add here would resurrect the entity-vs-landmark dup pin.
     # Bloodveld: the wiki Bloodveld page's Stronghold Slayer Cave LocLine
     # is mapID = 19 (the Tree Gnome Stronghold underground network) so
     # the auto-scrape drops it and the entity ends up with only its
@@ -519,19 +594,15 @@ CURATED_ENTITIES: dict[str, dict] = {
     "sol heredit":              {"anchor": "Fortis Colosseum",        "category": "boss"},
 
     # ───── Instanced quest bosses ─────
-    # All anchored to Prifddinas (Tower of Voices area), NOT Lletya. The
-    # Gauntlet portal sits at the Crystal Gate next to the Tower of Voices,
-    # and Zalcano lives inside the Trahaearn smithing district. Lletya is
-    # ~225 game tiles southeast and would put every elf-quest pin in the
-    # wrong elven settlement. ANCHOR_COORD_OVERRIDES["Prifddinas"] below
-    # locks the resolved coord to the Tower of Voices area so a single
-    # marker covers all of these instanced bosses + Song of the Elves
-    # endgame, matching where players actually walk in.
-    "zalcano":                  {"anchor": "Prifddinas",              "category": "boss"},
-    "corrupted hunllef":        {"anchor": "Prifddinas",              "category": "boss"},
-    "the hunllef":              {"anchor": "Prifddinas",              "category": "boss"},
-    "the corrupted gauntlet":   {"anchor": "Prifddinas",              "category": "boss"},
-    "the gauntlet":             {"anchor": "Prifddinas",              "category": "boss"},
+    # Zalcano + Gauntlet (and the Hunllef/Corrupted-Gauntlet aliases) are
+    # intentionally NOT curated entities — they're SKIP_TITLES'd above
+    # for the same dedup reason (entity ids ≠ landmark ids even at the
+    # exact same coord, so the entity produces a second pin overlapping
+    # the landmark). The `zalcano` and `corrupted-hunllef` landmarks in
+    # src/data/locations.ts already pin to the wiki-described portal
+    # locations (NW corner for Gauntlet, SE Trahaearn platform for
+    # Zalcano) inside the painted Prifddinas city outline AND carry
+    # the matching aliases so every boss task lands on one orb.
 
     # ───── God Wars & DT2 bosses (surface entrances) ─────
     # Nex is intentionally NOT a curated entity — the `nex-lair`
@@ -792,16 +863,20 @@ CURATED_ENTITIES: dict[str, dict] = {
                                         "leagueRegion": "Tirannwn"},
     "elf":                             {"anchor": "Lletya",                     "category": "monster"},
     "elf (disambiguation)":            {"anchor": "Lletya",                     "category": "monster"},
-    # Song of the Elves final boss — fought in Prifddinas's Grand Library,
-    # NOT Lletya. Anchor to Prifddinas so the pin lands at the Tower of
-    # Voices alongside the other Prifddinas-instanced bosses.
-    "fragment of seren":               {"anchor": "Prifddinas",                 "category": "boss"},
+    # `fragment of seren` is intentionally NOT curated — it's
+    # SKIP_TITLES'd above. Song of the Elves final boss is fought in
+    # Prifddinas's Grand Library; the prifddinas landmark in
+    # src/data/locations.ts owns the "fragment of seren" alias so the
+    # task pins to the same orb as the rest of Prifddinas.
     "frost crab":                      {"anchor": "Sunset Coast",               "category": "monster"},
-    # Jubster is a player-created Creature Creation monster, only spawnable
-    # in the Tower of Life basement (Ardougne) — not a wild Feldip Hills
-    # creature, despite some old wiki revisions tagging it that way.
-    "jubster":                         {"anchor": "Tower of Life",              "category": "monster",
-                                        "leagueRegion": "Kandarin"},
+    # `jubster` is intentionally NOT curated — it's SKIP_TITLES'd above
+    # for the standard entity-vs-landmark dedup reason (Jubster's wiki
+    # `{{Map}}` resolves to (2656, 3212), 8 tiles from the
+    # `tower-of-life` landmark, producing a second overlapping pin).
+    # Task #1008 ("Defeat a Jubster while dressed like it") falls
+    # through to the landmark via the alias "jubster" and the
+    # description "Defeat a Jubster underneath the Tower of Life..."
+    # which also matches the "tower of life" landmark alias.
     "steel dragon":                    {"anchor": "Brimhaven Dungeon",          "category": "monster"},
     "revenant dragon":                 {"anchor": "Bone Yard",                  "category": "monster"},
     "kalphite":                        {"anchor": "Shantay Pass",               "category": "monster"},
@@ -882,6 +957,18 @@ CURATED_ENTITIES: dict[str, dict] = {
     "shooting star":              {"anchor": "Falador",                "category": "activity",
                                    "leagueRegion": "General"},
     "shades of mort'ton":         {"anchor": "Shades of Mort'ton",     "category": "minigame"},
+    # Fishing Trawler / Tower of Life / Tower of Life (building) /
+    # Funeral pyre (Barbarian) are intentionally NOT curated entities —
+    # they're listed in SKIP_TITLES above for the dedup reason explained
+    # there (entity ids and landmark ids never collide on the map even
+    # at identical coords, so leaving the entity in produces a
+    # second pin overlapping the landmark). Each task that previously
+    # wiki-linked to one of those entities now falls through to the
+    # corresponding landmark alias in src/data/locations.ts:
+    #   - "Complete a Fishing Trawler Game"  → khazard ("fishing trawler")
+    #   - "Complete Tower of Life" + "Defeat a Frogeel/Newtroost/...
+    #     underneath the Tower of Life"      → tower-of-life
+    #   - "Light a Pyre Ship"                → ancient-cavern ("pyre ship")
     "pyramid plunder":             {"anchor": "Pyramid Plunder",       "category": "minigame"},
     "mahogany homes":              {"anchor": "Mahogany Homes",        "category": "activity"},
     "tithe farm":                  {"anchor": "Tithe Farm",            "category": "minigame"},
@@ -993,12 +1080,11 @@ CURATED_ENTITIES: dict[str, dict] = {
     # text-scan picks up the bare `crystal chest` alias on
     # `entity:crystal chest` (the Taverley chest at (2914, 3452)
     # leagueRegion = Asgarnia) — pinning a Tirannwn task ~700 tiles
-    # east in Asgarnia. The Enhanced version is the upgraded chest
-    # in Prifddinas (post-Song-of-the-Elves), reached through the
-    # Tower of Voices teleport — anchor to Prifddinas which
-    # ANCHOR_COORD_OVERRIDES locks to that walk-in.
-    "enhanced crystal chest":      {"anchor": "Prifddinas",            "category": "landmark",
-                                    "leagueRegion": "Tirannwn"},
+    # `enhanced crystal chest` is intentionally NOT curated — it's
+    # SKIP_TITLES'd above. The chest physically lives in the Tower of
+    # Voices walk-in inside Prifddinas, so the prifddinas landmark in
+    # src/data/locations.ts owns the "enhanced crystal chest" alias
+    # and catches "Open the Enhanced Crystal Chest" (#1141) via that.
     # Daeyalt essence / Daeyalt mining wiki page tags
     # `leagueRegion = Morytania` and has Map = (3632, 3340) for the
     # essence mine's surface entrance (the underground mine itself

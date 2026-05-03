@@ -257,6 +257,117 @@
   margin-top: 4px;
 }
 
+/* ─────────────── Changelog ("What's new") modal ──────────────────────
+ * Shares the bug-dialog shell + about-dialog body. Below: the
+ * release-section list (latest gets full visual weight; older entries
+ * dim down) and the footer suppression checkbox.
+ *
+ * Visual hierarchy intentionally tilts toward the latest release —
+ * users who open the modal manually a year from now should still
+ * register "the new stuff" first, then scan history below it. */
+.changelog-dialog-body {
+  /* Generous vertical room so the highlights breathe. The shell will
+     scroll if older releases push past the dialog max-height. */
+  padding-top: 8px;
+}
+.changelog-release {
+  margin-bottom: 18px;
+}
+.changelog-release:last-child {
+  margin-bottom: 0;
+}
+.changelog-release h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #d8d8e0;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.changelog-release h3 time {
+  font-size: 12px;
+  font-weight: 400;
+  color: #6e6e7c;
+}
+.changelog-release ul {
+  margin: 0;
+  padding: 0 0 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.changelog-release li {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #cfcfd6;
+}
+/* Older releases get muted typography so the latest dominates the
+   visual hierarchy. Latest already inherits the body color above —
+   no extra rule needed for it. */
+.changelog-release.older h3 {
+  color: #a4a4b0;
+  font-size: 13px;
+}
+.changelog-release.older li {
+  font-size: 12.5px;
+  color: #8e8e9a;
+}
+
+/* Footer is reused from .bug-dialog-foot but the checkbox needs to
+   sit left-aligned and the primary button right-aligned, with the
+   checkbox label growing to fill the gap. */
+.changelog-dialog-foot {
+  /* Tighten the top divider's contrast against the modal body — same
+     pattern .bug-dialog-foot uses, just wanted it explicit so the
+     section reads end-of-content. */
+  padding-top: 12px;
+}
+.changelog-suppress-checkbox {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #9c9caa;
+  cursor: pointer;
+  user-select: none;
+}
+.changelog-suppress-checkbox input[type="checkbox"] {
+  /* Native checkbox styling is fine; just nudge it to align with the
+     label baseline at this font size. */
+  margin: 0;
+  flex: 0 0 auto;
+  cursor: pointer;
+  accent-color: #c4724a;
+}
+.changelog-suppress-checkbox:hover {
+  color: #c8c8d2;
+}
+
+/* Small unread dot on the "What's new" header link. Renders inline
+   after the link text so no extra layout space is reserved when
+   it's absent (header link layout stays stable across has-dot/no-dot
+   transitions). Color matches the primary action color used on
+   .bug-dialog-btn.primary so it reads as "fresh / actionable". */
+.bug-report-link-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 5px;
+  border-radius: 50%;
+  background: #c4724a;
+  /* Subtle glow so the dot reads as a status indicator, not a typo
+     pixel — the bug-report links are small/low-contrast and a flat
+     dot can disappear at this size. */
+  box-shadow: 0 0 0 2px rgba(196, 114, 74, 0.18);
+  vertical-align: middle;
+  /* Sit slightly above the text baseline so the dot visually centers
+     on the cap-height of the label. */
+  position: relative;
+  top: -1px;
+}
+
 .bug-dialog-textarea {
   margin: 0 16px;
   padding: 10px 12px;

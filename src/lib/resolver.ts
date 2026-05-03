@@ -23,7 +23,14 @@ const UNMAPPABLE_PATTERNS: RegExp[] = [
   /^reach combat level/i,
   /^reach total level/i,
   /^reach base level/i,
-  /^reach level \d+ /i,
+  // Skill-level-up tasks ("Reach Level 50 Smithing") are non-spatial.
+  // The negative lookahead `(?!in )` exempts location-tagged tasks like
+  // "Reach Level 5 in Any Barbarian Assault Role" — those carry an
+  // explicit minigame target ("Barbarian Assault" / Barbarian Outpost)
+  // and should resolve via aliases like any other spatial task. Without
+  // the lookahead, the BA-role task fell through as unmappable and
+  // never showed on the map.
+  /^reach level \d+ (?!in )/i,
   /^achieve your first level/i,
   /^obtain \d[\d,]* million .* xp/i,
   /^obtain \d{2,3} million xp/i,
