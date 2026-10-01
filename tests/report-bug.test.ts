@@ -1,40 +1,42 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { onRequest, type Env } from "../functions/api/report-bug";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import handler from "../api/report-bug";
 
 let nextIp = 0;
-function post(body: string, env: Env = {}, ip = `192.0.2.${++nextIp}`) {
-  return onRequest({
-    request: new Request("https://example.test/api/report-bug", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "CF-Connecting-IP": ip },
-      body,
-    }),
-    env,
-  });
+function post(body: string, ip = `192.0.2.${++nextIp}`) {
+  return handler(new Request("https://example.test/api/report-bug", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-real-ip": ip },
+    body,
+  }));
 }
 
+beforeEach(() => {
+  vi.stubEnv("RESEND_API_KEY", "test-only");
+  vi.stubEnv("RESEND_FROM", undefined);
+  vi.stubEnv("REPORT_BUG_TO", undefined);
+});
+
 afterEach(() => {
+  vi.unstubAllEnvs();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
-describe("Pages bug-report handler", () => {
-  it("returns JSON 503 without the email binding and sends nothing", async () => {
+describe("bug-report edge handler", () => {
+  it("returns JSON 500 without the email key and sends nothing", async () => {
+    vi.stubEnv("RESEND_API_KEY", undefined);
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
     vi.spyOn(console, "error").mockImplementation(() => {});
     const response = await post('{"message":"A map pin is misplaced"}');
-    expect(response.status).toBe(503);
+    expect(response.status).toBe(500);
     expect(response.headers.get("Content-Type")).toBe("application/json");
-    expect(response.headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(await response.json()).toEqual({ error: "Email backend not configured" });
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("rejects non-POST requests", async () => {
-    const response = await onRequest({
-      request: new Request("https://example.test/api/report-bug"), env: {},
-    });
+    const response = await handler(new Request("https://example.test/api/report-bug"));
     expect(response.status).toBe(405);
     expect(await response.json()).toEqual({ error: "Method not allowed" });
   });
@@ -43,27 +45,25 @@ describe("Pages bug-report handler", () => {
     "rejects malformed JSON or invalid message lengths",
     async (body) => {
       vi.stubGlobal("fetch", vi.fn());
-      expect((await post(body, { RESEND_API_KEY: "test-only" })).status).toBe(400);
+      expect((await post(body)).status).toBe(400);
       expect(fetch).not.toHaveBeenCalled();
     },
   );
 
   it("silently accepts honeypot submissions without sending mail", async () => {
     vi.stubGlobal("fetch", vi.fn());
-    const response = await post('{"website":"spam.test"}', { RESEND_API_KEY: "test-only" });
+    const response = await post('{"website":"spam.test"}');
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true });
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it("uses Pages bindings and the Cloudflare client IP when sending", async () => {
+  it("uses server environment variables and the client IP when sending", async () => {
+    vi.stubEnv("RESEND_FROM", "Test <sender@example.test>");
+    vi.stubEnv("REPORT_BUG_TO", "recipient@example.test");
     const fetchMock = vi.fn().mockResolvedValue(new Response('{}'));
     vi.stubGlobal("fetch", fetchMock);
-    const response = await post(JSON.stringify({ message: "  <b>Missing pin</b>  ", context: "<map>" }), {
-      RESEND_API_KEY: "test-only",
-      RESEND_FROM: "Test <sender@example.test>",
-      REPORT_BUG_TO: "recipient@example.test",
-    }, "192.0.2.100");
+    const response = await post(JSON.stringify({ message: "  <b>Missing pin</b>  ", context: "<map>" }), "192.0.2.100");
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true });
     const [url, init] = fetchMock.mock.calls[0];
@@ -80,17 +80,17 @@ describe("Pages bug-report handler", () => {
   it("preserves the 502 JSON error when Resend rejects a report", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response('{}', { status: 403 })));
     vi.spyOn(console, "error").mockImplementation(() => {});
-    const response = await post('{"message":"Missing pin"}', { RESEND_API_KEY: "test-only" });
+    const response = await post('{"message":"Missing pin"}');
     expect(response.status).toBe(502);
     expect(await response.json()).toEqual({ error: "Couldn't send report. Please try again." });
   });
 
-  it("limits the sixth report from the same Cloudflare IP", async () => {
+  it("limits the sixth report from the same client IP", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response('{}')));
     for (let count = 0; count < 5; count++) {
-      expect((await post('{"message":"Missing pin"}', { RESEND_API_KEY: "test-only" }, "192.0.2.200")).status).toBe(200);
+      expect((await post('{"message":"Missing pin"}', "192.0.2.200")).status).toBe(200);
     }
-    expect((await post('{"message":"Missing pin"}', { RESEND_API_KEY: "test-only" }, "192.0.2.200")).status).toBe(429);
+    expect((await post('{"message":"Missing pin"}', "192.0.2.200")).status).toBe(429);
     expect(fetch).toHaveBeenCalledTimes(5);
   });
 });

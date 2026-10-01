@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import FilterSidebar from "./components/FilterSidebar";
 import TaskList from "./components/TaskList";
 import { matchesFilter } from "./lib/filters";
@@ -245,7 +246,7 @@ function App() {
     .join(" ");
 
   // ─────────────────── Bug-report dialog state ────────────────────────
-  // POSTs to /api/report-bug (Cloudflare Pages Function) which forwards to
+  // POSTs to /api/report-bug (Vercel Edge Function) which forwards to
   // eli@karpinsky.io via Resend. Kept inline here rather than a new
   // component because (a) it owns no reusable logic and (b) the project
   // rule is to prefer existing files over new ones.
@@ -763,6 +764,19 @@ function App() {
           />
         </Suspense>
       </main>
+      {/*
+        Vercel Web Analytics. We gate on hostname (not import.meta.env.PROD)
+        because `vite preview` and Lighthouse's audit of it run a
+        production build locally — `PROD` is true there too, so a PROD-only
+        gate still 404s on /_vercel/insights/script.js (the script only
+        exists when served from Vercel's edge). Hostname-gating skips
+        localhost and the *.vercel.app preview deployments where the
+        script also isn't injected, leaving only the canonical production
+        domain to load it. In SSR/Node the typeof check trivially fails
+        and we render nothing.
+      */}
+      {typeof window !== "undefined" &&
+        window.location.hostname === "leagues-map.karpinsky.io" && <Analytics />}
       {/*
         About modal. Carries the Jagex Fan Content Policy required
         non-affiliation notice + trademark attribution. Reuses the

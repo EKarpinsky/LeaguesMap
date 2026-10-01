@@ -15,5 +15,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["functions", "tests/report-bug.test.ts"]
+  "include": ["api"]
 }

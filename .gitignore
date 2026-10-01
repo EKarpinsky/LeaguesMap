@@ -30,7 +30,5 @@ src/data/generated/
 *.sln
 *.sw?
 
-# Local Pages runtime state and secrets
-.wrangler/
-.dev.vars*
+# Local environment secrets
 .env*
