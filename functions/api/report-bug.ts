@@ -1,37 +1,13 @@
 /**
- * POST /api/report-bug
- *
- * Vercel Edge Function that ships LeaguesMap bug reports to
- * eli@karpinsky.io via Resend's REST API.
- *
- * Why edge runtime? Cold-start is ~0ms vs ~250ms for node lambdas,
- * the handler is pure fetch (no Node-only APIs), and it stays free
- * on Vercel's hobby plan up to 1M invocations/mo — orders of
- * magnitude beyond what any bug-report endpoint needs.
- *
- * Why no SDK? Resend's REST endpoint is one POST. Adding the
- * `resend` npm package would pull ~40 KB of SDK + types into the
- * edge bundle for zero benefit; `fetch` is built in.
- *
- * Required env vars (set in Vercel dashboard → project → Settings → Environment Variables):
- *   RESEND_API_KEY     Resend API key. Get one at https://resend.com/api-keys
- *
- * Optional env vars:
- *   RESEND_FROM        Verified sender, e.g. "LeaguesMap Bugs <bugs@leaguesmap.io>".
- *                      Defaults to Resend's shared dev sender, which works
- *                      out-of-the-box but lands in spam more often. Verify
- *                      a domain in Resend → Domains to use a custom address.
- *   REPORT_BUG_TO      Recipient. Defaults to eli@karpinsky.io.
- *
- * Spam controls (defense in depth):
- *   • Honeypot field "website" — humans never fill it; bots almost always do.
- *   • Min/max message length: 5..5000 chars.
- *   • Per-IP in-memory rate limit: 5 reports / 10 minutes per edge instance.
- *     This is best-effort (edge instances are isolated) — for stronger
- *     guarantees, swap for Vercel KV / Upstash Ratelimit later.
+ * POST /api/report-bug sends a bug report through Resend.
+ * Pages env: RESEND_API_KEY (required), RESEND_FROM and REPORT_BUG_TO (optional).
+ * Honeypot, message limits and per-instance rate limiting are retained.
  */
-
-export const config = { runtime: "edge" };
+export interface Env {
+  RESEND_API_KEY?: string;
+  RESEND_FROM?: string;
+  REPORT_BUG_TO?: string;
+}
 
 const TO = "eli@karpinsky.io";
 const SUBJECT = "LeaguesMap bug report";
@@ -74,34 +50,39 @@ function jsonResponse(
   return new Response(JSON.stringify(body), {
     ...init,
     headers: {
+      "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "Permissions-Policy": "interest-cohort=(), browsing-topics=(), camera=(), microphone=(), geolocation=(), payment=()",
+      "X-Frame-Options": "SAMEORIGIN",
+      "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Resource-Policy": "same-origin",
+      "Content-Security-Policy": "default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests",
       "Content-Type": "application/json",
       ...(init.headers ?? {}),
     },
   });
 }
 
-export default async function handler(req: Request): Promise<Response> {
+export async function onRequest({ request: req, env }: {
+  request: Request;
+  env: Env;
+}): Promise<Response> {
   if (req.method !== "POST") {
     return jsonResponse({ error: "Method not allowed" }, { status: 405 });
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
+  const apiKey = env.RESEND_API_KEY;
   if (!apiKey) {
-    // Don't leak details to the client — but log it so the next deploy
-    // can be diagnosed from the Vercel function logs.
     console.error("[report-bug] RESEND_API_KEY not set");
     return jsonResponse(
       { error: "Email backend not configured" },
-      { status: 500 },
+      { status: 503 },
     );
   }
 
-  // Vercel sets x-real-ip + x-forwarded-for; fall back to a placeholder
-  // so a missing header (local dev) doesn't blow up the limiter.
-  const ip =
-    req.headers.get("x-real-ip") ??
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown";
+  // Cloudflare supplies this header; local development uses a placeholder.
+  const ip = req.headers.get("CF-Connecting-IP") ?? "unknown";
   if (rateLimited(ip)) {
     return jsonResponse(
       { error: "Too many reports. Try again in a few minutes." },
@@ -173,8 +154,8 @@ export default async function handler(req: Request): Promise<Response> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: process.env.RESEND_FROM ?? "LeaguesMap <onboarding@resend.dev>",
-      to: [process.env.REPORT_BUG_TO ?? TO],
+      from: env.RESEND_FROM ?? "LeaguesMap <onboarding@resend.dev>",
+      to: [env.REPORT_BUG_TO ?? TO],
       subject: SUBJECT,
       html,
       text,

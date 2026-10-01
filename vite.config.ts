@@ -1,21 +1,8 @@
-import { defineConfig, type Plugin } from "vite";
+import { defineConfig, loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 
-/**
- * Dev-only middleware that serves `/api/report-bug` by loading the same
- * handler that Vercel deploys as an Edge Function. Without this, hitting
- * the endpoint from `npm run dev` would 404 because pure Vite doesn't
- * understand the `api/` directory convention.
- *
- * This bridges Node's IncomingMessage → Fetch API Request so the handler
- * code stays runtime-agnostic (same code in prod and dev). The handler
- * still reads `process.env.RESEND_API_KEY` — set it in your shell or a
- * `.env.local` file (Vite injects .env vars into `process.env` for
- * server-side code) for local sends to actually mail through Resend.
- *
- * apply: "serve" so this code never ships in the production build.
- */
-function devApiBridge(): Plugin {
+/** Serve the Pages handler locally with server-only environment variables. */
+function devApiBridge(env: Record<string, string>): Plugin {
   return {
     name: "report-bug-dev-bridge",
     apply: "serve",
@@ -25,7 +12,7 @@ function devApiBridge(): Plugin {
         async (req, res) => {
           // Don't fall through to Vite's static/module pipeline — without
           // this, GET /api/report-bug would serve the compiled source of
-          // api/report-bug.ts (Vite treats it as a module). Always answer
+          // functions/api/report-bug.ts (Vite treats it as a module). Always answer
           // here ourselves so the dev surface mirrors production exactly.
           if (req.method !== "POST") {
             res.statusCode = 405;
@@ -35,10 +22,10 @@ function devApiBridge(): Plugin {
             return;
           }
           try {
-            const mod = (await server.ssrLoadModule("/api/report-bug.ts")) as {
-              default: (request: Request) => Promise<Response>;
+            const mod = (await server.ssrLoadModule("/functions/api/report-bug.ts")) as {
+              onRequest: (context: { request: Request; env: Record<string, string> }) => Promise<Response>;
             };
-            const handler = mod.default;
+            const handler = mod.onRequest;
             const chunks: Buffer[] = [];
             for await (const chunk of req) {
               chunks.push(chunk as Buffer);
@@ -54,7 +41,7 @@ function devApiBridge(): Plugin {
               }
             }
             const webReq = new Request(url, { method: "POST", headers, body });
-            const webRes = await handler(webReq);
+            const webRes = await handler({ request: webReq, env });
             res.statusCode = webRes.status;
             webRes.headers.forEach((v, k) => res.setHeader(k, v));
             const responseBody = await webRes.text();
@@ -76,8 +63,8 @@ function devApiBridge(): Plugin {
 }
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [react(), devApiBridge()],
+export default defineConfig(({ mode }) => ({
+  plugins: [react(), devApiBridge(loadEnv(mode, process.cwd(), ""))],
   build: {
     // "hidden" emits .map files for our own debugging but does NOT add
     // the `//# sourceMappingURL=` comment to the bundled JS, so browsers
@@ -120,4 +107,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

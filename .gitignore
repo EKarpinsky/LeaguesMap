@@ -29,3 +29,8 @@ src/data/generated/
 *.njsproj
 *.sln
 *.sw?
+
+# Local Pages runtime state and secrets
+.wrangler/
+.dev.vars*
+.env*
