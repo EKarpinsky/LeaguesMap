@@ -143,7 +143,7 @@ export default function FilterSidebar({
   // typing for 800 ms so we don't ship one event per keystroke
   // (which would blow through the Vercel custom-event quota AND
   // produce a noisy dashboard of "vor", "vork", "vorka", "vorkat",
-  // "vorkath"). Empty / cleared searches are skipped — a "search"
+  // "vorkath"). Empty / cleared searches are skipped. A "search"
   // dashboard cluttered with empty-string entries is useless.
   // visibleCount lets us spot popular queries with zero results,
   // which surfaces gaps in wiki coverage worth fixing.

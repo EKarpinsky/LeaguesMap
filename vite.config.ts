@@ -22,7 +22,7 @@ function devApiBridge(): Plugin {
     configureServer(server) {
       server.middlewares.use(
         "/api/report-bug",
-        async (req, res, _next) => {
+        async (req, res) => {
           // Don't fall through to Vite's static/module pipeline — without
           // this, GET /api/report-bug would serve the compiled source of
           // api/report-bug.ts (Vite treats it as a module). Always answer

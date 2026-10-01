@@ -9,7 +9,10 @@
     "build": "tsc -b && vite build",
     "prebuild": "tsx scripts/build-runtime-data.ts",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "pretest": "tsx scripts/build-runtime-data.ts",
+    "capture:demo": "tsx scripts/capture-demo.ts"
   },
   "dependencies": {
     "@types/leaflet": "^1.9.21",
@@ -29,9 +32,12 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "playwright": "1.56.1",
+    "sharp": "0.35.5",
     "tsx": "^4.21.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
-    "vite": "^8.0.10"
+    "vite": "^8.0.10",
+    "vitest": "^5.0.3"
   }
 }
