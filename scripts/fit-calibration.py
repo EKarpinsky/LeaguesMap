@@ -105,7 +105,7 @@ NATIVE_H = round(NATIVE_W / ((GX_MAX - GX_MIN_EAST) / (GY_MAX - GY_MIN)))
 LANDMARK_TRUTH = [
     # West continent. Kept the original 6 (re-measured against label text)
     # and added 5 more clear point landmarks for better statistical power
-    # in southern Varlamore where the user reported the bias.
+    # in southern Varlamore where landmarks showed the bias.
     ("Civitas illa Fortis", 1725, 3128, 2240, 3270, "west"),
     ("Hosidius",            1762, 3598, 2305, 1845, "west"),
     ("Auburnvale",          1417, 3360, 1322, 2574, "west"),

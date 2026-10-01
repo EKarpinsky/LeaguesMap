@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { copyFile, mkdir, mkdtemp, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -126,11 +126,10 @@ async function recordGif(page: Page, scratch: string, output: string) {
 export async function captureDemo() {
   const { values } = parseArgs({ options: {
     url: { type: 'string', default: 'http://127.0.0.1:4173' },
-    'artifacts-dir': { type: 'string' },
   } });
   const docs = resolve('docs');
   await mkdir(docs, { recursive: true });
-  const scratch = await mkdtemp(join(process.env.PAPERCLIP_RUN_SCRATCH_DIR ?? tmpdir(), 'leaguesmap-capture-'));
+  const scratch = await mkdtemp(join(tmpdir(), 'leaguesmap-capture-'));
   const browser = await chromium.launch({ headless: true });
   const errors: string[] = [];
   const filenames = ['screenshot.png', 'desktop-1440.png', 'mobile-390.png', 'mobile-filters-390.png', 'demo.gif'];
@@ -177,11 +176,6 @@ export async function captureDemo() {
       browser: browser.version(), initialPins, filteredPins, ...interaction, errors,
       assets: await Promise.all(filenames.map(async file => ({ file, bytes: (await stat(join(docs, file))).size }))) };
     await writeFile(join(docs, 'capture-report.json'), JSON.stringify(report, null, 2) + '\n');
-    if (values['artifacts-dir']) {
-      const artifacts = resolve(values['artifacts-dir']);
-      await mkdir(artifacts, { recursive: true });
-      for (const file of [...filenames, 'capture-report.json']) await copyFile(join(docs, file), join(artifacts, file));
-    }
     console.log(JSON.stringify(report, null, 2));
   } finally {
     await browser.close();
