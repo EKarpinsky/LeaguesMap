@@ -2,7 +2,13 @@
 
 LeaguesMap is an interactive map for Old School RuneScape's Demonic Pacts league, built with React, TypeScript, Vite, and Leaflet. It places 1,177 mappable tasks on a tiled world map, with filters for region, difficulty, skill, and pact. You can mark tasks complete or import progress from RuneLite; filters and progress stay in your browser's local storage.
 
-Screenshot placeholder: `docs/screenshot.png` (to be supplied by the Demo Engineer).
+![Varlamore task pins with the region filter sidebar open](docs/screenshot.png)
+
+Filter to Varlamore, open a task pin, and mark a task complete:
+
+![Region filtering, pin selection, and task completion in LeaguesMap](docs/demo.gif)
+
+[1440px desktop](docs/desktop-1440.png) · [390px mobile map](docs/mobile-390.png) · [390px mobile filters](docs/mobile-filters-390.png)
 
 ## Run locally
 
@@ -25,6 +31,27 @@ npm run preview
 ```
 
 `npm run preview` serves the static build. `npm run dev` also serves `/api/report-bug` through the Vite development bridge. Without an email key, `POST /api/report-bug` returns HTTP 500 with `{"error":"Email backend not configured"}`. For local email testing, export `RESEND_API_KEY` in the shell before starting Vite. Sending a report with a valid key sends a real email.
+
+## Regenerate the demo
+
+Install FFmpeg (including `ffprobe`) and the Playwright Chromium browser, then build and serve the app:
+
+```sh
+npm ci
+npx playwright install chromium
+npm run build
+npm run preview -- --host 127.0.0.1 --port 4173 --strictPort
+```
+
+In a second terminal, from the repository root:
+
+```sh
+npm run capture:demo
+# Optional: copy the outputs into the company repo.
+npm run capture:demo -- --artifacts-dir ../../artifacts/LeaguesMap
+```
+
+`scripts/capture-demo.ts` calls `scripts/capture/leaguesmap.ts`. It uses fresh browser contexts and real UI clicks against the checked-in task data. It writes the five media files above plus `docs/capture-report.json`, which records file sizes, pin counts, the completed task, and GIF duration. The script checks that clearing regions removes pins, selecting Varlamore restores a smaller set, and completion and the region choice survive reload. It rejects browser errors, failed HTTP responses, horizontal overflow at 390px, PNGs of 1 MB or more, and GIFs of 5 MB or 15 seconds or more. PNGs use a 256-color palette; the GIF uses 128 colors at 10 fps and 1120px wide. Temporary recording frames are removed after each run.
 
 ## Why the calibration is piecewise
 

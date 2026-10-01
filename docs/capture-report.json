@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:18764",
+  "sourceRevision": "cf2dfddf65711c45b2e18a360e9b6a815bf42696",
+  "browser": "141.0.7390.37",
+  "initialPins": 582,
+  "filteredPins": 71,
+  "location": "Stolen cabbage",
+  "taskId": "103",
+  "taskName": "Sit near a stolen cabbage",
+  "gifDuration": 8.5,
+  "frames": 19,
+  "completionSurvivesReload": true,
+  "errors": [],
+  "assets": [
+    {
+      "file": "screenshot.png",
+      "bytes": 519443
+    },
+    {
+      "file": "desktop-1440.png",
+      "bytes": 441340
+    },
+    {
+      "file": "mobile-390.png",
+      "bytes": 126161
+    },
+    {
+      "file": "mobile-filters-390.png",
+      "bytes": 43459
+    },
+    {
+      "file": "demo.gif",
+      "bytes": 1136397
+    }
+  ]
+}
