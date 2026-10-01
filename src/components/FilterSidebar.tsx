@@ -139,13 +139,21 @@ export default function FilterSidebar({
     selectedRegionCount > 0 &&
     selectedRegionCount < REGION_DISPLAY_ORDER.length;
 
-  // Keep the debounced event call compatible with the disabled custom-event API.
+  // Debounced search analytics. Wait until the user has stopped
+  // typing for 800 ms so we don't ship one event per keystroke
+  // (which would blow through the Vercel custom-event quota AND
+  // produce a noisy dashboard of "vor", "vork", "vorka", "vorkat",
+  // "vorkath"). Empty / cleared searches are skipped. A "search"
+  // dashboard cluttered with empty-string entries is useless.
+  // visibleCount lets us spot popular queries with zero results,
+  // which surfaces gaps in wiki coverage worth fixing.
   useEffect(() => {
     const q = filters.search.trim();
     if (!q) return;
     const handle = window.setTimeout(() => {
       analytics.searchPerformed({
-        // Keep event payloads bounded and normalize case variants.
+        // Lowercase + truncate keeps the value within Vercel's 255-char
+        // property cap and buckets case variants together.
         query: q.toLowerCase().slice(0, 64),
         length: q.length,
         visibleCount,

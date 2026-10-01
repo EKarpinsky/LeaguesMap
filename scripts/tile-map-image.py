@@ -24,7 +24,7 @@ Pyramid layout
 Source
     Reads `/tmp/osrs_worldmap.orig.png` (same convention as
     optimize-map-image.py). Drop the latest OSRS Wiki world map PNG there
-    before running. Output is committed to the repo so Cloudflare Pages can serve
+    before running. Output is committed to the repo so Vercel can serve
     the tiles directly from the edge with no build-time generation.
 
 Usage
