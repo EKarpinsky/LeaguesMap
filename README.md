@@ -24,13 +24,7 @@ npm run build
 npm run preview
 ```
 
-`npm run preview` serves the static build. To also run the bug-report endpoint in the Pages runtime:
-
-```sh
-npx wrangler pages dev dist
-```
-
-Open http://localhost:8788. Without an email key, `POST /api/report-bug` returns HTTP 503 with `{"error":"Email backend not configured"}`. For local email testing, set `RESEND_API_KEY` in `.env.local` for Vite or `.dev.vars` for Wrangler. Both files are ignored by Git. Sending a report with a valid key sends a real email.
+`npm run preview` serves the static build. `npm run dev` also serves `/api/report-bug` through the Vite development bridge. Without an email key, `POST /api/report-bug` returns HTTP 500 with `{"error":"Email backend not configured"}`. For local email testing, export `RESEND_API_KEY` in the shell before starting Vite. Sending a report with a valid key sends a real email.
 
 ## Why the calibration is piecewise
 
@@ -40,27 +34,24 @@ The wiki world map is a stitched image, with the western continent separated fro
 
 In RuneLite's Tasks Tracker plugin, export your Demonic Pacts progress to JSON. Open **Sync from RuneLite** in LeaguesMap and paste the export or select the file. The browser decodes the export's 62 player-variable bitfields into task IDs and applies the completed tasks locally. It does not send the export to a backend or call the WikiSync API.
 
-## Cloudflare Pages
+## Hosting
 
-The repository is prepared for Pages; configuring or publishing a deployment is a separate step.
+LeaguesMap stays on its existing hosting project, connected through the GitHub integration. Branch pushes create preview deployments automatically; merging to `main` updates production. No manual deployment is needed.
 
 - Project root: repository root.
 - Build command: `npm run build` after dependency installation (`npm ci`).
 - Build output directory: `dist`.
-- Node version: `22.22.3` (`NODE_VERSION` in the Pages build environment).
-- `functions/api/report-bug.ts` handles `/api/report-bug`; deploy from the repository root so Pages discovers it.
+- Node version: Node 22 LTS.
+- `api/report-bug.ts` handles `/api/report-bug` as an Edge Function.
 
 | Variable | Where | Purpose |
 | --- | --- | --- |
-| `VITE_CF_BEACON_TOKEN` | Build environment | Optional public Cloudflare Web Analytics token. When unset or blank, the app adds no beacon script. Rebuild after changing it. |
-| `RESEND_API_KEY` | Pages Function secret | Enables bug-report email. Without it, the endpoint returns HTTP 503. Never prefix this secret with `VITE_`. |
-| `RESEND_FROM` | Pages Function environment | Optional verified sender. Default: `LeaguesMap <onboarding@resend.dev>`. |
-| `REPORT_BUG_TO` | Pages Function environment | Optional recipient. Default: `eli@karpinsky.io`. |
+| `RESEND_API_KEY` | Project environment variables | Enables bug-report email. Without it, the endpoint returns HTTP 500. Never prefix this secret with `VITE_`. |
+| `RESEND_FROM` | Project environment variables | Optional verified sender. Default: `LeaguesMap <onboarding@resend.dev>`. |
+| `REPORT_BUG_TO` | Project environment variables | Optional recipient. Default: `eli@karpinsky.io`. |
 
-The analytics beacon records page analytics; custom event calls are intentionally no-ops. Leave the beacon token unset for local or preview builds when you do not want those visits counted, and use only one beacon installation method.
+Configure email variables for the intended Preview or Production environment in the existing project. The host's Web Analytics component and typed custom-event wrapper are gated to `leagues-map.karpinsky.io`, so local and preview visits do not count toward production analytics.
 
-`public/_headers` retains security and cache rules, with the content security policy allowing the Cloudflare beacon. The Function sets its own security headers because Pages static header rules do not apply to Function responses. There were no custom rewrites to port; Pages supplies the static SPA fallback. The map tiles are checked in, so ordinary builds do not require Python or regeneration of the tile pyramid.
-
-Cloudflare references: [Functions and environment bindings](https://developers.cloudflare.com/pages/functions/bindings/), [static response headers](https://developers.cloudflare.com/pages/configuration/headers/), and [analytics for SPAs](https://developers.cloudflare.com/web-analytics/get-started/web-analytics-spa/).
+The hosting configuration at the repository root retains the current security and cache rules. The map tiles are checked in, so ordinary builds do not require Python or regeneration of the tile pyramid.
 
 This is an unofficial fan tool, not affiliated with Jagex. Old School RuneScape and its assets belong to Jagex; the map imagery and task data come from the OSRS Wiki.
