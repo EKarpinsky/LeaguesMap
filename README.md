@@ -1,6 +1,6 @@
 # LeaguesMap
 
-LeaguesMap is an interactive map for Old School RuneScape's Demonic Pacts league, built with React, TypeScript, Vite, and Leaflet. It places 1,177 mappable tasks on a tiled world map, with filters for region, difficulty, skill, and pact. You can mark tasks complete or import progress from RuneLite; filters and progress stay in your browser's local storage.
+LeaguesMap is an interactive map for Old School RuneScape's Demonic Pacts league, built with React, TypeScript, Vite, and Leaflet. It places 1,177 mappable tasks on a tiled world map, with filters for region, difficulty, skill, and pact. You can mark tasks complete or import progress from RuneLite; filters and progress stay in your browser's local storage. Live at https://leagues-map.karpinsky.io.
 
 ![Varlamore task pins with the region filter sidebar open](docs/screenshot.png)
 
@@ -15,13 +15,13 @@ Filter to Varlamore, open a task pin, and mark a task complete:
 Use Node.js 22.22.3 or newer in the Node 22 LTS line, with npm 10 or newer.
 
 ```sh
-git clone git@github.com:EKarpinsky/LeaguesMap.git
+git clone https://github.com/EKarpinsky/LeaguesMap.git
 cd LeaguesMap
 npm ci
 npm run dev
 ```
 
-Open the URL Vite prints, normally http://localhost:5173. The private repository requires GitHub access. No API key or external service is needed to browse the map or import progress. The `predev`, `pretest`, and `prebuild` scripts generate runtime task and location data automatically from the checked-in data.
+Open the URL Vite prints, normally http://localhost:5173. No API key or external service is needed to browse the map or import progress. The `predev`, `pretest`, and `prebuild` scripts generate runtime task and location data automatically from the checked-in data.
 
 ```sh
 npm run lint
@@ -34,24 +34,15 @@ npm run preview
 
 ## Regenerate the demo
 
-Install FFmpeg (including `ffprobe`) and the Playwright Chromium browser, then build and serve the app:
+With FFmpeg, ffprobe, and Playwright Chromium installed, run these commands in separate terminals after building to save screenshots and a GIF in `docs/`.
 
 ```sh
-npm ci
-npx playwright install chromium
-npm run build
 npm run preview -- --host 127.0.0.1 --port 4173 --strictPort
 ```
 
-In a second terminal, from the repository root:
-
 ```sh
 npm run capture:demo
-# Optional: copy the outputs into the company repo.
-npm run capture:demo -- --artifacts-dir ../../artifacts/LeaguesMap
 ```
-
-`scripts/capture-demo.ts` calls `scripts/capture/leaguesmap.ts`. It uses fresh browser contexts and real UI clicks against the checked-in task data. It writes the five media files above plus `docs/capture-report.json`, which records file sizes, pin counts, the completed task, and GIF duration. The script checks that clearing regions removes pins, selecting Varlamore restores a smaller set, and completion and the region choice survive reload. It rejects browser errors, failed HTTP responses, horizontal overflow at 390px, PNGs of 1 MB or more, and GIFs of 5 MB or 15 seconds or more. PNGs use a 256-color palette; the GIF uses 128 colors at 10 fps and 1120px wide. Temporary recording frames are removed after each run.
 
 ## Why the calibration is piecewise
 
@@ -63,22 +54,15 @@ In RuneLite's Tasks Tracker plugin, export your Demonic Pacts progress to JSON. 
 
 ## Hosting
 
-LeaguesMap stays on its existing hosting project, connected through the GitHub integration. Branch pushes create preview deployments automatically; merging to `main` updates production. No manual deployment is needed.
-
-- Project root: repository root.
-- Build command: `npm run build` after dependency installation (`npm ci`).
+- Build command: `npm run build`.
 - Build output directory: `dist`.
-- Node version: Node 22 LTS.
-- `api/report-bug.ts` handles `/api/report-bug` as an Edge Function.
 
 | Variable | Where | Purpose |
 | --- | --- | --- |
-| `RESEND_API_KEY` | Project environment variables | Enables bug-report email. Without it, the endpoint returns HTTP 500. Never prefix this secret with `VITE_`. |
+| `RESEND_API_KEY` | Project environment variables | Enables bug-report email. Bug reports are disabled without it. Never prefix this secret with `VITE_`. |
 | `RESEND_FROM` | Project environment variables | Optional verified sender. Default: `LeaguesMap <onboarding@resend.dev>`. |
 | `REPORT_BUG_TO` | Project environment variables | Optional recipient. Default: `eli@karpinsky.io`. |
 
-Configure email variables for the intended Preview or Production environment in the existing project. The host's Web Analytics component and typed custom-event wrapper are gated to `leagues-map.karpinsky.io`, so local and preview visits do not count toward production analytics.
-
-The hosting configuration at the repository root retains the current security and cache rules. The map tiles are checked in, so ordinary builds do not require Python or regeneration of the tile pyramid.
+## Credits
 
 This is an unofficial fan tool, not affiliated with Jagex. Old School RuneScape and its assets belong to Jagex; the map imagery and task data come from the OSRS Wiki.
