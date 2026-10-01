@@ -32,18 +32,6 @@ npm run preview
 
 `npm run preview` serves the static build. `npm run dev` also serves `/api/report-bug` through the Vite development bridge. Without an email key, `POST /api/report-bug` returns HTTP 500 with `{"error":"Email backend not configured"}`. For local email testing, export `RESEND_API_KEY` in the shell before starting Vite. Sending a report with a valid key sends a real email.
 
-## Regenerate the demo
-
-With FFmpeg, ffprobe, and Playwright Chromium installed, run these commands in separate terminals after building to save screenshots and a GIF in `docs/`.
-
-```sh
-npm run preview -- --host 127.0.0.1 --port 4173 --strictPort
-```
-
-```sh
-npm run capture:demo
-```
-
 ## Why the calibration is piecewise
 
 The wiki world map is a stitched image, with the western continent separated from the mainland by a wider ocean gap than a uniform coordinate scale predicts. A single affine fit put western pins roughly 50 to 80 game tiles away from their landmarks. The calibration uses separate segment origins and was refined against hand-measured landmarks, reducing the worst western horizontal error from 189 to 61 pixels. `src/lib/calibration.ts` documents the fit, and `scripts/verify-calibration.ts` records the reference landmarks and checks coordinate round trips.
