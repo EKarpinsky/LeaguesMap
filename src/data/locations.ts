@@ -1041,25 +1041,26 @@ export const LOCATIONS: WorldLocation[] = [
   // ───────────────────────────── Resource / multi-spot anchors ─────────────────────────────
   // These are used by the resolver for tasks like "Chop 100 willow logs".
   // Wiki says Draynor Village = Misthalin (locked in DP) — these willows
-  // are inaccessible this league; the resolver will fall back to
-  // willows-catherby (Kandarin) for any "willow log" tasks.
+  // are inaccessible this league. Keep bow aliases on willows-catherby
+  // (Kandarin) so General tasks have a pin in a selectable region.
   L("willows-draynor", "Willow Trees: Draynor", 3088, 3239, "Misthalin", "resource",
-    ["willow log", "willow logs", "willow shortbow", "willow longbow"],
+    ["willow log", "willow logs"],
     "Draynor willow spot (Misthalin, locked in DP league)"),
   L("willows-catherby", "Willow Trees: Catherby", 2774, 3445, "Kandarin", "resource",
-    ["willow log"],
+    ["willow log", "willow shortbow", "willow longbow"],
     "Alt willow spot (Kandarin)"),
   L("maples-seers", "Maple Trees: Seers' Village", 2728, 3502, "Kandarin", "resource",
     ["maple log", "maple longbow", "maple shortbow"],
     "Best maple spot (Kandarin)"),
   // Wiki tags Edgeville as Misthalin (locked in DP league). The graveyard
   // yews sit south of the wilderness border at y=3475, so the wiki
-  // classification holds. Yew tasks should fall back to yews-varlamore.
+  // classification holds. Keep bow aliases on yews-varlamore so General
+  // tasks have a pin in a selectable region.
   L("yews-edgeville", "Yew Trees: Edgeville", 3087, 3475, "Misthalin", "resource",
-    ["yew log", "yew longbow", "yew shortbow"],
+    ["yew log"],
     "Yews in Edgeville graveyard (Misthalin, locked in DP league)"),
   L("yews-varlamore", "Yew Trees: Quetzacalli Gorge", 1625, 2997, "Varlamore", "resource",
-    ["yew log"],
+    ["yew log", "yew longbow", "yew shortbow"],
     "Yews in Varlamore Avium Savannah"),
   // Coords (2710, 3488) anchor the Seers' Village magic-tree grove
   // (Kandarin per wiki). Previously labeled "Sorcerer's Garden" by mistake
