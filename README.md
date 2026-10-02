@@ -1,3 +1,5 @@
+[![CI](https://github.com/EKarpinsky/LeaguesMap/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/EKarpinsky/LeaguesMap/actions/workflows/ci.yml)
+
 # LeaguesMap
 
 LeaguesMap is an interactive map for Old School RuneScape's Demonic Pacts league, built with React, TypeScript, Vite, and Leaflet. It places 1,177 mappable tasks on a tiled world map, with filters for region, difficulty, skill, and pact. You can mark tasks complete or import progress from RuneLite; filters and progress stay in your browser's local storage. Live at https://leagues-map.karpinsky.io.
@@ -54,3 +56,7 @@ In RuneLite's Tasks Tracker plugin, export your Demonic Pacts progress to JSON. 
 ## Credits
 
 This is an unofficial fan tool, not affiliated with Jagex. Old School RuneScape and its assets belong to Jagex; the map imagery and task data come from the OSRS Wiki.
+
+## License
+
+[MIT](LICENSE).
