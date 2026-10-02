@@ -2,20 +2,20 @@
 """Refit the OSRS world-map calibration as a piecewise linear x-axis fit.
 
 Why piecewise?
-    The wiki world-map PNG (/tmp/osrs_worldmap.orig.png) is a STITCHED
-    composite: the western continent (Tirannwn west / Kourend / Varlamore,
-    game x ≲ 1900) is pasted in as a separate block from mainland Gielinor
-    (game x ≳ 2150). The empty inter-continental ocean in the PNG is wider
+    The landmark residuals suggest the wiki world-map PNG is a stitched
+    composite: the western continent (Kourend / Varlamore,
+    game x ≲ 1900) forms a separate block from mainland Gielinor.
+    The empty inter-continental ocean in the PNG is wider
     than what a uniform game-tile-to-pixel projection predicts. A single-
-    line fit through landmarks averages the two scales, locks onto the
-    east (where most landmarks live), and pushes every western pin
-    150-250 src px (~50-80 game tiles) east of where it should be.
+    line fit agrees with the eastern landmarks but pushes every western
+    landmark 69-189 src px (~23-64 game tiles) east of its measured
+    label center.
 
 Methodology
     1. Probe the source PNG for continent edges + stitch position
        (see `probe_continents()` below — produces a per-column ocean
-       fraction signal that bottoms out in the inter-continental sea).
-    2. Visually identify ground-truth pixel positions for ~12 landmarks
+       fraction signal that peaks in the inter-continental sea).
+    2. Visually identify ground-truth pixel positions for 19 landmarks
        (mix of west + east) by overlaying the *current* calibration's
        prediction on tight crops of the source PNG and reading off the
        offset to the labelled cartographic feature. Recorded below as
@@ -26,20 +26,24 @@ Methodology
        slope and intercept exactly as-is.
     4. For the western continent, fit a per-segment line. Result: the
        slope matches east to within visual-reading noise, but the
-       intercept (gameXMin equivalent) is shifted east by ~65 game tiles.
-       The fix is one constant: WEST_X_BASE = 984 (vs east's 919).
+       intercept (gameXMin equivalent) is shifted east by 44 game tiles.
+       The fix is one constant: WEST_X_BASE = 963 (vs east's 919).
     5. Stitch at game x = 2000 — chosen because (a) it falls in the
        inter-continental ocean where no landmarks live, so the necessary
        discontinuity is invisible, and (b) it leaves all of Tirannwn /
-       Lunar Isle (gx ≥ 2096) on the east segment where they render
+       Lunar Isle (gx=2100 in LANDMARK_TRUTH) on the east segment where they render
        correctly under the existing east calibration.
 
 Worst-case residuals:
-    east landmarks (n=8): worst |Δ| ≈ 30 src px ≈ 10 game tiles
-    west landmarks (n=6): worst |Δ| ≈ 57 src px ≈ 19 game tiles
+    east landmarks (n=8): worst |Δ| = 28.6 src px ≈ 10 game tiles
+    west landmarks (n=11): worst |Δ| = 60.6 src px ≈ 21 game tiles
     overall (with the OLD single-line fit) the western residual was
-    150-250 src px / 50-80 game tiles. New fit reduces western residual
-    by 4-8x.
+    189.4 src px / 64.2 game tiles. The snapped fit reduces the worst
+    western residual by 3.1x.
+
+The Y section retains the label-center fit for comparison. Its west span
+rounds to 2234; the shipped west span remains 2232. For the shipped east
+feature-center Y fit (base 2019, span 2209), use fit-east-y-calibration.py.
 
 Usage
     python3 scripts/fit-calibration.py             # report fit + residuals
@@ -65,8 +69,8 @@ except ImportError as e:
 
 SRC_PNG = Path("/tmp/osrs_worldmap.orig.png")
 
-# CURRENT calibration constants (kept here so this script stays
-# self-contained; mirrors src/lib/calibration.ts).
+# Baseline single-line calibration constants, kept here for comparison.
+# X bounds and native dimensions still match src/lib/calibration.ts.
 GX_MIN_EAST = 919       # current global gameXMin (= the east origin)
 GX_MAX = 4041
 GY_MIN = 1961
@@ -80,15 +84,14 @@ NATIVE_H = round(NATIVE_W / ((GX_MAX - GX_MIN_EAST) / (GY_MAX - GY_MIN)))
 #
 # Each entry is (label, game_x, game_y, png_src_px_x, png_src_px_y, side).
 #
-# Pixel positions were measured visually from the source PNG by overlaying
-# the current calibration's prediction at high zoom on tight 600x480 crops
-# with a 50-src-px grid (run scripts/fit-calibration.py --validate to
-# regenerate at /tmp/cal_debug/refit/, or use the precise grid script
-# documented in this file's git history at /tmp/cal_debug/precise/).
+# Pixel positions were measured visually from the source PNG at high zoom.
+# Run scripts/fit-calibration.py --validate for 800x600 overlay crops in
+# /tmp/cal_debug/refit/. The historical measurement grids used 50-src-px
+# spacing; the current validation crops show predictions and truths.
 #
 # Truth-position rules (CRITICAL — earlier truth values were noisy enough
-# to push WEST_X_BASE 25 game tiles too far west, regressing every
-# southern-Varlamore pin):
+# to shift the western origin too far, regressing
+# southern-Varlamore pins):
 #
 #   1. Read the LABEL TEXT center, not a sub-region's edge. Wiki labels
 #      sit at or adjacent to the named feature; the label center is the
@@ -97,10 +100,10 @@ NATIVE_H = round(NATIVE_W / ((GX_MAX - GX_MIN_EAST) / (GY_MAX - GY_MIN)))
 #      Fortis" label center (2240, 3270).
 #   2. Prefer SMALL POINT landmarks (single buildings, octagon icons,
 #      entrance pictograms) over large sprawling regions. Lovakengj and
-#      Hosidius span 200+ src px and their "center" is ambiguous.
+#      Hosidius cover broad regions and their "center" is ambiguous.
 #   3. When in doubt, use the mid-point of the printed label glyph row.
 #
-# Visual-reading noise floor: ±15 src px (≈ ±5 game tiles).
+# Visual readings are approximate and depend on the feature's extent.
 # -----------------------------------------------------------------------------
 LANDMARK_TRUTH = [
     # West continent. Kept the original 6 (re-measured against label text)
@@ -206,7 +209,11 @@ def current_pred_src_x(gx: int) -> float:
 
 def main(validate: bool = False) -> None:
     if not SRC_PNG.exists():
-        sys.exit(f"missing {SRC_PNG} — drop the OSRS Wiki world map PNG there.")
+        sys.exit(
+            f"Missing source PNG: {SRC_PNG}\n"
+            "Download https://oldschool.runescape.wiki/images/Old_School_RuneScape_world_map.png\n"
+            f"and save it as {SRC_PNG} (expected 9216x6528)."
+        )
 
     probe = probe_continents()
     print("---- continent probe (source PNG src px) ----")
@@ -240,9 +247,9 @@ def main(validate: bool = False) -> None:
     print(f"  worst residual:         {ww:.1f} src px ({ww / wm:.1f} game tiles)")
     print()
 
-    # Per the design rationale (boil the ocean): use the SAME slope on both
+    # Use the same slope on both
     # segments so we only introduce ONE new constant. This also matches the
-    # physical model: the wiki renders both chunks at one scale, then leaves
+    # inferred model: both chunks share one render scale, with
     # a wider-than-uniform empty ocean between them. Refit the western
     # intercept against that fixed slope.
     shared_slope_native = NATIVE_W / (GX_MAX - GX_MIN_EAST)  # current east slope
@@ -321,12 +328,12 @@ def main(validate: bool = False) -> None:
     # -------------------------------------------------------------------
     # Y-axis piecewise fit.
     # -------------------------------------------------------------------
-    # East Y: should match the current single-line fit almost exactly —
-    # most eastern landmarks sit within ±10 src px. Two outliers are
-    # tolerated: Yanille (+52) and Prifddinas (+105) are label-vs-teleport
-    # artefacts (the wiki gy is the teleport destination but the label is
-    # printed further south on the rendered map). Dropping them improves
-    # the east fit's worst residual from 105 src px to ≈29 src px.
+    # East Y: this is the historical label-center comparison, not the
+    # shipped feature-center fit. Five of eight labels are within 10 src px
+    # of the old fit. Yanille is +52.4 and Prifddinas +137.1 src px south
+    # of its prediction. Excluding Prifddinas alone leaves seven landmarks;
+    # their free fit has a worst residual of 28.4 src px. For feature truths,
+    # use fit-east-y-calibration.py.
     #
     # West Y: systematically steeper px-per-tile slope than east, making
     # both gy extremes drift inward of their labels. Free fit gives
@@ -342,7 +349,7 @@ def main(validate: bool = False) -> None:
 
     east_y = [(r[2], r[4]) for r in LANDMARK_TRUTH if r[5] == "east"]
     west_y = [(r[2], r[4]) for r in LANDMARK_TRUTH if r[5] == "west"]
-    # Prifddinas's ty=2625 at gy=3390 is an obvious outlier (105 px); drop
+    # Prifddinas's ty=2625 at gy=3390 is an outlier (+137.1 src px); drop
     # it from the east Y fit since it represents a data-vs-render offset
     # rather than a calibration error.
     east_y_clean = [p for p in east_y if not (p[0] == 3390)]

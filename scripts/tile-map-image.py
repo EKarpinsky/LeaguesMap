@@ -18,7 +18,7 @@ Pyramid layout
     z=MAX_NATIVE_ZOOM is sized at — and source-fits — the calibrated game
     aspect ratio so the deepest level is 1:1 with native pixels. We don't
     generate a zoom level past native: Lighthouse penalises upscaled
-    rasters and the user explicitly called out blurriness when zooming
+    rasters, which add blur without revealing more detail when zooming
     past native in the previous iteration.
 
 Source

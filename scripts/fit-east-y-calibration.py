@@ -2,12 +2,12 @@
 
 Why a second fit script? ``scripts/fit-calibration.py`` calibrated the east
 against wiki LABEL-TEXT centers because that's what's easiest to measure
-visually. But wiki labels are drawn 20-60 src-px above the actual
-teleport/feature pixel on most landmarks (more at the extremes of the
-rendered Y range). The runtime pipeline feeds pin positions from
+visually. Wiki labels can be offset from the actual teleport/feature
+pixel, so they are a different reference from the features targeted by
+pins. The runtime pipeline feeds pin positions from
 ``wiki-coords.json``'s teleport/NPC game coords, so the pin lives at the
-FEATURE — which made the "plane squished vertically" symptom the user
-reported: extreme-north pins sit south of their buildings, extreme-south
+FEATURE. Under the label-center fit,
+extreme-north pins sit south of their buildings, extreme-south
 pins sit north of theirs.
 
 This script refits east-Y against 20 feature-center truths measured off
@@ -15,9 +15,9 @@ This script refits east-Y against 20 feature-center truths measured off
 centroids, teleport landing spots). Free least-squares over (gy, src_py)
 gives slope/intercept, then converts to the (base, span) form used in
 ``src/lib/calibration.ts``. Worst residual drops from 123 → 82 src-px; RMS
-from 54 → 34 src-px. Every mid-latitude landmark still lands within
-±10 src-px of its feature — the fix targets the extremes where the bias
-was largest.
+from 54 → 34 src-px. Mid-latitude movement includes Edgeville at 24.4
+src-px and Camelot at 22.7 src-px; their new residuals are 22.0 and 13.6
+src-px. The largest correction is at Weiss (80.0 src-px).
 
 Usage::
 
@@ -56,8 +56,8 @@ GY_MAX_OLD = 4270
 # East-Y truths: (label, gx, gy, truth_src_py). Each truth_src_py was read
 # off SRC at the CANONICAL FEATURE pixel — castle center, bank sprite,
 # town cluster centroid, teleport landing — NOT the label text. Truth
-# noise floor: ±15 src-px (my ability to pick the "right" pixel at 1x
-# zoom). Every landmark sits east of STITCH_X=2000.
+# positions are approximate visual measurements.
+# Every landmark sits east of STITCH_X=2000.
 EAST_TRUTHS: list[tuple[str, int, int, int]] = [
     # Far north
     ("Weiss salt mine",         2876, 3925,  870),
@@ -102,6 +102,13 @@ def fit_line(pairs: list[tuple[int, int]]) -> tuple[float, float, float]:
 
 
 def main(validate: bool) -> None:
+    if validate and not SRC.exists():
+        sys.exit(
+            f"Missing source PNG: {SRC}\n"
+            "Download https://oldschool.runescape.wiki/images/Old_School_RuneScape_world_map.png\n"
+            f"and save it as {SRC} (expected 9216x6528)."
+        )
+
     east_pairs = [(r[2], r[3]) for r in EAST_TRUTHS]
     m, b, worst = fit_line(east_pairs)
     print(f"East-Y free fit (n={len(east_pairs)}):")
@@ -146,9 +153,6 @@ def main(validate: bool) -> None:
         return
 
     # Render before/after crops: OLD (red) vs NEW (green) vs truth (cyan diamond)
-    if not SRC.exists():
-        print(f"\n--validate requested but {SRC} is missing; skipping crops.")
-        return
     OUT.mkdir(parents=True, exist_ok=True)
     try:
         font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 16)

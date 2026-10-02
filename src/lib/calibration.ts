@@ -13,7 +13,7 @@ import type L from "leaflet";
  * scripts/tile-map-image.py) under `/map/tiles/{z}/{x}/{y}.webp`. The
  * deepest zoom level renders the world at native pixel density:
  *   z=0 → 256×189 px (1 tile)            … fit-to-world on phones
- *   z=1 → 512×378 px (4 tiles)           … fit-to-world on tablets
+ *   z=1 → 512×379 px (4 tiles)           … fit-to-world on tablets
  *   z=2 → 1024×757 px (12 tiles)         … desktop fit-to-world
  *   z=3 → 2048×1515 px (48 tiles)
  *   z=4 → 4096×3030 px (192 tiles)
@@ -34,8 +34,8 @@ export const MAP_IMAGE = {
   tileSize: 256,
   /**
    * Deepest pre-rendered zoom level. Going higher would force Leaflet
-   * to upscale tiles client-side; previously rejected as "blurry af"
-   * by the user, so we cap at native density. Computed as
+   * to upscale tiles client-side, which adds blur without detail.
+   * Keep pre-rendered tiles at native density. Computed as
    *   `log2(nativeWidthPx / tileSize)` from the tiling script.
    */
   maxNativeZoom: 5,
@@ -62,30 +62,30 @@ export const MAP_IMAGE = {
 /**
  * Piecewise X-axis calibration.
  *
- * Why piecewise? The wiki world-map PNG is a STITCHED composite: the
+ * Why piecewise? The landmark residuals suggest a stitched composite: the
  * western continent (Kourend + Varlamore + small islands like Aldarin —
  * game x ≲ 1900) is pasted in as a separate block from mainland
  * Gielinor (game x ≳ 2150), and the inter-continental ocean in the
  * PNG is wider than what a uniform game-tile-to-pixel projection
- * predicts. A single global linear fit averages the two scales, locks
- * onto the east (where most of our calibration landmarks live), and
- * pushes every western pin 150-250 native px (~50-80 game tiles) east
+ * predicts. The old single-line fit agrees with the eastern landmarks
+ * but leaves western errors with the same sign. It
+ * pushes every western landmark 62-168 native px (~23-64 game tiles) east
  * of where it should be.
  *
  * The fix: keep one slope (px-per-game-tile is the same across both
- * chunks — the wiki rendered them at one scale and just left a
+ * chunks, consistent with a shared render scale and a
  * wider-than-uniform empty ocean between), and use a different X
  * "origin" per segment. The western origin shifts gameXMin east by 44
  * game tiles, moving every western pin 44 tiles west on the rendered
  * image — the magnitude needed to cancel the inter-continental ocean's
  * extra width.
  *
- * History — first fit said 65 tiles, but that was based on imprecise
- * LANDMARK_TRUTH measurements (some truth coordinates were placed at
- * sub-region edges or 50+ src px south of label centers). After
- * re-measuring against the wiki PNG label-text centers — and adding
- * 5 more clear point landmarks in southern Varlamore where the user
- * spotted the regression — the corrected magnitude is 44 tiles. See
+ * The original measurements mixed region edges and label centers.
+ * LANDMARK_TRUTH now uses label-text centers consistently, including
+ * southern Varlamore landmarks that expose the western bias. After
+ * re-measuring the original 6 landmarks and adding
+ * 5 more clear point landmarks, the western fit uses 11 points.
+ * The fitted origin shifts by 44 tiles. See
  * scripts/fit-calibration.py LANDMARK_TRUTH for the truth-position
  * rules and the per-landmark numbers.
  *
@@ -131,12 +131,12 @@ const STITCH_X = 2000;
 /**
  * Piecewise Y-axis calibration.
  *
- * Both continents use a separate (base, span) Y fit because each was
- * composited into the wiki PNG at a slightly different Y scale. The
+ * Both continents use a separate (base, span) Y fit because their
+ * landmark residuals support slightly different Y scales. The
  * east historically used MAP_IMAGE.gameYMin / heightPx directly, but
- * that fit was derived against wiki LABEL-TEXT centers — which sit
- * 20-60 src-px above the actual teleport/feature pixels that every
- * pin in wikiEntities.json references. The bias is small at mid
+ * that fit was derived against wiki LABEL-TEXT centers, rather than
+ * the actual teleport/feature pixels that
+ * pins in wikiEntities.json reference. The bias is small at mid
  * latitudes and grows at the extremes, producing the "plane squished
  * vertically" symptom: extreme-north pins (Jatizso / Neitiznot / Lunar
  * Isle / Weiss) sit south of their features, and extreme-south pins
@@ -154,15 +154,15 @@ const STITCH_X = 2000;
  *
  * Worst residual drops from 123 → 82 src-px; RMS from 54 → 34 src-px.
  * Before/after overlay crops: /tmp/cal_debug/yfit/ (red = old, green =
- * new, cyan diamond = measured truth). Every mid-latitude landmark
- * (Edgeville, Camelot, Falador, Varrock, Catherby, Canifis, Port
- * Phasmatys) moves ≤10 src-px; the fix is almost entirely at the
- * extremes, matching the user-reported symptom.
+ * new, cyan diamond = measured truth). Mid-latitude movement includes
+ * Edgeville at 24.4 src-px and Camelot at 22.7 src-px; Falador moves
+ * 7.0 src-px. The largest correction is at Weiss in the far north
+ * (80.0 src-px), where the old fit placed the pin south of its feature.
  *
- * The west Y fit was validated against the same method (Wintertodt,
- * Aldarin, Hunter Guild, Arceuus, Hosidius) and found acceptable
- * (±30-50 src-px worst) — west labels are drawn closer to features,
- * so the label-vs-feature bias is smaller. Left untouched.
+ * The west Y fit remains unchanged. The verifier checks the 11 western
+ * label-center truths in fit-calibration.py, including Wintertodt,
+ * Aldarin, Hunter Guild and Hosidius. Its worst shipped residual is
+ * 41.4 native px (44.6 src-px); these are not east-style feature truths.
  *
  * Segment split reuses STITCH_X = 2000 from the X calibration above.
  */
@@ -260,7 +260,7 @@ export const INITIAL_VIEW = {
   /**
    * One step beyond `maxNativeZoom` (5 → 6). Leaflet will upscale the
    * deepest pre-rendered tile by 2× client-side at this level — slightly
-   * blurry, but the user wanted a bit more zoom-in headroom for
+   * blurry, but provides more zoom-in headroom for
    * inspecting tightly-packed pins. The base layer's `maxNativeZoom`
    * (set in MapView) tells Leaflet to keep serving the z=5 tiles
    * upscaled rather than 404'ing on z=6 tile requests.
