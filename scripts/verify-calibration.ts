@@ -2,8 +2,8 @@
  * Final validation harness for the piecewise calibration.
  *
  * Loads the LIVE TypeScript module (so any drift between the design
- * intent in scripts/fit-calibration.py and the shipped implementation
- * surfaces here), runs every calibration landmark through both the
+ * intent in both fit scripts and the shipped implementation
+ * surfaces here), runs the X label truths and Y segment truths through the
  * NEW pipeline and the BEFORE single-line fit, and prints a side-by-
  * side residual table. Also asserts that
  *    imagePixelToGame(gameToImagePixel(x, y)) == (x, y)  (within 1 tile)
@@ -51,6 +51,37 @@ const LANDMARKS: Landmark[] = [
   { name: "Lunar Isle",          gx: 2100, gy: 3920, truthSrcX: 3470, truthSrcY: 1010, side: "east" },
   { name: "Prifddinas",          gx: 2210, gy: 3390, truthSrcX: 3815, truthSrcY: 2625, side: "east" },
   { name: "Catherby",            gx: 2810, gy: 3447, truthSrcX: 5582, truthSrcY: 2327, side: "east" },
+];
+
+// Same feature-center truths as scripts/fit-east-y-calibration.py EAST_TRUTHS.
+// Prifddinas is absent from that fit; its label-center Y is not a feature truth.
+const EAST_Y_TRUTHS: [string, number, number, number][] = [
+  ["Weiss salt mine",         2876, 3925,  870],
+  ["Moonclan bank",           2112, 3915,  970],
+  ["Jatizso throne",          2399, 3797, 1235],
+  ["Neitiznot mayor",         2336, 3803, 1235],
+  ["Rellekka longhall",       2659, 3679, 1670],
+  ["Piscatoris fairy ring",   2415, 3526, 2010],
+  ["Edgeville bank",          3094, 3491, 2200],
+  ["Camelot teleport",        2758, 3478, 2230],
+  ["Falador east bank",       3012, 3355, 2580],
+  ["Varrock center",          3210, 3424, 2395],
+  ["Port Phasmatys ectofntl", 3665, 3480, 2217],
+  ["Catherby bank",           2808, 3441, 2320],
+  ["Canifis center",          3492, 3476, 2255],
+  ["Ardougne market",         2662, 3305, 2720],
+  ["Al Kharid palace",        3293, 3180, 3075],
+  ["Yanille magic guild",     2591, 3089, 3340],
+  ["Port Khazard dock",       2660, 3145, 3178],
+  ["Pollnivneach village",    3357, 2980, 3770],
+  ["Shilo Mosol Rei",         2852, 2954, 3725],
+  ["Nardah village",          3427, 2890, 3955],
+];
+const Y_LANDMARKS: Omit<Landmark, "truthSrcX">[] = [
+  ...LANDMARKS.filter((lm) => lm.side === "west"),
+  ...EAST_Y_TRUTHS.map(([name, gx, gy, truthSrcY]) => ({
+    name, gx, gy, truthSrcY, side: "east" as const,
+  })),
 ];
 
 const SRC_W = 9216;
@@ -132,31 +163,23 @@ console.log(
   ].join(" "),
 );
 
-// Prifddinas has a known label-vs-teleport offset of ~105 src px — the
-// wiki gy=3390 is the Tower of Voices teleport pad, but the label is
-// printed further south. Skip it in the Y worst-case accounting so a
-// data artefact can't mask a real regression.
-const SKIP_Y_RESIDUAL = new Set<string>(["Prifddinas"]);
-
 let worstWestOldY = 0;
 let worstWestNewY = 0;
 let worstEastOldY = 0;
 let worstEastNewY = 0;
 
-for (const lm of LANDMARKS) {
+for (const lm of Y_LANDMARKS) {
   const [, oldNy] = oldGameToImagePixel(lm.gx, lm.gy);
   const [, newNy] = gameToImagePixel(lm.gx, lm.gy);
   const truthNy = lm.truthSrcY * SRC_TO_NATIVE_Y;
   const errOld = Math.abs(oldNy - truthNy);
   const errNew = Math.abs(newNy - truthNy);
-  if (!SKIP_Y_RESIDUAL.has(lm.name)) {
-    if (lm.side === "west") {
-      worstWestOldY = Math.max(worstWestOldY, errOld);
-      worstWestNewY = Math.max(worstWestNewY, errNew);
-    } else {
-      worstEastOldY = Math.max(worstEastOldY, errOld);
-      worstEastNewY = Math.max(worstEastNewY, errNew);
-    }
+  if (lm.side === "west") {
+    worstWestOldY = Math.max(worstWestOldY, errOld);
+    worstWestNewY = Math.max(worstWestNewY, errNew);
+  } else {
+    worstEastOldY = Math.max(worstEastOldY, errOld);
+    worstEastNewY = Math.max(worstEastNewY, errNew);
   }
   console.log(
     [
@@ -239,12 +262,17 @@ if (worstWestNewY > worstWestOldY) {
   console.error("FAIL: new west Y residual is worse than old.");
   process.exit(1);
 }
-// East should not regress either — piecewise Y keeps east untouched.
+// The X refit leaves the east X fit untouched.
 if (worstEastNewX > worstEastOldX + 0.01) {
   console.error("FAIL: east X residual regressed.");
   process.exit(1);
 }
-if (worstEastNewY > worstEastOldY + 0.01) {
+// The shipped east Y fit peaks at 81.9 source px (76.0 native px).
+// Allow 1.1 source px of headroom; the old fit's 122.9 source px fails.
+const EAST_Y_MAX_RESIDUAL_SRC_PX = 83;
+const worstEastNewYSrc = worstEastNewY / SRC_TO_NATIVE_Y;
+console.log(`  east Y feature residual: ${worstEastNewYSrc.toFixed(1)} source px; limit: ${EAST_Y_MAX_RESIDUAL_SRC_PX} source px`);
+if (!Number.isFinite(worstEastNewYSrc) || worstEastNewYSrc > EAST_Y_MAX_RESIDUAL_SRC_PX) {
   console.error("FAIL: east Y residual regressed.");
   process.exit(1);
 }

@@ -713,7 +713,7 @@ CURATED_ENTITIES: dict[str, dict] = {
     # casket upstairs in Watson's house in Hosidius to enable Mimic
     # encounters". The old Varrock anchor was wrong (and made the pin
     # disappear entirely under Demonic Pacts because Misthalin is locked,
-    # which is what triggered the user's "Defeat the Mimic" task to fall
+    # which caused the "Defeat the Mimic" task to fall
     # back to the Kourend region centroid).
     "the mimic":                 {"anchor": "Watson",                 "category": "boss"},
     # Phantom Muspah is intentionally NOT a curated entity — the

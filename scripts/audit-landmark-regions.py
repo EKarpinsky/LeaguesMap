@@ -2,7 +2,7 @@
 """Audit every landmark.region in src/data/locations.ts against the wiki's
 leagueRegion for the corresponding wiki page (using landmark.name).
 
-Per the user's rule: landmark.region MUST equal the wiki's leagueRegion.
+landmark.region MUST equal the wiki's leagueRegion to keep region filters accurate.
 No bbox, no surface-entry overrides, no guessing.
 
 Outputs:
